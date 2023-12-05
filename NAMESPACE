@@ -3,6 +3,7 @@
 S3method(print,rule_based_RandomForest)
 export(ReadData)
 export(merge_subUro_matrix)
+export(plot_signatures)
 export(predict_LundTax2023)
 export(predict_RF)
 import(ranger)

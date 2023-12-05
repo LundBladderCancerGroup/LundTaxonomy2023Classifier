@@ -26,6 +26,6 @@ imputation purposes during the prediction if values are missing in the sample.
 This object was generated using the multiclassPairs package
 }
 \references{
-\url{https://doi.org/10.1093/bioinformatics/btab088}
+\url{https://github.com/NourMarzouka/multiclassPairs}
 }
 \keyword{datasets}

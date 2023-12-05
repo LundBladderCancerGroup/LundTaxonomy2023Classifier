@@ -32,16 +32,16 @@ This function uses 2 classifiers to classify the samples: 5-class classifier fir
 Samples classified as Uro receive a second classification as UroA, B or C by the second classifier
 }
 \examples{
-data(Lund2017)
-predict_LundTax2023(Lund2017)
+results <- predict_LundTax2023(Lund2017)
 # Include data in result
-data(Lund2017)
-predict_LundTax2023(Lund2017,
-include_data = TRUE)
+results_data <- predict_LundTax2023(Lund2017,
+                               include_data = TRUE)
 
 # Imputation
-data(Lund2017)
-predict_LundTax2023(Lund2017,
-impute = TRUE)
+# Remove 100 genes from data
+missing_genes <- sample(1:nrow(Lund2017),100)
+Lund2017_missinggenes <- Lund2017[-missing_genes,]
+results_imputation <- predict_LundTax2023(Lund2017_missinggenes,
+                                          impute = TRUE)
 
 }

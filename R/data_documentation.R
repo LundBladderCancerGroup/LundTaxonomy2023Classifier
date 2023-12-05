@@ -7,7 +7,7 @@
 #' imputation purposes during the prediction if values are missing in the sample.
 #' This object was generated using the multiclassPairs package
 #'
-#' @references \url{https://doi.org/10.1093/bioinformatics/btab088}
+#' @references \url{https://github.com/NourMarzouka/multiclassPairs}
 "LundTax_RF_5c"
 
 #' Classifier as a 'rule_based_RandomForest' object. Predicts samples as one of
@@ -16,9 +16,9 @@
 #' the Boruta results, and the training matrix. The training matrix is a binary matrix
 #' containing the rule values for the training data and it is used for
 #' imputation purposes during the prediction if values are missing in the sample.
-#' #' This object was generated using the multiclassPairs package
+#' This object was generated using the multiclassPairs package
 #'
-#' @references \url{https://doi.org/10.1093/bioinformatics/btab088}
+#' @references \url{https://github.com/NourMarzouka/multiclassPairs}
 "LundTax_RF_Uro7c"
 
 #' Gene expression data derived from the Sjödahl et. al. (2017) cohort
@@ -29,7 +29,15 @@
 #' @references \url{https://onlinelibrary.wiley.com/doi/full/10.1002/path.4886}
 "Lund2017"
 
-# "colors"
+#' Colors used for Lund Taxonomy subtypes
+#' List including hexadecimal color codes for LundTax subtypes, stage and datasets
+"cols"
+
+#' Signature table
+#' Dataframe containing gene symbols and corresponding signature for
+#' each gene included in the following gene singatures: FGFR3, Keratinization,
+#' early cell cycle, late cycle, Immune141 UP and Stromal141UP
+"signatures"
 
 #' LundTax2023
 #'

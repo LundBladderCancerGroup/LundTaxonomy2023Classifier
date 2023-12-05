@@ -9,7 +9,7 @@ Object includes the final RF classifier, the used genes and rules in the final m
 the Boruta results, and the training matrix. The training matrix is a binary matrix
 containing the rule values for the training data and it is used for
 imputation purposes during the prediction if values are missing in the sample.
-#' This object was generated using the multiclassPairs package}
+This object was generated using the multiclassPairs package}
 \format{
 An object of class \code{rule_based_RandomForest} of length 1.
 }
@@ -23,9 +23,9 @@ Object includes the final RF classifier, the used genes and rules in the final m
 the Boruta results, and the training matrix. The training matrix is a binary matrix
 containing the rule values for the training data and it is used for
 imputation purposes during the prediction if values are missing in the sample.
-#' This object was generated using the multiclassPairs package
+This object was generated using the multiclassPairs package
 }
 \references{
-\url{https://doi.org/10.1093/bioinformatics/btab088}
+\url{https://github.com/NourMarzouka/multiclassPairs}
 }
 \keyword{datasets}

@@ -1,6 +1,7 @@
 
 #' ReadData
 #' Function to read the data and Labels
+#' From multiclassPairs
 #' @export
 ReadData <- function(Data,
                      Labels,
@@ -220,6 +221,7 @@ ReadData <- function(Data,
 
 #' predict_RF
 #' Predict sample class based on gene pair-based random forest classifier
+#' From multiclassPairs
 #'
 #' @import ranger
 #' @import rdist
@@ -517,7 +519,7 @@ print.rule_based_RandomForest <- function(x, ...) {
 
 
 
-#' Merge prediciton score amtrices from two classifiers
+#' Merge prediciton score matrices from two classifiers
 #'
 #' This function merges the prediction score matrices from the 5-class and 7-class (UroA,UroB,UroC) classifiers into 1 unique score matrix
 #' @param score_matrix1 prediction score matrix from the 7 class classifier
@@ -583,19 +585,20 @@ merge_subUro_matrix <- function(score_matrix1, # Score matrix from the 7-class (
 #' Samples classified as Uro receive a second classification as UroA, B or C by the second classifier
 #'
 #'
-#' @examples data(Lund2017)
-#' predict_LundTax2023(Lund2017)
+#' @examples
+#' results <- predict_LundTax2023(Lund2017)
 #' @examples
 #' # Include data in result
-#' data(Lund2017)
-#' predict_LundTax2023(Lund2017,
-#' include_data = TRUE)
+#' results_data <- predict_LundTax2023(Lund2017,
+#'                                include_data = TRUE)
 #'
 #' @examples
 #' # Imputation
-#' data(Lund2017)
-#' predict_LundTax2023(Lund2017,
-#' impute = TRUE)
+#' # Remove 100 genes from data
+#' missing_genes <- sample(1:nrow(Lund2017),100)
+#' Lund2017_missinggenes <- Lund2017[-missing_genes,]
+#' results_imputation <- predict_LundTax2023(Lund2017_missinggenes,
+#'                                           impute = TRUE)
 #'
 #' @export
 #
@@ -632,8 +635,8 @@ predict_LundTax2023 <- function(data,
   }
 
   # Classifier ##
-  C <- LundTax2023::LundTax_RF_5c
-  C2 <- LundTax2023::LundTax_RF_Uro7c
+  C <- LundTax2023Classifier::LundTax_RF_5c
+  C2 <- LundTax2023Classifier::LundTax_RF_Uro7c
 
   # # testing
   # C <- RF_classifier_IHHK_500_500_10_d5

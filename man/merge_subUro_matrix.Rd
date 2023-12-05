@@ -2,7 +2,7 @@
 % Please edit documentation in R/predict_functions.R
 \name{merge_subUro_matrix}
 \alias{merge_subUro_matrix}
-\title{Merge prediciton score amtrices from two classifiers}
+\title{Merge prediciton score matrices from two classifiers}
 \usage{
 merge_subUro_matrix(score_matrix1, score_matrix2, row.names = list(NULL, NULL))
 }

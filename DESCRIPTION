@@ -9,11 +9,17 @@ Description: The packages implements a Random Forest rule-based single-sample pr
     The final classifier is composed of two separate predictors applied sequentially - first a sample 
     is classified as one of the 5 main classes (Uro, GU, BaSq, Mes or ScNE), and then samples classified as
     Uro are subclassified into UroA, UroB or UroC by a second predictor. 
+Depends: 
+    R (>= 2.10)
 Imports: 
     ranger,
     rdist
+Suggests: 
+    circlize,
+    ComplexHeatmap
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
+

@@ -1,3 +1,4 @@
+
 # History files
 .Rhistory
 .Rapp.history
@@ -20,6 +21,7 @@
 
 # RStudio files
 .Rproj.user/
+.Rbuildignore
 
 # produced vignettes
 vignettes/*.html
@@ -47,3 +49,4 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+

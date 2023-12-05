@@ -1,6 +1,3 @@
-############ LUNDTAX 23 ################
-
-
 
 #' ReadData
 #' Function to read the data and Labels

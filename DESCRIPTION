@@ -1,0 +1,19 @@
+Package: LundTax2023Classifier
+Title: Predictor of Lund Taxonomy molecular subtypes from gene-expression data
+Version: 0.0.0.9000
+Authors@R: c(
+    person("Elena", "Aramendía", , "elena.aramendia_cotillas@med.lu.se", role = c("aut", "cre")),
+    person("Pontus", "Eriksson", , "pontus.eriksson@med.lu.se", role = c("aut")))
+Description: The packages implements a Random Forest rule-based single-sample predictor that classifies 
+    transcriptomic samples into the 5 (or 7, including subclasses) Lund Taxonomy molecular subtypes. 
+    The final classifier is composed of two separate predictors applied sequentially - first a sample 
+    is classified as one of the 5 main classes (Uro, GU, BaSq, Mes or ScNE), and then samples classified as
+    Uro are subclassified into UroA, UroB or UroC by a second predictor. 
+Imports: 
+    ranger,
+    rdist
+License: GPL (>= 2)
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3

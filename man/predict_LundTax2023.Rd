@@ -14,33 +14,33 @@ predict_LundTax2023(data, include_data = FALSE, include_scores = TRUE, ...)
 \item{include_scores}{include prediciton scores for each sample and class in output (default)}
 
 \item{...}{Additional parameters to be passed to the predict_RF function. If genes are missing in the data, include impute = TRUE here}
-
-\item{versions}{description}
 }
 \value{
-Returns a list object including: Data (optional, not included by default), Prediction scores for all classes (optional, included by default), and Predicted LundTax class for both 7 and 5-class systems
+Returns a list object including:
+\itemize{
+\item Data (optional, not included by default)
+\item Prediction scores for all classes (optional, included by default)
+\item Predicted LundTax class for 7-class system
+\item Predicted LundTax class for 5-class system
+}
 }
 \description{
 Predict Lund Taxonomy subtypes based on rule-based Random Forest classifiers
 }
 \details{
-This function uses 2 classifiers to classify the samples:
-\itemize{
-\item 5-class classifier classifies samples into Uro, GU, BaSq, Mes or ScNE
-\item Samples classified as Uro receive a second classification as UroA, B or C by the second classifier
-}
+This function uses 2 classifiers to classify the samples: 5-class classifier first  classifies samples into Uro, GU, BaSq, Mes or ScNE.
+Samples classified as Uro receive a second classification as UroA, B or C by the second classifier
 }
 \examples{
 data(Lund2017)
 predict_LundTax2023(Lund2017)
-data(Lund2017)
 # Include data in result
+data(Lund2017)
 predict_LundTax2023(Lund2017,
 include_data = TRUE)
 
-data(Lund2017)
-
 # Imputation
+data(Lund2017)
 predict_LundTax2023(Lund2017,
 impute = TRUE)
 

@@ -64,7 +64,8 @@ plot_signatures <- function(results_object,
     stop("The ComplexHeatmap and circlize packages must be installed to use this function")
   }
 
-  requireNamespace("ComplexHeatmap", quietly = TRUE)
+  suppressPackageStartupMessages(require("ComplexHeatmap",quietly = TRUE))
+
 
   ### Data ######
 

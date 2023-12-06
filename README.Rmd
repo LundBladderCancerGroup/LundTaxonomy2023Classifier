@@ -134,7 +134,7 @@ Parameters:
 
 #### Example
 
-```{r heatmap, echo=TRUE}
+```{r heatmap, echo=TRUE, fig.dim = c(8, 10)}
 # Including data in results object
 results <- predict_LundTax2023(Lund2017,
                               include_data = TRUE)
@@ -142,4 +142,9 @@ plot_signatures(results)
 
 ```
 
+# Session info
+
+``` {r}
+sessionInfo()
+```
 

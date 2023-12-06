@@ -90,22 +90,22 @@ Lund2017_missinggenes <- Lund2017[-missing_genes,]
 results_imputation <- predict_LundTax2023(Lund2017_missinggenes,
                                           impute = TRUE)
 #> These genes are not found in the data:
-#> SAFB DTX4 KIAA0930 DNAJA4 NXN SELPLG DUSP7 CYTH4
+#> LDB1 ADGRE5 PDPN
 #> Gene names should as rownames and sample names as columns!
 #> Check the genes in classifier object to see all the needed genes.
 #> Check if '-' or ',' symbols in the gene names in your data. You may need to change it to '_' or '.'
 #> Missed genes will be imputed to the closest class for each sample!
 #> These genes have NAs:
-#> SAFB DTX4 KIAA0930 DNAJA4 NXN SELPLG DUSP7 CYTH4
+#> LDB1 ADGRE5 PDPN
 #> These genes will be imputed to the closest class for each sample with NAs
 #> These genes are not found in the data:
-#> DUSP7 CYTH4 SSBP2 INKA2
+#> RIMKLB FUT9 CXCL1 AIF1 RSU1
 #> Gene names should as rownames and sample names as columns!
 #> Check the genes in classifier object to see all the needed genes.
 #> Check if '-' or ',' symbols in the gene names in your data. You may need to change it to '_' or '.'
 #> Missed genes will be imputed to the closest class for each sample!
 #> These genes have NAs:
-#> DUSP7 CYTH4 SSBP2 INKA2
+#> RIMKLB FUT9 CXCL1 AIF1 RSU1
 #> These genes will be imputed to the closest class for each sample with NAs
 ```
 
@@ -186,3 +186,44 @@ plot_signatures(results)
 ```
 
 <img src="man/figures/README-heatmap-1.png" width="100%" />
+
+# Session info
+
+``` r
+sessionInfo()
+#> R version 4.2.1 (2022-06-23 ucrt)
+#> Platform: x86_64-w64-mingw32/x64 (64-bit)
+#> Running under: Windows 10 x64 (build 19045)
+#> 
+#> Matrix products: default
+#> 
+#> locale:
+#> [1] LC_COLLATE=English_United States.utf8 
+#> [2] LC_CTYPE=English_United States.utf8   
+#> [3] LC_MONETARY=English_United States.utf8
+#> [4] LC_NUMERIC=C                          
+#> [5] LC_TIME=English_United States.utf8    
+#> 
+#> attached base packages:
+#> [1] grid      stats     graphics  grDevices utils     datasets  methods  
+#> [8] base     
+#> 
+#> other attached packages:
+#> [1] ComplexHeatmap_2.14.0         LundTax2023Classifier_0.0.0.9
+#> 
+#> loaded via a namespace (and not attached):
+#>  [1] Rcpp_1.0.11         highr_0.10          compiler_4.2.1     
+#>  [4] RColorBrewer_1.1-3  iterators_1.0.14    tools_4.2.1        
+#>  [7] digest_0.6.33       rdist_0.0.5         clue_0.3-65        
+#> [10] evaluate_0.23       lattice_0.22-5      png_0.1-8          
+#> [13] rlang_1.1.2         Matrix_1.6-3        foreach_1.5.2      
+#> [16] cli_3.6.1           rstudioapi_0.15.0   yaml_2.3.7         
+#> [19] parallel_4.2.1      xfun_0.41           fastmap_1.1.1      
+#> [22] cluster_2.1.4       ranger_0.16.0       knitr_1.45         
+#> [25] GlobalOptions_0.1.2 S4Vectors_0.36.2    IRanges_2.32.0     
+#> [28] stats4_4.2.1        GetoptLong_1.0.5    rmarkdown_2.25     
+#> [31] codetools_0.2-19    matrixStats_1.1.0   htmltools_0.5.7    
+#> [34] BiocGenerics_0.44.0 shape_1.4.6         circlize_0.4.15    
+#> [37] colorspace_2.1-0    doParallel_1.0.17   crayon_1.5.2       
+#> [40] rjson_0.2.21
+```

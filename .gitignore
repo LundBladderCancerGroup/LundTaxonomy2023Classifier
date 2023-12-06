@@ -50,3 +50,6 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 
+# Rmarkdown
+README.Rmd
+

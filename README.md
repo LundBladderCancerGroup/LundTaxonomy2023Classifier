@@ -90,22 +90,22 @@ Lund2017_missinggenes <- Lund2017[-missing_genes,]
 results_imputation <- predict_LundTax2023(Lund2017_missinggenes,
                                           impute = TRUE)
 #> These genes are not found in the data:
-#> LDB1 ADGRE5 PDPN
+#> GBE1 GCLC
 #> Gene names should as rownames and sample names as columns!
 #> Check the genes in classifier object to see all the needed genes.
 #> Check if '-' or ',' symbols in the gene names in your data. You may need to change it to '_' or '.'
 #> Missed genes will be imputed to the closest class for each sample!
 #> These genes have NAs:
-#> LDB1 ADGRE5 PDPN
+#> GBE1 GCLC
 #> These genes will be imputed to the closest class for each sample with NAs
 #> These genes are not found in the data:
-#> RIMKLB FUT9 CXCL1 AIF1 RSU1
+#> CYP4F22 JARID2 TNFAIP3 GDA IKZF3 MELK GCLC
 #> Gene names should as rownames and sample names as columns!
 #> Check the genes in classifier object to see all the needed genes.
 #> Check if '-' or ',' symbols in the gene names in your data. You may need to change it to '_' or '.'
 #> Missed genes will be imputed to the closest class for each sample!
 #> These genes have NAs:
-#> RIMKLB FUT9 CXCL1 AIF1 RSU1
+#> CYP4F22 JARID2 TNFAIP3 GDA IKZF3 MELK GCLC
 #> These genes will be imputed to the closest class for each sample with NAs
 ```
 

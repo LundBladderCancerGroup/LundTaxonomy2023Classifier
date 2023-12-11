@@ -150,7 +150,7 @@ Parameters:
 - `plot_scores` is a logical value indicating if the prediction scores
   should be plotted.
 
--`show_ann_legend` is a logical value indicating if the annotation
+- `show_ann_legend` is a logical value indicating if the annotation
 legend should be shown.
 
 - `show_hm_legend` is a logical value indicating if the heatmap legend
@@ -159,7 +159,7 @@ legend should be shown.
 - `set_order` is a logical value indicating if the prediction scores
   should be plotted.
 
--`font.size` font size, default is 8.
+- `font.size` font size, default is 8.
 
 - `norm` indicates if data should be scaled/Z-normalized. If “NULL”,
   data is plotted as is.

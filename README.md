@@ -90,30 +90,21 @@ Lund2017_missinggenes <- Lund2017[-missing_genes,]
 results_imputation <- predict_LundTax2023(Lund2017_missinggenes,
                                           impute = TRUE)
 #> These genes are not found in the data:
-#> GBE1 GCLC
+#> ZNF561 LRRC8A FANCC PRLR PPIE
 #> Gene names should as rownames and sample names as columns!
 #> Check the genes in classifier object to see all the needed genes.
 #> Check if '-' or ',' symbols in the gene names in your data. You may need to change it to '_' or '.'
 #> Missed genes will be imputed to the closest class for each sample!
 #> These genes have NAs:
-#> GBE1 GCLC
-#> These genes will be imputed to the closest class for each sample with NAs
-#> These genes are not found in the data:
-#> CYP4F22 JARID2 TNFAIP3 GDA IKZF3 MELK GCLC
-#> Gene names should as rownames and sample names as columns!
-#> Check the genes in classifier object to see all the needed genes.
-#> Check if '-' or ',' symbols in the gene names in your data. You may need to change it to '_' or '.'
-#> Missed genes will be imputed to the closest class for each sample!
-#> These genes have NAs:
-#> CYP4F22 JARID2 TNFAIP3 GDA IKZF3 MELK GCLC
+#> ZNF561 LRRC8A FANCC PRLR PPIE
 #> These genes will be imputed to the closest class for each sample with NAs
 ```
 
-The classifier returns a list of up to 4 elements: - **data**: original
-gene expression values. - **scores**: matrix containing predictions
-scores for 8 classes (Uro, UroA, UroB, UroC, GU, BaSq, Mes and ScNE). -
-**predictions_7classes**: named vector, with sample names as names and
-subtype labels as values. - **predictions_5classes**: named vector, with
+The classifier returns a list of up to 4 elements: - `data` original
+gene expression values. - `scores` matrix containing predictions scores
+for 8 classes (Uro, UroA, UroB, UroC, GU, BaSq, Mes and ScNE). -
+`predictions_7classes` named vector, with sample names as names and
+subtype labels as values. - `predictions_5classes` named vector, with
 sample names as names and subtype labels as values.
 
 Both data and scores can be excluded or included from the final output

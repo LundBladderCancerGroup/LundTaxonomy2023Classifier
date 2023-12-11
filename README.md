@@ -100,15 +100,14 @@ results_imputation <- predict_LundTax2023(Lund2017_missinggenes,
 #> These genes will be imputed to the closest class for each sample with NAs
 ```
 
-The classifier returns a list of up to 4 elements: - `data` original
-gene expression values. - `scores` matrix containing predictions scores
-for 8 classes (Uro, UroA, UroB, UroC, GU, BaSq, Mes and ScNE). -
-`predictions_7classes` named vector, with sample names as names and
-subtype labels as values. - `predictions_5classes` named vector, with
-sample names as names and subtype labels as values.
+The classifier returns a list of up to 4 elements: 
+- `data` original gene expression values. 
+- `scores` matrix containing predictions scores for 8 classes (Uro, UroA, UroB, UroC, GU, BaSq, Mes and ScNE). 
+- `predictions_7classes` named vector, with sample names as names and subtype labels as values. 
+- `predictions_5classes` named vector, with sample names as names and subtype labels as values.
 
-Both data and scores can be excluded or included from the final output
-in the include_data and include_scores parameters, respectively.
+Both data and scores can be excluded or included from the final output 
+by modifying the `include_data` and `include_scores` parameters, respectively.
 
 ### Plotting
 
@@ -151,7 +150,7 @@ Parameters:
 - `plot_scores` is a logical value indicating if the prediction scores
   should be plotted.
 
-\-`show_ann_legend` is a logical value indicating if the annotation
+-`show_ann_legend` is a logical value indicating if the annotation
 legend should be shown.
 
 - `show_hm_legend` is a logical value indicating if the heatmap legend
@@ -160,7 +159,7 @@ legend should be shown.
 - `set_order` is a logical value indicating if the prediction scores
   should be plotted.
 
-\-`font.size` font size, default is 8.
+-`font.size` font size, default is 8.
 
 - `norm` indicates if data should be scaled/Z-normalized. If “NULL”,
   data is plotted as is.

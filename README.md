@@ -136,7 +136,7 @@ Parameters:
 - `results_object` is a list resulting from applying the
   predict_LundTax2023 function
 
-- `data` is is a matrix, data frame or multiclassPairs_object of gene
+- `data` is a matrix, data frame or multiclassPairs_object of gene
   expression values with genes as HUGO gene symbols in rows and samples
   in columns. This can be included if the results_object does not
   include the data, and samples should be in the same order as in the
@@ -144,13 +144,13 @@ Parameters:
 
 - `title` title for the heatmap.
 
-- `annotation` is acharacter indicating if 5 (“5 classes”) or 7 class
+- `annotation` is a character indicating if 5 (“5 classes”) or 7 class
   (“7 classes”) annotations should be plotted.
 
 - `plot_scores` is a logical value indicating if the prediction scores
   should be plotted.
 
--`show_ann_legend` is a logical value indicating if the annotation
+- `show_ann_legend` is a logical value indicating if the annotation
 legend should be shown.
 
 - `show_hm_legend` is a logical value indicating if the heatmap legend
@@ -159,7 +159,7 @@ legend should be shown.
 - `set_order` is a logical value indicating if the prediction scores
   should be plotted.
 
--`font.size` font size, default is 8.
+- `font.size` font size, default is 8.
 
 - `norm` indicates if data should be scaled/Z-normalized. If “NULL”,
   data is plotted as is.
@@ -177,43 +177,3 @@ plot_signatures(results)
 
 <img src="man/figures/README-heatmap-1.png" width="100%" />
 
-# Session info
-
-``` r
-sessionInfo()
-#> R version 4.2.1 (2022-06-23 ucrt)
-#> Platform: x86_64-w64-mingw32/x64 (64-bit)
-#> Running under: Windows 10 x64 (build 19045)
-#> 
-#> Matrix products: default
-#> 
-#> locale:
-#> [1] LC_COLLATE=English_United States.utf8 
-#> [2] LC_CTYPE=English_United States.utf8   
-#> [3] LC_MONETARY=English_United States.utf8
-#> [4] LC_NUMERIC=C                          
-#> [5] LC_TIME=English_United States.utf8    
-#> 
-#> attached base packages:
-#> [1] grid      stats     graphics  grDevices utils     datasets  methods  
-#> [8] base     
-#> 
-#> other attached packages:
-#> [1] ComplexHeatmap_2.14.0         LundTax2023Classifier_0.0.0.9
-#> 
-#> loaded via a namespace (and not attached):
-#>  [1] Rcpp_1.0.11         highr_0.10          compiler_4.2.1     
-#>  [4] RColorBrewer_1.1-3  iterators_1.0.14    tools_4.2.1        
-#>  [7] digest_0.6.33       rdist_0.0.5         clue_0.3-65        
-#> [10] evaluate_0.23       lattice_0.22-5      png_0.1-8          
-#> [13] rlang_1.1.2         Matrix_1.6-3        foreach_1.5.2      
-#> [16] cli_3.6.1           rstudioapi_0.15.0   yaml_2.3.7         
-#> [19] parallel_4.2.1      xfun_0.41           fastmap_1.1.1      
-#> [22] cluster_2.1.4       ranger_0.16.0       knitr_1.45         
-#> [25] GlobalOptions_0.1.2 S4Vectors_0.36.2    IRanges_2.32.0     
-#> [28] stats4_4.2.1        GetoptLong_1.0.5    rmarkdown_2.25     
-#> [31] codetools_0.2-19    matrixStats_1.1.0   htmltools_0.5.7    
-#> [34] BiocGenerics_0.44.0 shape_1.4.6         circlize_0.4.15    
-#> [37] colorspace_2.1-0    doParallel_1.0.17   crayon_1.5.2       
-#> [40] rjson_0.2.21
-```

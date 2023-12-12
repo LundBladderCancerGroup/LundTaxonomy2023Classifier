@@ -23,7 +23,7 @@
 
 #' Gene expression data derived from the Sjödahl et. al. (2017) cohort
 #'
-#' Matrix of RMA normalized gene expression values for 15697 genes with
+#' Matrix of RMA normalized and ComBat adjusted gene expression values for 15697 genes with
 #' HGNC symbols and 301 samples
 #'
 #' @references \url{https://onlinelibrary.wiley.com/doi/full/10.1002/path.4886}

@@ -672,13 +672,22 @@ predict_LundTax2023 <- function(data,
                                         score_matrix2 = prediction$predictions,
                                         row.names = list(names_uro,names_all))
   } else {
-    score_matrix <- prediction$predictions
+    score_matrix <- cbind("Uro" = prediction$predictions[,"Uro"],
+                          "UroA" = NA,
+                          "UroB" = NA,
+                          "UroC" = NA,
+                          "GU" = prediction$predictions[,"GU"],
+                          "BaSq" = prediction$predictions[,"BaSq"],
+                          "Mes" = prediction$predictions[,"Mes"],
+                          "ScNE" = prediction$predictions[,"ScNE"])
+
   }
 
   results_suburo$scores <- score_matrix
 
-  score_matrix_suburo <- score_matrix[,-1]
-  score_matrix_5c <- score_matrix[,c(1,5:8)]
+  score_matrix_suburo <- score_matrix[,-1, drop = FALSE]
+  score_matrix_5c <- score_matrix[,c(1,5:8), drop = FALSE]
+
 
   results_suburo$predictions_7classes <- colnames(score_matrix_suburo)[max.col(replace(score_matrix_suburo,is.na(score_matrix_suburo),-Inf))]
   results_suburo$predictions_5classes <- colnames(score_matrix_5c)[max.col(replace(score_matrix_5c,is.na(score_matrix_5c),-Inf))]

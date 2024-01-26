@@ -656,8 +656,8 @@ predict_LundTax2023 <- function(data,
 
   ## get uro samples
   if ("Uro" %in% prediction$predictions_classes) {
-    D_Uro <- D[,which(prediction$predictions_classes == "Uro")]
-    D_NoUro <- D[,which(prediction$predictions_classes != "Uro")]
+    D_Uro <- D[,which(prediction$predictions_classes == "Uro"), drop = FALSE]
+    D_NoUro <- D[,which(prediction$predictions_classes != "Uro"), drop = FALSE]
 
     # classify suburo
     prediction_suburo <- predict_RF(classifier = C2,

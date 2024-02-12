@@ -567,11 +567,17 @@ merge_subUro_matrix <- function(score_matrix1, # Score matrix from the 7-class (
   return(final_matrix)
 }
 
+
 #' Predict Lund Taxonomy subtypes based on rule-based Random Forest classifiers
 #'
 #' @param data matrix, data frame or multiclassPairs_object of gene expression values
 #' @param include_data include data in output (disabled by default)
-#' @param include_scores include prediciton scores for each sample and class in output (default)
+#' @param include_scores include prediction scores for each sample and class in output (default)
+#' @param gene_id specify the type of gene identifier used in the data:
+#' - "hgnc_symbol" for HUGO gene symbols
+#' - "ensembl_gene_id" for Ensembl gene IDs
+#' - "entrezgene" for Entrez IDs
+#' Default value is hgnc_symbol
 #' @param ... Additional parameters to be passed to the predict_RF function. If genes are missing in the data, include impute = TRUE here
 #' @return
 #' Returns a list object including:
@@ -604,8 +610,9 @@ merge_subUro_matrix <- function(score_matrix1, # Score matrix from the 7-class (
 #
 
 predict_LundTax2023 <- function(data,
-                                include_data=FALSE, # return input data in the results object
-                                include_scores=TRUE, # return prediction scores in the results object
+                                include_data = FALSE, # return input data in the results object
+                                include_scores = TRUE, # return prediction scores in the results object
+                                gene_id = c("hgnc_symbol","ensembl_gene_id","entrezgene")[1],
                                 ...)
 
 {
@@ -634,6 +641,23 @@ predict_LundTax2023 <- function(data,
     D <- data
   }
 
+  if (gene_id != "hgnc_symbol") {
+
+    original_D <- D
+
+    # # Testing
+    # rownames(gene_info) <- gene_info[[gene_id]]
+    # int_genes <- rownames(D)[which(rownames(D) %in% gene_info[[gene_id]])]
+    # rownames(D)[which(rownames(D) %in% gene_info[[gene_id]])] <- gene_info[int_genes,"hgnc_symbol"]
+
+    rownames(gene_info_classifier) <- gene_info_classifier[[gene_id]]
+    int_genes <- rownames(D)[which(rownames(D) %in% gene_info_classifier[[gene_id]])]
+    rownames(D)[which(rownames(D) %in% gene_info_classifier[[gene_id]])] <- gene_info_classifier[int_genes,"hgnc_symbol"]
+
+    } else {
+    original_D <- D
+  }
+
   # Classifier ##
   C <- LundTax2023Classifier::LundTax_RF_5c
   C2 <- LundTax2023Classifier::LundTax_RF_Uro7c
@@ -645,7 +669,7 @@ predict_LundTax2023 <- function(data,
 
   # new results object
 
-  results_suburo <- list(data = D,
+  results_suburo <- list(data = original_D,
                          scores = NULL,
                          predictions_7classes = NULL,
                          predictions_5classes = NULL)
@@ -712,5 +736,7 @@ predict_LundTax2023 <- function(data,
   }
 
 }
+
+
 
 

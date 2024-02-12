@@ -11,7 +11,12 @@
 #' @param set_order set sample order. Samples are split by subtype, and order within each subtype. By default, samples are order by late/early cell cycle ratio (low to high)
 #' @param ann_heigh annotation height in cm (default = 6)
 #' @param font.size font size (default = 8)
-#' @param norm normalize the data into Z-scaled values
+#' @param norm normalize the data into Z-scaled values (default TRUE)
+#' @param gene_id specify the type of gene identifier used in the data:
+#' - "hgnc_symbol" for HUGO gene symbols
+#' - "ensembl_gene_id" for Ensembl gene IDs
+#' - "entrezgene" for Entrez IDs
+#' Default value is hgnc_symbol
 #' @return Draws heatmap and silently returns the sample order
 #'
 #'@examples
@@ -47,9 +52,11 @@
 #'
 #'@export
 
+
 plot_signatures <- function(results_object,
                             data = NULL,
                             title = "",
+                            gene_id = c("hgnc_symbol","ensembl_gene_id","entrezgene")[1],
                             annotation = c("5 classes", "7 classes")[2],
                             plot_scores = TRUE,
                             show_ann_legend = FALSE,
@@ -57,7 +64,7 @@ plot_signatures <- function(results_object,
                             set_order = NULL,
                             ann_height = 6,
                             font.size = 8,
-                            norm = c("scale",NULL)[1]
+                            norm = TRUE
 ) {
 
   if (!requireNamespace("ComplexHeatmap", quietly = TRUE) | !requireNamespace("circlize", quietly = TRUE)) {
@@ -95,7 +102,7 @@ plot_signatures <- function(results_object,
   }
 
   ## Scale ##
-  if ("scale" %in% norm) {
+  if (norm) {
 
     D_norm<-as.matrix(D)
     D_norm <- scale(t(D))
@@ -106,7 +113,10 @@ plot_signatures <- function(results_object,
   }
 
   ######## heatmaps ########
+
+  # Testing
   # signatures <- LundTax2023::signatures
+  signatures <- read.csv("D:/Signatures_reduced.csv")
 
   genes_to_plot <- list(Early_CC=c(signatures[which(signatures$Signature == "early_cell_cycle."),2]),
                         Late_CC=c(signatures[which(signatures$Signature == "Late_Cell_Cycle."),2]),
@@ -129,33 +139,42 @@ plot_signatures <- function(results_object,
                         Immune141_UP_score=NULL,
                         Stromal141_UP_score=NULL)
 
+
+  if (gene_id != "hgnc_symbol") {
+    all_heatmap_genes <- unique(unlist(genes_to_plot))
+
+
+    # # Testing
+    # load("gene_info_heatmap_final.RData", verbose = T)
+    # rownames(gene_info_heatmap_final) <- gene_info_heatmap_final[[gene_id]]
+    # int_genes <- rownames(D_norm)[which(rownames(D_norm) %in% gene_info_heatmap_final[[gene_id]])]
+    # rownames(D_norm)[which(rownames(D_norm) %in% gene_info_heatmap_final[[gene_id]])] <- gene_info_heatmap_final[int_genes,"hgnc_symbol"]
+    #
+    rownames(LundTax2023Classifier::gene_info_heatmap) <- LundTax2023Classifier::gene_info_heatmap[[gene_id]]
+    int_genes <- rownames(D)[which(rownames(D) %in% LundTax2023Classifier::gene_info_heatmap$gene_id)]
+    rownames(D)[which(rownames(D) %in% LundTax2023Classifier::gene_info_heatmap$gene_id)] <- LundTax2023Classifier::gene_info[int_genes,gene_id]
+  }
+
   ## hm1 -> late/early cell cycle #####
 
   genes_early <- genes_to_plot$Early_CC[which(genes_to_plot$Early_CC %in% rownames(D_norm))]
   genes_late <- genes_to_plot$Late_CC[1:10][which(genes_to_plot$Late_CC[1:10] %in% rownames(D_norm))]
   genes_cc <- c(genes_early,genes_late)
 
+  # Row split for the heatmap
   row_split <- c(rep("Early",length(genes_early)),
                  rep("Late",length(genes_late)))
 
+  # Late and Early scores
+  late_score <- apply(D_norm[intersect(rownames(D_norm),genes_to_plot$Late_CC),], 2, median)
+  early_score <- apply(D_norm[intersect(rownames(D_norm),genes_to_plot$Early_CC),], 2, median)
 
-  late_score <- c()
-  for (i in 1:ncol(D_norm)) {
-    score <- mean(D_norm[intersect(rownames(D_norm),genes_to_plot$Late_CC),i])
-    late_score <- c(late_score,score)
-  }
-
-  early_score <- c()
-  for (i in 1:ncol(D_norm)) {
-    score <- mean(D_norm[intersect(rownames(D_norm),genes_to_plot$Early_CC),i])
-    early_score <- c(early_score,score)
-  }
-
+  # Ratio
   late_early <- late_score-early_score
 
   genes_to_plot$Late_Early <- late_early
-  col_fun_cc <- circlize::colorRamp2(c(quantile(late_early, 0.05),mean(late_early),quantile(late_early, 0.95)),
-                           c("blue","white", "red"))
+  col_fun_cc <- circlize::colorRamp2(c(quantile(late_early, 0.05),median(late_early),quantile(late_early, 0.95)),
+                                     c("blue","white", "red"))
 
   # Order samples by late_early cell cycle
   sample_order <- order(late_early)
@@ -359,15 +378,11 @@ plot_signatures <- function(results_object,
   genes_circ <- genes_circ[which(genes_circ %in% rownames(D_norm))]
 
   ### CIRCUIT SCORE
-  circuit_score <- c()
-  for (i in 1:ncol(D_norm)) {
-    score <- D_norm["RB1",i]+D_norm["FGFR3",i]+D_norm["CCND1",i]-D_norm["E2F3",i]-D_norm["CDKN2A",i]
-    circuit_score <- c(circuit_score,score)
-  }
+  circuit_score <- apply(D_norm, 2, function(col) sum(col[c("RB1", "FGFR3", "CCND1")]) - sum(col[c("E2F3", "CDKN2A")]))
 
   genes_to_plot$Circuit_score <- circuit_score
-  col_fun_circ <- circlize::colorRamp2(c(quantile(circuit_score, 0.10),mean(circuit_score),quantile(circuit_score, 0.90)),
-                             c("blue","white", "red"))
+  col_fun_circ <- circlize::colorRamp2(c(quantile(circuit_score, 0.10),median(circuit_score),quantile(circuit_score, 0.90)),
+                                       c("blue","white", "red"))
 
   col = list(circuit_score = col_fun_circ)
 
@@ -468,15 +483,11 @@ plot_signatures <- function(results_object,
   genes_basq <- genes_basq[which(genes_basq %in% rownames(D_norm))]
 
   ###   BA/SQ RATIO
-  basq_ratio <- c()
-  for (i in 1:ncol(D_norm)) {
-    score <- D_norm["KRT5",i]+D_norm["KRT14",i]+D_norm["FOXA1",i]-D_norm["GATA3",i]
-    basq_ratio <- c(basq_ratio,score)
-  }
+  basq_ratio <- apply(D_norm, 2, function(col) sum(col[c("KRT5", "KRT14", "FOXA1")]) - sum(col[c("GATA3")]))
 
   genes_to_plot$BaSq_ratio <- basq_ratio
-  col_fun_basq <- circlize::colorRamp2(c(quantile(basq_ratio, 0.10),mean(basq_ratio),quantile(basq_ratio, 0.90)),
-                             c("blue","white", "red"))
+  col_fun_basq <- circlize::colorRamp2(c(quantile(basq_ratio, 0.10),median(basq_ratio),quantile(basq_ratio, 0.90)),
+                                       c("blue","white", "red"))
 
   col = list(BaSq_ratio = col_fun_basq)
 
@@ -605,15 +616,11 @@ plot_signatures <- function(results_object,
   genes_erbb <- genes_erbb[which(genes_erbb %in% rownames(D_norm))]
 
   ###   ERBB SCORE
-  erbb_score <- c()
-  for (i in 1:ncol(D_norm)) {
-    score <- D_norm["EGFR",i]-D_norm["ERBB2",i]-D_norm["ERBB3",i]
-    erbb_score <- c(erbb_score,score)
-  }
-  #erbb_score <- scale(erbb_score)
+  erbb_score <- apply(D_norm, 2, function(col) sum(col[c("EGFR")]) - sum(col[c("ERBB2","ERBB3")]))
+
   genes_to_plot$ERBB_score <- erbb_score
-  col_fun_erbb <- circlize::colorRamp2(c(quantile(erbb_score, 0.10),mean(erbb_score),quantile(erbb_score, 0.90)),
-                             c("blue","white", "red"))
+  col_fun_erbb <- circlize::colorRamp2(c(quantile(erbb_score, 0.10),median(erbb_score),quantile(erbb_score, 0.90)),
+                                       c("blue","white", "red"))
 
   col = list(ERBB_score = col_fun_erbb)
 
@@ -656,24 +663,17 @@ plot_signatures <- function(results_object,
 
   ## hm10 -> ScNE #########
   # + scores for Stromal & immune infiltration
-  immune_score <- c()
-  for (i in 1:ncol(D_norm)) {
-    score <- mean(D_norm[intersect(rownames(D_norm),genes_to_plot$Immune141_UP),i],na.rm = TRUE)
-    immune_score <- c(immune_score,score)
-  }
+  immune_score <- apply(D_norm[intersect(rownames(D_norm),genes_to_plot$Immune141_UP),],2,median)
+
   genes_to_plot$Immune141_UP_score <- immune_score
 
-  stromal_score <- c()
-  for (i in 1:ncol(D_norm)) {
-    score <- mean(D_norm[intersect(rownames(D_norm),genes_to_plot$Stromal141_UP),i],na.rm = TRUE)
-    stromal_score <- c(stromal_score,score)
-  }
+  stromal_score <- apply(D_norm[intersect(rownames(D_norm),genes_to_plot$Stromal141_UP),],2,median)
   genes_to_plot$Stromal141_UP_score <- stromal_score
 
-  col_fun_immune <- circlize::colorRamp2(c(quantile(immune_score, 0.10),mean(immune_score),quantile(immune_score, 0.90)),
-                               c("blue","white","red"))
-  col_fun_stromal <- circlize::colorRamp2(c(quantile(stromal_score, 0.10),mean(stromal_score),quantile(stromal_score, 0.90)),
-                                c("blue","white","red"))
+  col_fun_immune <- circlize::colorRamp2(c(quantile(immune_score, 0.10),median(immune_score),quantile(immune_score, 0.90)),
+                                         c("blue","white","red"))
+  col_fun_stromal <- circlize::colorRamp2(c(quantile(stromal_score, 0.10),median(stromal_score),quantile(stromal_score, 0.90)),
+                                          c("blue","white","red"))
 
 
   col = list(Immune141_UP = col_fun_immune,
@@ -719,4 +719,3 @@ plot_signatures <- function(results_object,
   invisible(hm_sample_order)
 
 }
-# plot_signatures(result1)

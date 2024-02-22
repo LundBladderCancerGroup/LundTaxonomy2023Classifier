@@ -1,6 +1,6 @@
 Package: LundTax2023Classifier
 Title: Predictor of Lund Taxonomy molecular subtypes from gene-expression data
-Version: 1.1.0
+Version: 1.1.1
 Authors@R: c(
     person("Elena", "Aramendía", , "elena.aramendia_cotillas@med.lu.se", role = c("aut", "cre")),
     person("Pontus", "Eriksson", , "pontus.eriksson@med.lu.se", role = c("aut")))

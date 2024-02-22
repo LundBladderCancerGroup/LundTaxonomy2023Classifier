@@ -115,8 +115,8 @@ plot_signatures <- function(results_object,
   ######## heatmaps ########
 
   # Testing
-  # signatures <- LundTax2023::signatures
-  signatures <- read.csv("D:/Signatures_reduced.csv")
+  signatures <- LundTax2023Classifier::signatures
+  # signatures <- read.csv("D:/Signatures_reduced.csv")
 
   genes_to_plot <- list(Early_CC=c(signatures[which(signatures$Signature == "early_cell_cycle."),2]),
                         Late_CC=c(signatures[which(signatures$Signature == "Late_Cell_Cycle."),2]),
@@ -139,9 +139,11 @@ plot_signatures <- function(results_object,
                         Immune141_UP_score=NULL,
                         Stromal141_UP_score=NULL)
 
-
-  if (gene_id != "hgnc_symbol") {
-    all_heatmap_genes <- unique(unlist(genes_to_plot))
+  if (!(gene_id %in% c("hgnc_symbol","ensembl_gene_id","entrezgene"))) {
+    stop("Gene ID must be one of the following: 'hgnc_symbol','ensembl_gene_id' or 'entrezgene'")
+  }
+  else if (gene_id != "hgnc_symbol") {
+    # all_heatmap_genes <- unique(unlist(genes_to_plot))
 
 
     # # Testing
@@ -149,10 +151,11 @@ plot_signatures <- function(results_object,
     # rownames(gene_info_heatmap_final) <- gene_info_heatmap_final[[gene_id]]
     # int_genes <- rownames(D_norm)[which(rownames(D_norm) %in% gene_info_heatmap_final[[gene_id]])]
     # rownames(D_norm)[which(rownames(D_norm) %in% gene_info_heatmap_final[[gene_id]])] <- gene_info_heatmap_final[int_genes,"hgnc_symbol"]
-    #
-    rownames(LundTax2023Classifier::gene_info_heatmap) <- LundTax2023Classifier::gene_info_heatmap[[gene_id]]
-    int_genes <- rownames(D)[which(rownames(D) %in% LundTax2023Classifier::gene_info_heatmap$gene_id)]
-    rownames(D)[which(rownames(D) %in% LundTax2023Classifier::gene_info_heatmap$gene_id)] <- LundTax2023Classifier::gene_info[int_genes,gene_id]
+    gene_info_heatmap <- LundTax2023Classifier::gene_info_heatmap
+    rownames(gene_info_heatmap) <- gene_info_heatmap[[gene_id]]
+    int_genes <- rownames(D_norm)[which(rownames(D_norm) %in% gene_info_heatmap[[gene_id]])]
+    rownames(D_norm)[which(rownames(D_norm) %in% gene_info_heatmap[[gene_id]])] <- gene_info_heatmap[int_genes,"hgnc_symbol"]
+
   }
 
   ## hm1 -> late/early cell cycle #####

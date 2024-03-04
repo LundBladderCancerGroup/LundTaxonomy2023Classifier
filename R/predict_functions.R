@@ -461,6 +461,7 @@ predict_RF <- function(classifier,
                     "out of",nrow(pred),"samples in the data",
                     collapse = " "))
 
+
     }
   }
 
@@ -519,7 +520,7 @@ print.rule_based_RandomForest <- function(x, ...) {
 
 
 
-#' Merge prediciton score matrices from two classifiers
+#' Merge prediction score matrices from two classifiers
 #'
 #' This function merges the prediction score matrices from the 5-class and 7-class (UroA,UroB,UroC) classifiers into 1 unique score matrix
 #' @param score_matrix1 prediction score matrix from the 7 class classifier
@@ -565,6 +566,25 @@ merge_subUro_matrix <- function(score_matrix1, # Score matrix from the 7-class (
     }
   }
   return(final_matrix)
+}
+
+
+#' Report score ties
+#'
+#' Checks score ties in the prediction scores and prints a message indicating
+#' the sample where the tie occurred, the two subtypes with the tied scores and the subtype that is reported in the output object
+#' @param first predictions when setting ties.method = "first"
+#' @param last predictions when setting ties.method = "last"
+#' @return Message indicating sample with score tie and the highest scored and reported subtypes
+#'
+#' @export
+check.ties <- function(first, last) {
+  for (tie in which(first != last)) {
+    sample <- names(first)[tie]
+    subtype1 <- first[tie]
+    subtype2 <- last[tie]
+    message(paste0("Sample ",sample, ": tie between ", subtype1, " and ", subtype2, "\nOutput prediction is ", subtype1))
+  }
 }
 
 
@@ -624,6 +644,10 @@ predict_LundTax2023 <- function(data,
     stop("Data should be in one of the following formats: matrix, data.frame, multiclassPairs_object")
   }
 
+  if (ncol(data) != length(unique(colnames(data)))) {
+    stop("Sample names (column names) should not be duplicated")
+  }
+
   if (class(data)[1] == "multiclassPairs_object") {
     D <- data$data$Data
     # Get ref labels
@@ -641,6 +665,7 @@ predict_LundTax2023 <- function(data,
     D <- data
   }
 
+  # Check gene identifiers ####
   if (gene_id != "hgnc_symbol") {
 
     original_D <- D
@@ -662,28 +687,29 @@ predict_LundTax2023 <- function(data,
   C <- LundTax2023Classifier::LundTax_RF_5c
   C2 <- LundTax2023Classifier::LundTax_RF_Uro7c
 
-  # # testing
-  # C <- RF_classifier_IHHK_500_500_10_d5
-  # C2 <- RF_classifier_URO_IHHK_500_500_10_d5_final
-
-
-  # new results object
+  # Results object ##
 
   results_suburo <- list(data = original_D,
                          scores = NULL,
                          predictions_7classes = NULL,
                          predictions_5classes = NULL)
 
+  ## Predict 5 class ###
+
   prediction <- predict_RF(classifier = C,
                            Data = D,
                            verbose = TRUE, ...)
+  # Reorder scores
+  pred <- prediction$predictions[,c("Uro","GU","BaSq","Mes","ScNE")]
+  prediction$predictions <- pred
+  prediction$predictions_classes <- colnames(pred)[max.col(replace(pred,is.na(pred),-Inf),ties.method = "first")]
 
-  ## get uro samples
+  ## Get uro samples
   if ("Uro" %in% prediction$predictions_classes) {
     D_Uro <- D[,which(prediction$predictions_classes == "Uro"), drop = FALSE]
     D_NoUro <- D[,which(prediction$predictions_classes != "Uro"), drop = FALSE]
 
-    # classify suburo
+    # Classify suburo if necessary ###
     prediction_suburo <- predict_RF(classifier = C2,
                                     Data = D_Uro,
                                     verbose = TRUE, ...)
@@ -695,7 +721,7 @@ predict_LundTax2023 <- function(data,
     score_matrix <- merge_subUro_matrix(score_matrix1 = prediction_suburo$predictions,
                                         score_matrix2 = prediction$predictions,
                                         row.names = list(names_uro,names_all))
-  } else {
+  } else { # if there is no Uro
     score_matrix <- cbind("Uro" = prediction$predictions[,"Uro"],
                           "UroA" = NA,
                           "UroB" = NA,
@@ -707,15 +733,53 @@ predict_LundTax2023 <- function(data,
 
   }
 
+
+  # Collect results ##
+
+  # Score matrices
   results_suburo$scores <- score_matrix
 
-  score_matrix_suburo <- score_matrix[,-1, drop = FALSE]
+  score_matrix_suburo <- score_matrix[,2:4, drop = FALSE]
   score_matrix_5c <- score_matrix[,c(1,5:8), drop = FALSE]
 
+  # 5 class level
+  results_suburo$predictions_5classes <- colnames(score_matrix_5c)[max.col(replace(score_matrix_5c,is.na(score_matrix_5c),-Inf),ties.method = "first")]
 
-  results_suburo$predictions_7classes <- colnames(score_matrix_suburo)[max.col(replace(score_matrix_suburo,is.na(score_matrix_suburo),-Inf))]
-  results_suburo$predictions_5classes <- colnames(score_matrix_5c)[max.col(replace(score_matrix_5c,is.na(score_matrix_5c),-Inf))]
+  # 7 class level
+  results_suburo$predictions_7classes <- results_suburo$predictions_5classes
+  max_suburo <- colnames(score_matrix_suburo)[max.col(replace(score_matrix_suburo,is.na(score_matrix_suburo),-Inf),ties.method = "first")]
 
+  for (i in 1:length(results_suburo$predictions_7classes)) {
+    p <- results_suburo$predictions_7classes[i]
+    if (p == "Uro") {
+      suburo <- max_suburo[i]
+      results_suburo$predictions_7classes[i] <- suburo
+    }
+
+  }
+
+  # Score ties ##
+
+  # 5 class level
+  first5 <- setNames(colnames(score_matrix_5c)[max.col(replace(score_matrix_5c,is.na(score_matrix_5c),-Inf),ties.method = "first")],rownames(score_matrix_5c))
+  last5  <- setNames(colnames(score_matrix_5c)[max.col(replace(score_matrix_5c,is.na(score_matrix_5c),-Inf),ties.method = "last")],rownames(score_matrix_5c))
+
+  if (sum(first5 != last5)>0) {
+    check.ties(first5,last5)
+
+  }
+
+  # 7 class level
+  score_matrix_suburo_ties <- score_matrix_suburo[!is.na(score_matrix_suburo[,1]),]
+  first7 <- setNames(colnames(score_matrix_suburo_ties)[max.col(score_matrix_suburo_ties,ties.method = "first")],rownames(score_matrix_suburo_ties))
+  last7  <- setNames(colnames(score_matrix_suburo_ties)[max.col(score_matrix_suburo_ties,ties.method = "last")],rownames(score_matrix_suburo_ties))
+
+
+  if (sum(first7 != last7)>0) {
+    check.ties(first7,last7)
+  }
+
+  # Final results ##
   names(results_suburo$predictions_7classes) <- colnames(D)
   names(results_suburo$predictions_5classes) <- colnames(D)
 

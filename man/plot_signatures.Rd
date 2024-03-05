@@ -15,7 +15,7 @@ plot_signatures(
   set_order = NULL,
   ann_height = 6,
   font.size = 8,
-  norm = c("scale", NULL)[1]
+  norm = TRUE
 )
 }
 \arguments{

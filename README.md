@@ -106,22 +106,22 @@ Lund2017_missinggenes <- Lund2017[-missing_genes,]
 results_imputation <- predict_LundTax2023(Lund2017_missinggenes,
                                           impute = TRUE)
 #> These genes are not found in the data:
-#> NCOA2 FBP1 LSS KLF5 UNC5B ITGB2 CST7 ZMYND10
+#> DSP JUP TMEM42 EXT1 WAS ACYP1 HEPACAM2
 #> Gene names should as rownames and sample names as columns!
 #> Check the genes in classifier object to see all the needed genes.
 #> Check if '-' or ',' symbols in the gene names in your data. You may need to change it to '_' or '.'
 #> Missed genes will be imputed to the closest class for each sample!
 #> These genes have NAs:
-#> NCOA2 FBP1 LSS KLF5 UNC5B ITGB2 CST7 ZMYND10
+#> DSP JUP TMEM42 EXT1 WAS ACYP1 HEPACAM2
 #> These genes will be imputed to the closest class for each sample with NAs
 #> These genes are not found in the data:
-#> UNC5B FBP1 ETS2 ITGB2 SFRP2 ETV4
+#> P4HA1 ARHGEF10L WAS AOC2 EXT1 DUSP16 PI4KB FCRL5 SLC2A3
 #> Gene names should as rownames and sample names as columns!
 #> Check the genes in classifier object to see all the needed genes.
 #> Check if '-' or ',' symbols in the gene names in your data. You may need to change it to '_' or '.'
 #> Missed genes will be imputed to the closest class for each sample!
 #> These genes have NAs:
-#> UNC5B FBP1 ETS2 ITGB2 SFRP2 ETV4
+#> P4HA1 ARHGEF10L WAS AOC2 EXT1 DUSP16 PI4KB FCRL5 SLC2A3
 #> These genes will be imputed to the closest class for each sample with NAs
 ```
 
@@ -167,10 +167,10 @@ Parameters:
   predict_LundTax2023 function
 
 - `data` is is a matrix, data frame or multiclassPairs_object of gene
-  expression values with genes as HUGO gene symbols in rows and samples
-  in columns. This can be included if the results_object does not
-  include the data, and samples should be in the same order as in the
-  results object.
+  expression values with gene identifiers in rows and samples in
+  columns. This can be included if the results_object does not include
+  the data, and samples should be in the same order as in the results
+  object.
 
 - `gene_id` character value specifying the type of gene identifier used
   in the data:

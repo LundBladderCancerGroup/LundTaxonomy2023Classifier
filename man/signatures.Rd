@@ -3,10 +3,7 @@
 \docType{data}
 \name{signatures}
 \alias{signatures}
-\title{Signature table
-Dataframe containing gene symbols and corresponding signature for
-each gene included in the following gene singatures: FGFR3, Keratinization,
-early cell cycle, late cycle, Immune141 UP and Stromal141UP}
+\title{Signature table}
 \format{
 An object of class \code{data.frame} with 475 rows and 2 columns.
 }
@@ -14,7 +11,6 @@ An object of class \code{data.frame} with 475 rows and 2 columns.
 signatures
 }
 \description{
-Signature table
 Dataframe containing gene symbols and corresponding signature for
 each gene included in the following gene singatures: FGFR3, Keratinization,
 early cell cycle, late cycle, Immune141 UP and Stromal141UP

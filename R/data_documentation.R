@@ -30,23 +30,16 @@
 "Lund2017"
 
 #' Colors used for Lund Taxonomy subtypes
-#' List including hexadecimal color codes for LundTax subtypes, stage and datasets
-"cols"
+"lund_colors"
 
 #' Signature table
-#' Dataframe containing gene symbols and corresponding signature for
-#' each gene included in the following gene singatures: FGFR3, Keratinization,
-#' early cell cycle, late cycle, Immune141 UP and Stromal141UP
+
 "signatures"
 
 #' Gene IDs for classification
-#' Dataframe containing HGNC symbols, ensembl gene IDs and entrezgene IDs
-#' for all genes used in the classifiers
 "gene_info_classifier"
 
 #' Gene IDs for plotting
-#' Dataframe containing HGNC symbols, ensembl gene IDs and entrezgene IDs
-#' for all genes used in the heatmap plotting function
 "gene_info_heatmap"
 
 #' LundTax2023

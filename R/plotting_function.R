@@ -193,14 +193,14 @@ plot_signatures <- function(results_object,
 
     # Score plots
     if (plot_scores) {
-      bar0 = anno_barplot(as.numeric(score_matrix[,"Uro"]), ylim = c(0, 1), gp = gpar(fill=cols$lund_colors["Uro"], border=NA, col=NA), bar_width = 1, height = unit(6, "mm"))
-      bar1 = anno_barplot(as.numeric(score_matrix[,"UroA"]), ylim = c(0, 1), gp = gpar(fill=cols$lund_colors["UroA"], border=NA, col=NA), bar_width = 1, height = unit(6, "mm"))
-      bar2 = anno_barplot(as.numeric(score_matrix[,"UroB"]), ylim = c(0, 1), gp = gpar(fill=cols$lund_colors["UroB"], border=NA, col=NA), bar_width = 1, height = unit(6, "mm"))
-      bar3 = anno_barplot(as.numeric(score_matrix[,"UroC"]), ylim = c(0, 1), gp = gpar(fill=cols$lund_colors["UroC"], border=NA, col=NA), bar_width = 1, height = unit(6, "mm"))
-      bar4 = anno_barplot(as.numeric(score_matrix[,"GU"]), ylim = c(0, 1), gp = gpar(fill=cols$lund_colors["GU"], border=NA, col=NA), bar_width = 1, height = unit(6, "mm"))
-      bar5 = anno_barplot(as.numeric(score_matrix[,"BaSq"]), ylim = c(0, 1), gp = gpar(fill=cols$lund_colors["BaSq"], border=NA, col=NA), bar_width = 1, height = unit(6, "mm"))
-      bar6 = anno_barplot(as.numeric(score_matrix[,"Mes"]), ylim = c(0, 1), gp = gpar(fill=cols$lund_colors["Mes"], border=NA, col=NA), bar_width = 1, height = unit(6, "mm"))
-      bar7 = anno_barplot(as.numeric(score_matrix[,"ScNE"]), ylim = c(0, 1), gp = gpar(fill=cols$lund_colors["ScNE"], border=NA, col=NA), bar_width = 1, height = unit(6, "mm"))
+      bar0 = anno_barplot(as.numeric(score_matrix[,"Uro"]), ylim = c(0, 1), gp = gpar(fill=lund_colors$lund_colors["Uro"], border=NA, col=NA), bar_width = 1, height = unit(6, "mm"))
+      bar1 = anno_barplot(as.numeric(score_matrix[,"UroA"]), ylim = c(0, 1), gp = gpar(fill=lund_colors$lund_colors["UroA"], border=NA, col=NA), bar_width = 1, height = unit(6, "mm"))
+      bar2 = anno_barplot(as.numeric(score_matrix[,"UroB"]), ylim = c(0, 1), gp = gpar(fill=lund_colors$lund_colors["UroB"], border=NA, col=NA), bar_width = 1, height = unit(6, "mm"))
+      bar3 = anno_barplot(as.numeric(score_matrix[,"UroC"]), ylim = c(0, 1), gp = gpar(fill=lund_colors$lund_colors["UroC"], border=NA, col=NA), bar_width = 1, height = unit(6, "mm"))
+      bar4 = anno_barplot(as.numeric(score_matrix[,"GU"]), ylim = c(0, 1), gp = gpar(fill=lund_colors$lund_colors["GU"], border=NA, col=NA), bar_width = 1, height = unit(6, "mm"))
+      bar5 = anno_barplot(as.numeric(score_matrix[,"BaSq"]), ylim = c(0, 1), gp = gpar(fill=lund_colors$lund_colors["BaSq"], border=NA, col=NA), bar_width = 1, height = unit(6, "mm"))
+      bar6 = anno_barplot(as.numeric(score_matrix[,"Mes"]), ylim = c(0, 1), gp = gpar(fill=lund_colors$lund_colors["Mes"], border=NA, col=NA), bar_width = 1, height = unit(6, "mm"))
+      bar7 = anno_barplot(as.numeric(score_matrix[,"ScNE"]), ylim = c(0, 1), gp = gpar(fill=lund_colors$lund_colors["ScNE"], border=NA, col=NA), bar_width = 1, height = unit(6, "mm"))
     } else {
       bar0 = NULL
       bar1 = NULL
@@ -214,7 +214,7 @@ plot_signatures <- function(results_object,
 
     # Colors #
 
-    col = list(Predictions = cols$lund_colors,
+    col = list(Predictions = lund_colors$lund_colors,
                late_early = col_fun_cc)
 
     # Annotation first heatmap #
@@ -245,11 +245,11 @@ plot_signatures <- function(results_object,
 
     # score plots
     if (plot_scores) {
-      bar1 = anno_barplot(as.numeric(score_matrix[,"Uro"]), ylim = c(0, 1),gp = gpar(fill=cols$lund_colors["UroA"],border=NA,col=NA),bar_width = 1,height = unit(6, "mm"))
-      bar2 = anno_barplot(as.numeric(score_matrix[,"GU"]), ylim = c(0, 1),gp = gpar(fill=cols$lund_colors["GU"],border=NA,col=NA),bar_width = 1,height = unit(6, "mm"))
-      bar3 = anno_barplot(as.numeric(score_matrix[,"BaSq"]), ylim = c(0, 1),gp = gpar(fill=cols$lund_colors["BaSq"],border=NA,col=NA),bar_width = 1,height = unit(6, "mm"))
-      bar4 = anno_barplot(as.numeric(score_matrix[,"Mes"]), ylim = c(0, 1),gp = gpar(fill=cols$lund_colors["Mes"],border=NA,col=NA),bar_width = 1,height = unit(6, "mm"))
-      bar5 = anno_barplot(as.numeric(score_matrix[,"ScNE"]), ylim = c(0, 1),gp = gpar(fill=cols$lund_colors["ScNE"],border=NA,col=NA),bar_width = 1,height = unit(6, "mm"))
+      bar1 = anno_barplot(as.numeric(score_matrix[,"Uro"]), ylim = c(0, 1),gp = gpar(fill=lund_colors$lund_colors["UroA"],border=NA,col=NA),bar_width = 1,height = unit(6, "mm"))
+      bar2 = anno_barplot(as.numeric(score_matrix[,"GU"]), ylim = c(0, 1),gp = gpar(fill=lund_colors$lund_colors["GU"],border=NA,col=NA),bar_width = 1,height = unit(6, "mm"))
+      bar3 = anno_barplot(as.numeric(score_matrix[,"BaSq"]), ylim = c(0, 1),gp = gpar(fill=lund_colors$lund_colors["BaSq"],border=NA,col=NA),bar_width = 1,height = unit(6, "mm"))
+      bar4 = anno_barplot(as.numeric(score_matrix[,"Mes"]), ylim = c(0, 1),gp = gpar(fill=lund_colors$lund_colors["Mes"],border=NA,col=NA),bar_width = 1,height = unit(6, "mm"))
+      bar5 = anno_barplot(as.numeric(score_matrix[,"ScNE"]), ylim = c(0, 1),gp = gpar(fill=lund_colors$lund_colors["ScNE"],border=NA,col=NA),bar_width = 1,height = unit(6, "mm"))
     } else {
       bar1 = NULL
       bar2 = NULL
@@ -259,7 +259,7 @@ plot_signatures <- function(results_object,
     }
 
     # Colors #
-    col = list(Predictions = cols$lund_colors,
+    col = list(Predictions = lund_colors$lund_colors,
                late_early = col_fun_cc)
 
     # Annotation first heatmap #

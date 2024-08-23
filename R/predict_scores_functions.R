@@ -1,5 +1,4 @@
 # Scoring Functions #
-# This script should the replace the current predict_functions 
 # The main predicting function would be replaced by this new one that includes all scores in addition to the class prediction
 # A new plotting function that shows the additional scores should be added
 # The idea was to have a plot that shows only the scores 
@@ -24,6 +23,7 @@ score_proliferation <- function(Data,
     D <- log2(D+1)
   }
 
+  # Test
   load("D:/UROSCANSEQ_2024/Analysis/02.New_data/Signatures/Proliferation/proliferation_signature_0504.RData")
 
   late_genes <- proliferation_signature[proliferation_signature$signature == "LateCellCycle",gene_id]
@@ -95,11 +95,12 @@ predict_grade <- function(Data, grade_predictor,
   } else if (gene_id != "ensembl_gene_id") {
 
     # Testing
-    load("D:/UROSCANSEQ_2024/Analysis/02.New_data/GradeClassifier/gene_info_grade_classifiers.RData")
+    load("C:/Users/earam/LBCG/gene_info_lund.rda")
+    # load("D:/UROSCANSEQ_2024/Analysis/02.New_data/GradeClassifier/gene_info_grade_classifiers.RData")
     # gene_info_grade_classifiers <- LundTax2023Classifier::gene_info_heatmap
-    rownames(gene_info_grade_classifiers) <- gene_info_grade_classifiers[[gene_id]]
-    int_genes <- rownames(D)[which(rownames(D) %in% gene_info_grade_classifiers[[gene_id]])]
-    rownames(D)[which(rownames(D) %in% gene_info_grade_classifiers[[gene_id]])] <- gene_info_grade_classifiers[int_genes,"ensembl_gene_id"]
+    rownames(gene_info_lund) <- gene_info_lund[[gene_id]]
+    int_genes <- rownames(D)[which(rownames(D) %in% gene_info_lund[[gene_id]])]
+    rownames(D)[which(rownames(D) %in% gene_info_lund[[gene_id]])] <- gene_info_lund[int_genes,"ensembl_gene_id"]
 
   }
 
@@ -165,14 +166,13 @@ score141up <- function(Data, logTransform = FALSE, gene_id = c("hgnc_symbol", "e
     # all_heatmap_genes <- unique(unlist(genes_to_plot))
 
     # # Testing
-    # load("gene_info_heatmap_final.RData", verbose = T)
-    # rownames(gene_info_heatmap_final) <- gene_info_heatmap_final[[gene_id]]
-    # int_genes <- rownames(D_norm)[which(rownames(D_norm) %in% gene_info_heatmap_final[[gene_id]])]
-    # rownames(D_norm)[which(rownames(D_norm) %in% gene_info_heatmap_final[[gene_id]])] <- gene_info_heatmap_final[int_genes,"hgnc_symbol"]
-    gene_info_heatmap <- LundTax2023Classifier::gene_info_heatmap
-    rownames(gene_info_heatmap) <- gene_info_heatmap[[gene_id]]
-    int_genes <- rownames(D)[which(rownames(D) %in% gene_info_heatmap[[gene_id]])]
-    rownames(D)[which(rownames(D) %in% gene_info_heatmap[[gene_id]])] <- gene_info_heatmap[int_genes,"hgnc_symbol"]
+    load("C:/Users/earam/LBCG/gene_info_lund.rda")
+    
+    # gene_info_lund <- LundTax2023Classifier::gene_info_lund
+    
+    rownames(gene_info_lund) <- gene_info_lund[[gene_id]]
+    int_genes <- rownames(D)[which(rownames(D) %in% gene_info_lund[[gene_id]])]
+    rownames(D)[which(rownames(D) %in% gene_info_lund[[gene_id]])] <- gene_info_lund[int_genes,"hgnc_symbol"]
 
   }
 
@@ -1105,16 +1105,15 @@ predict_LundTax2023_wip <- function(data,
   if (gene_id != "hgnc_symbol") {
 
     original_D <- D
-    gene_info_classifier <- LundTax2023Classifier::gene_info_classifier
+    # gene_info_classifier <- LundTax2023Classifier::gene_info_classifier
 
     # # Testing
-    # rownames(gene_info) <- gene_info[[gene_id]]
-    # int_genes <- rownames(D)[which(rownames(D) %in% gene_info[[gene_id]])]
-    # rownames(D)[which(rownames(D) %in% gene_info[[gene_id]])] <- gene_info[int_genes,"hgnc_symbol"]
+    load("C:/Users/earam/LBCG/gene_info_lund.rda")
+    # gene_info_lund <- LundTax2023Classifier::gene_info_lund
 
-    rownames(gene_info_classifier) <- gene_info_classifier[[gene_id]]
-    int_genes <- rownames(D)[which(rownames(D) %in% gene_info_classifier[[gene_id]])]
-    rownames(D)[which(rownames(D) %in% gene_info_classifier[[gene_id]])] <- gene_info_classifier[int_genes,"hgnc_symbol"]
+    rownames(gene_info_lund) <- gene_info_lund[[gene_id]]
+    int_genes <- rownames(D)[which(rownames(D) %in% gene_info_lund[[gene_id]])]
+    rownames(D)[which(rownames(D) %in% gene_info_lund[[gene_id]])] <- gene_info_lund[int_genes,"hgnc_symbol"]
 
   } else {
     original_D <- D

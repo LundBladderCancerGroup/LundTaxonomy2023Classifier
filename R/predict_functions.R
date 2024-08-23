@@ -802,5 +802,232 @@ predict_LundTax2023 <- function(data,
 }
 
 
+ratio_score <- function(Data,
+                        logTransform = FALSE,
+                        gene_id = c("ensembl_gene_id", "hgnc_symbol")[1],
+                        method = c("ratio","singscore")[1],
+                        variable = c("proliferation", "progression")
+)
+{
+  # Data must be a matrix in log2 transformed format, with sample as column and genes as rows
+  if (!class(Data)[1] %in% c("data.frame","matrix")) {
+    stop("Data must be in dataframe or matrix format.")
+  }
+  D <- Data
+  
+  if (logTransform) {
+    D <- log2(D+1)
+  }
+  
+  # Load signatures
+  
+  # Testing 
+  load("C:/Users/earam/LBCG/updated_signatures.rda")
+  
+  # signatures <- LundTax2023Classifier::signatures
+  
+  if (variable == "proliferation") {
+    proliferation_signature <- updated_signatures$proliferation
+    # When included in the package
+    # proliferation_signature <- LundTax2023Classifier::signatures$proliferation
+    
+    up_genes <- proliferation_signature[proliferation_signature$signature == "LateCellCycle",gene_id]
+    down_genes <- proliferation_signature[proliferation_signature$signature == "EarlyCellCycle",gene_id]
+    
+    
+    int_up_genes <- intersect(rownames(D), up_genes)
+    int_down_genes <- intersect(rownames(D), down_genes)
+    
+    diff_genes <- length(c(up_genes,down_genes)) - length(c(int_up_genes,int_down_genes))
+    
+    if(diff_genes > 0) message(paste0("Proliferation score: ", diff_genes, "/",length(c(up_genes,down_genes)), " genes are missing from the data."))
+    
+    up_genes <- int_up_genes
+    down_genes <- int_down_genes
+  }
+  
+  if (variable == "progression") {
+    
+    progression_signature <- updated_signatures$progression
+    
+    # When included in the package
+    # progression_signature <- LundTax2023Classifier::signatures$progression
+    
+    up_genes <- progression_signature[progression_signature$direction_in_prog == "Up",gene_id]
+    down_genes <- progression_signature[progression_signature$direction_in_prog == "Down",gene_id]
+    
+    int_up_genes <- intersect(rownames(D), up_genes)
+    int_down_genes <- intersect(rownames(D), down_genes)
+    
+    diff_genes <- length(c(up_genes,down_genes)) - length(c(int_up_genes,int_down_genes))
+    
+    if (diff_genes > 0) message("Progression score: ",diff_genes, "/",length(c(up_genes,down_genes)), " genes are missing from the data.")
+    
+    up_genes <- int_up_genes
+    down_genes <- int_down_genes
+    
+  }
+  
+  if (method == "ratio") {
+    
+    # Ratio of ranks #
+    rank_data <- apply(D,2,rank)
+    rank_data <- rank_data/nrow(rank_data)
+    
+    median_UPgenes <- apply(rank_data[up_genes,,drop=F],2,median)
+    median_DOWNgenes <- apply(rank_data[down_genes,,drop=F],2,median)
+    
+    median_UP_DOWN <- median_UPgenes/median_DOWNgenes
+    
+    r_score <- data.frame(ProliferationScore=median_UP_DOWN,row.names = colnames(D))
+    
+  } else if (method == "singscore") { # I was testing both methods but I think we decided to keep only the ratio to avoid using an extra package
+    # So this part could be removed
+    
+    # Singscore #
+    require(singscore)
+    rankData <-  rankGenes(D)
+    r_score <- simpleScore(rankData, upSet = up_genes, downSet = down_genes, centerScore = FALSE)
+    
+  }
+  
+  return(r_score)
+  
+}
+
+
+single_score <- function(Data,
+                         logTransform = FALSE,
+                         gene_id = c("ensembl_gene_id", "hgnc_symbol")[1],
+                         adjust = TRUE,
+                         variable = c("immune", "score141up", "prostate")
+) 
+{
+  # Data must be a matrix in log2 transformed format, with sample as column and genes as rows
+  if (!class(Data)[1] %in% c("data.frame","matrix")) {
+    stop("Data must be in dataframe or matrix format.")
+  }
+  D <- Data
+  
+  if (logTransform) {
+    D <- log2(D+1)
+  }
+  
+  if (!(gene_id %in% c("hgnc_symbol","ensembl_gene_id"))) {
+    stop("Gene ID must be one of the following: 'hgnc_symbol' or 'ensembl_gene_id'")
+  }
+  else if (gene_id != "hgnc_symbol") {
+    
+    # # Testing
+    # load("D:/Packages/LundTaxonomy2023Classifier_DEV/gene_info_lund.rda")
+    load("C:/Users/earam/LBCG/gene_info_lund.rda")
+    # gene_info_lund <- LundTax2023Classifier::gene_info_lund
+    
+    rownames(gene_info_lund) <- gene_info_lund[[gene_id]]
+    int_genes <- rownames(D)[which(rownames(D) %in% gene_info_lund[[gene_id]])]
+    rownames(D)[which(rownames(D) %in% gene_info_lund[[gene_id]])] <- gene_info_lund[int_genes,"hgnc_symbol"]
+    
+  }
+  
+  
+  # Load signatures
+  
+  # Testing 
+  load("C:/Users/earam/LBCG/updated_signatures.rda")
+  
+  # signatures <- LundTax2023Classifier::signatures
+  
+  if (variable == "immune") {
+    
+    s <- updated_signatures$immune[,c(gene_id, "signature"), drop = F]
+    
+    # When included in the package
+    # LundImmune <- LundTax2023Classifier::signatures$immune
+    
+    genes_immune <- unique(c(s[[gene_id]]))
+    genes_immune_int <- intersect(rownames(D),genes_immune)
+    
+    diff_genes <- length(genes_immune) - length(genes_immune_int)
+    
+    if(diff_genes > 0) {
+      message(paste0("Immune scores: ", diff_genes, "/",length(genes_immune)," genes are missing from the data."))
+      print(setdiff(genes_immune, genes_immune_int))
+    }
+    
+    
+  }
+  
+  if (variable == "score141up") {
+    
+    
+    Immune141_UP <- updated_signatures$signatures_plot[which(updated_signatures$signatures_plot$signature == "Immune141_UP."),,drop = F]
+    Stromal141_UP <- updated_signatures$signatures_plot[which(updated_signatures$signatures_plot$signature == "Stromal141_UP."),,drop = F]
+    
+    genes141 <- unique(c(Immune141_UP$hgnc_symbol, Stromal141_UP$hgnc_symbol))
+    genes141_int <- intersect(rownames(D),genes141)
+    
+    diff_genes <- length(genes141) - length(genes141_int)
+    
+    if(diff_genes > 0) {
+      message(paste0("Infiltration scores: ", diff_genes, "/",length(genes141)," genes are missing from the data."))
+      print(setdiff(genes141,genes141_int))
+    }
+    
+    # Updated package
+    # signatures_plot <- LundTax2023Classifier::signatures$signatures_plot
+    # Immune141_UP <- signatures_plot[which(signatures_plot$signature == "Immune141_UP."),]
+    # Stromal141_UP <- signatures_plot[which(signatures_plot$signature == "Stromal141_UP."),]
+    
+    s <- rbind(Immune141_UP,Stromal141_UP)
+    
+    
+  }
+  
+  if (variable == "prostate") {
+    # score_results <- as.data.frame(matrix(nrow = ncol(Data),
+    #                                       ncol = 1,
+    #                                       dimnames = list(colnames(Data), "ProstateScore")))
+    
+    s <- updated_signatures$prostate[,c(gene_id,"signature"), drop = F]
+    
+    genes_prostate_int <- intersect(rownames(Data),s[[gene_id]])
+    
+    diff_genes <- length(s[[gene_id]]) - length(genes_prostate_int)
+    
+    if(diff_genes > 0) {
+      message(paste0("Prostate score: ", diff_genes, "/",length(s[[gene_id]])," genes are missing from the data."))
+      print(setdiff(s[[gene_id]],genes_prostate_int))
+    }
+    
+  }
+  
+  # Results object
+  score_results <- as.data.frame(matrix(nrow = ncol(Data),
+                                        ncol = length(unique(s$signature)),
+                                        dimnames = list(colnames(Data), unique(s$signature))))
+  
+  for (i in unique(s$signature)) {
+    genes_signature_int <- intersect(rownames(D),s[s$signature == i, gene_id])
+    res <- unlist(lapply(1:ncol(D),function(x) {mean(D[genes_signature_int,x])}))
+    score_results[,i] <- res
+  }
+  
+  if (adjust) {
+    
+    StableGenes <- updated_signatures$stable_genes
+    # StableGenes <- LundTax2023Classifier::signatures$stable_genes
+    
+    stable_genes_int <- intersect(rownames(D),StableGenes[,gene_id])
+    
+    
+    score_results <- do.call("rbind",lapply(1:nrow(score_results),function(x){
+      (score_results[x,]/mean(D[stable_genes_int,x]))*5.1431
+    }))
+  }
+  
+  return(score_results)
+  
+}
+
 
 

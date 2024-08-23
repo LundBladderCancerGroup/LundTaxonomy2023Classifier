@@ -36,11 +36,9 @@
 
 "signatures"
 
-#' Gene IDs for classification
-"gene_info_classifier"
+#' Gene IDs for classification, scoring and plotting
+"gene_info_lund"
 
-#' Gene IDs for plotting
-"gene_info_heatmap"
 
 #' LundTax2023
 #'

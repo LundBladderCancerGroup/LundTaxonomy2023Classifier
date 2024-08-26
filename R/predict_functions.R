@@ -588,225 +588,37 @@ check.ties <- function(first, last) {
 }
 
 
-#' Predict Lund Taxonomy subtypes based on rule-based Random Forest classifiers
+
+#' Calculate proliferation and progression scores
 #'
-#' @param data matrix, data frame or multiclassPairs_object of gene expression values
-#' @param include_data include data in output (disabled by default)
-#' @param include_scores include prediction scores for each sample and class in output (default)
+#' @param Data matrix or data frame of gene expression values
+#' @param logTransform if TRUE, log transform data. Set to FALSE is data is already log transformed
 #' @param gene_id specify the type of gene identifier used in the data:
 #' - "hgnc_symbol" for HUGO gene symbols
 #' - "ensembl_gene_id" for Ensembl gene IDs
 #' - "entrezgene" for Entrez IDs
 #' Default value is hgnc_symbol
-#' @param ... Additional parameters to be passed to the predict_RF function. If genes are missing in the data, include impute = TRUE here
+#' @param variable score to calculate: proliferation or progression
 #' @return
-#' Returns a list object including:
-#' - Data (optional, not included by default)
-#' - Prediction scores for all classes (optional, included by default)
-#' - Predicted LundTax class for 7-class system
-#' - Predicted LundTax class for 5-class system
-#'
-#' @details
-#' This function uses 2 classifiers to classify the samples: 5-class classifier first  classifies samples into Uro, GU, BaSq, Mes or ScNE.
-#' Samples classified as Uro receive a second classification as UroA, B or C by the second classifier
+#' Returns values of the calculated score for each sample.
 #'
 #'
 #' @examples
-#' results <- predict_LundTax2023(Lund2017)
+#' # Calculate proliferation score, hgnc symbols 
+#' results <- ratio_score(Lund2017, variable = "proliferation", gene_id = "hgnc_symbol")
+#' 
 #' @examples
-#' # Include data in result
-#' results_data <- predict_LundTax2023(Lund2017,
-#'                                include_data = TRUE)
-#'
-#' @examples
-#' # Imputation
-#' # Remove 100 genes from data
-#' missing_genes <- sample(1:nrow(Lund2017),100)
-#' Lund2017_missinggenes <- Lund2017[-missing_genes,]
-#' results_imputation <- predict_LundTax2023(Lund2017_missinggenes,
-#'                                           impute = TRUE)
+#' # Calculate progression score, hgnc symbols 
+#' results <- ratio_score(Lund2017, variable = "progression", gene_id = "hgnc_symbol")
+#'                                          impute = TRUE)
 #'
 #' @export
 #
-
-predict_LundTax2023 <- function(data,
-                                include_data = FALSE, # return input data in the results object
-                                include_scores = TRUE, # return prediction scores in the results object
-                                gene_id = c("hgnc_symbol","ensembl_gene_id","entrezgene")[1],
-                                ...)
-
-{
-  # Check inputs
-
-  ## Data ##
-  # Store as dataframe
-  if (!(class(data)[1] %in% c("matrix","data.frame","multiclassPairs_object"))) {
-    stop("Data should be in one of the following formats: matrix, data.frame, multiclassPairs_object")
-  }
-
-  if (ncol(data) != length(unique(colnames(data)))) {
-    stop("Sample names (column names) should not be duplicated")
-  }
-
-  if (class(data)[1] == "multiclassPairs_object") {
-    D <- data$data$Data
-    # Get ref labels
-    if (is.null(ref)) {
-      ref <- data$data$Labels
-    }
-  }
-
-  if (is.data.frame(data)) {
-    D <- as.matrix(data)
-  }
-
-  if (is.matrix(data)) {
-    # D <- as.data.frame(data, stringsAsFactors = FALSE)
-    D <- data
-  }
-
-  # Check gene identifiers ####
-  if (gene_id != "hgnc_symbol") {
-
-    original_D <- D
-
-    # # Testing
-    # rownames(gene_info) <- gene_info[[gene_id]]
-    # int_genes <- rownames(D)[which(rownames(D) %in% gene_info[[gene_id]])]
-    # rownames(D)[which(rownames(D) %in% gene_info[[gene_id]])] <- gene_info[int_genes,"hgnc_symbol"]
-
-    rownames(gene_info_classifier) <- gene_info_classifier[[gene_id]]
-    int_genes <- rownames(D)[which(rownames(D) %in% gene_info_classifier[[gene_id]])]
-    rownames(D)[which(rownames(D) %in% gene_info_classifier[[gene_id]])] <- gene_info_classifier[int_genes,"hgnc_symbol"]
-
-    } else {
-    original_D <- D
-  }
-
-  # Classifier ##
-  C <- LundTax2023Classifier::LundTax_RF_5c
-  C2 <- LundTax2023Classifier::LundTax_RF_Uro7c
-
-  # Results object ##
-
-  results_suburo <- list(data = original_D,
-                         scores = NULL,
-                         predictions_7classes = NULL,
-                         predictions_5classes = NULL)
-
-  ## Predict 5 class ###
-
-  prediction <- predict_RF(classifier = C,
-                           Data = D,
-                           verbose = TRUE, ...)
-  # Reorder scores
-  pred <- prediction$predictions[,c("Uro","GU","BaSq","Mes","ScNE")]
-  prediction$predictions <- pred
-  prediction$predictions_classes <- colnames(pred)[max.col(replace(pred,is.na(pred),-Inf),ties.method = "first")]
-
-  ## Get uro samples
-  if ("Uro" %in% prediction$predictions_classes) {
-    D_Uro <- D[,which(prediction$predictions_classes == "Uro"), drop = FALSE]
-    D_NoUro <- D[,which(prediction$predictions_classes != "Uro"), drop = FALSE]
-
-    # Classify suburo if necessary ###
-    prediction_suburo <- predict_RF(classifier = C2,
-                                    Data = D_Uro,
-                                    verbose = TRUE, ...)
-
-    names_uro <- colnames(D_Uro)
-    names_all <- colnames(D)
-
-    # Merged score matrix
-    score_matrix <- merge_subUro_matrix(score_matrix1 = prediction_suburo$predictions,
-                                        score_matrix2 = prediction$predictions,
-                                        row.names = list(names_uro,names_all))
-  } else { # if there is no Uro
-    score_matrix <- cbind("Uro" = prediction$predictions[,"Uro"],
-                          "UroA" = NA,
-                          "UroB" = NA,
-                          "UroC" = NA,
-                          "GU" = prediction$predictions[,"GU"],
-                          "BaSq" = prediction$predictions[,"BaSq"],
-                          "Mes" = prediction$predictions[,"Mes"],
-                          "ScNE" = prediction$predictions[,"ScNE"])
-
-  }
-
-
-  # Collect results ##
-
-  # Score matrices
-  results_suburo$scores <- score_matrix
-
-  score_matrix_suburo <- score_matrix[,2:4, drop = FALSE]
-  score_matrix_5c <- score_matrix[,c(1,5:8), drop = FALSE]
-
-  # 5 class level
-  results_suburo$predictions_5classes <- colnames(score_matrix_5c)[max.col(replace(score_matrix_5c,is.na(score_matrix_5c),-Inf),ties.method = "first")]
-
-  # 7 class level
-  results_suburo$predictions_7classes <- results_suburo$predictions_5classes
-  max_suburo <- colnames(score_matrix_suburo)[max.col(replace(score_matrix_suburo,is.na(score_matrix_suburo),-Inf),ties.method = "first")]
-
-  for (i in 1:length(results_suburo$predictions_7classes)) {
-    p <- results_suburo$predictions_7classes[i]
-    if (p == "Uro") {
-      suburo <- max_suburo[i]
-      results_suburo$predictions_7classes[i] <- suburo
-    }
-
-  }
-
-  # Score ties ##
-
-  # 5 class level
-  first5 <- setNames(colnames(score_matrix_5c)[max.col(replace(score_matrix_5c,is.na(score_matrix_5c),-Inf),ties.method = "first")],rownames(score_matrix_5c))
-  last5  <- setNames(colnames(score_matrix_5c)[max.col(replace(score_matrix_5c,is.na(score_matrix_5c),-Inf),ties.method = "last")],rownames(score_matrix_5c))
-
-  if (sum(first5 != last5)>0) {
-    check.ties(first5,last5)
-
-  }
-
-  # 7 class level
-  score_matrix_suburo_ties <- score_matrix_suburo[!is.na(score_matrix_suburo[,1]),]
-  first7 <- setNames(colnames(score_matrix_suburo_ties)[max.col(score_matrix_suburo_ties,ties.method = "first")],rownames(score_matrix_suburo_ties))
-  last7  <- setNames(colnames(score_matrix_suburo_ties)[max.col(score_matrix_suburo_ties,ties.method = "last")],rownames(score_matrix_suburo_ties))
-
-
-  if (sum(first7 != last7)>0) {
-    check.ties(first7,last7)
-  }
-
-  # Final results ##
-  names(results_suburo$predictions_7classes) <- colnames(D)
-  names(results_suburo$predictions_5classes) <- colnames(D)
-
-  predictions_suburo <- list(predictions_7classes = results_suburo$predictions_7classes,
-                             predictions_5classes = results_suburo$predictions_5classes)
-
-  results_suburo_nodata <- list(scores = results_suburo$scores,
-                                predictions_7classes = results_suburo$predictions_7classes,
-                                predictions_5classes = results_suburo$predictions_5classes)
-
-
-  if (include_data & include_scores) {
-    result <- results_suburo
-  } else if (include_data == FALSE & include_scores) {
-    result <- results_suburo_nodata
-  } else if (include_data == FALSE & include_scores == FALSE) {
-    result <- predictions_suburo
-  }
-
-}
-
-
 ratio_score <- function(Data,
+                        variable = c("proliferation", "progression", NULL)[3],
                         logTransform = FALSE,
                         gene_id = c("ensembl_gene_id", "hgnc_symbol")[1],
-                        method = c("ratio","singscore")[1],
-                        variable = c("proliferation", "progression")
+                        method = c("ratio","singscore")[1]
 )
 {
   # Data must be a matrix in log2 transformed format, with sample as column and genes as rows
@@ -818,6 +630,11 @@ ratio_score <- function(Data,
   if (logTransform) {
     D <- log2(D+1)
   }
+  
+  if (is.null(variable)) {
+    stop("Variable must be one of the following: proliferation, progression")
+  }
+  
   
   # Load signatures
   
@@ -840,7 +657,10 @@ ratio_score <- function(Data,
     
     diff_genes <- length(c(up_genes,down_genes)) - length(c(int_up_genes,int_down_genes))
     
-    if(diff_genes > 0) message(paste0("Proliferation score: ", diff_genes, "/",length(c(up_genes,down_genes)), " genes are missing from the data."))
+    if(diff_genes > 0) {
+      message(paste0("Proliferation score: ", diff_genes, "/",length(c(up_genes,down_genes)), " genes are missing from the data."))
+      print(setdiff(c(up_genes,down_genes), c(int_up_genes,int_down_genes)))
+    }
     
     up_genes <- int_up_genes
     down_genes <- int_down_genes
@@ -861,7 +681,10 @@ ratio_score <- function(Data,
     
     diff_genes <- length(c(up_genes,down_genes)) - length(c(int_up_genes,int_down_genes))
     
-    if (diff_genes > 0) message("Progression score: ",diff_genes, "/",length(c(up_genes,down_genes)), " genes are missing from the data.")
+    if (diff_genes > 0) {
+      message(paste0("Progression score: ",diff_genes, "/",length(c(up_genes,down_genes)), " genes are missing from the data."))
+      print(setdiff(c(up_genes,down_genes), c(int_up_genes,int_down_genes)))
+    }
     
     up_genes <- int_up_genes
     down_genes <- int_down_genes
@@ -879,7 +702,7 @@ ratio_score <- function(Data,
     
     median_UP_DOWN <- median_UPgenes/median_DOWNgenes
     
-    r_score <- data.frame(ProliferationScore=median_UP_DOWN,row.names = colnames(D))
+    r_score <- data.frame(Score=median_UP_DOWN,row.names = colnames(D))
     
   } else if (method == "singscore") { # I was testing both methods but I think we decided to keep only the ratio to avoid using an extra package
     # So this part could be removed
@@ -896,11 +719,37 @@ ratio_score <- function(Data,
 }
 
 
+#' Calculate immune, infiltration (141 UP) and prostate scores
+#'
+#' @param Data matrix or data frame of gene expression values
+#' @param variable score to calculate: proliferation or progression
+#' @param logTransform if TRUE, log transform data. Set to FALSE is data is already log transformed
+#' @param gene_id specify the type of gene identifier used in the data:
+#' - "hgnc_symbol" for HUGO gene symbols
+#' - "ensembl_gene_id" for Ensembl gene IDs
+#' - "entrezgene" for Entrez IDs
+#' Default value is hgnc_symbol
+#' @return
+#' Returns values of the calculated score for each sample.
+#'
+#'
+#' @examples
+#' # Calculate immune score, hgnc symbols 
+#' results <- single_score(Lund2017, variable = "immune", gene_id = "hgnc_symbol")
+#' 
+#' @examples
+#' # Calculate progression score, hgnc symbols 
+#' results <- single_score(Lund2017, variable = "prostate", gene_id = "hgnc_symbol")
+#'                                          impute = TRUE)
+#'
+#' @export
+#
 single_score <- function(Data,
+                         variable = c("immune", "score141up", "prostate", NULL)[4],
                          logTransform = FALSE,
                          gene_id = c("ensembl_gene_id", "hgnc_symbol")[1],
                          adjust = TRUE,
-                         variable = c("immune", "score141up", "prostate")
+                         adj_factor = 5.1431
 ) 
 {
   # Data must be a matrix in log2 transformed format, with sample as column and genes as rows
@@ -911,6 +760,10 @@ single_score <- function(Data,
   
   if (logTransform) {
     D <- log2(D+1)
+  }
+  
+  if (is.null(variable)) {
+    stop("Variable must be one of the following: immune, score141up, prostate")
   }
   
   if (!(gene_id %in% c("hgnc_symbol","ensembl_gene_id"))) {
@@ -988,7 +841,8 @@ single_score <- function(Data,
     #                                       ncol = 1,
     #                                       dimnames = list(colnames(Data), "ProstateScore")))
     
-    s <- updated_signatures$prostate[,c(gene_id,"signature"), drop = F]
+    s <- updated_signatures$prostate[,gene_id, drop = F]
+    s$signature <- "Prostate"
     
     genes_prostate_int <- intersect(rownames(Data),s[[gene_id]])
     
@@ -1021,11 +875,463 @@ single_score <- function(Data,
     
     
     score_results <- do.call("rbind",lapply(1:nrow(score_results),function(x){
-      (score_results[x,]/mean(D[stable_genes_int,x]))*5.1431
+      (score_results[x,]/mean(D[stable_genes_int,x]))*adj_factor
     }))
   }
   
   return(score_results)
+  
+}
+
+# Immune Proportions #####
+
+calculate_immune_proportions <- function(immune_results) {
+  immune_proportions <- t(apply(immune_results,1,function(x){x/sum(x)}))
+  colnames(immune_proportions) <- paste0(colnames(immune_proportions)," Proportion")
+  return(immune_proportions)
+}
+
+
+# Grade predictor ##########
+# Needs:
+# Grade Predictor
+# Gene ID info?
+
+# # WHO 1999 (G3 vs G1/2)
+# load("D:/UROSCANSEQ_2024/Analysis/02.New_data/GradeClassifier/RF/hyperparameterCV/CLASSIFIER_RF_Grade.RData")
+# classifier_GRADE3 <- CLASSIFIER_RF_Grade
+#
+# # WHO 2004/2016 (HG vs LG)
+# load("D:/UROSCANSEQ_2024/Analysis/02.New_data/GradeClassifier/RF/HG/CLASSIFIER_RF_gradeHG_newCV2.RData")
+# classifier_HG <- rf_model_HG
+
+predict_grade <- function(Data, grade_predictor,
+                          gene_id = c("ensembl_gene_id", "hgnc_symbol")[1],
+                          ...) {
+  
+  # Data must be a matrix in log2 transformed format, with sample as column and genes as rows
+  if (!class(Data)[1] %in% c("data.frame","matrix")) {
+    stop("Data must be in dataframe or matrix format.")
+  }
+  D <- Data
+  
+  if (class(grade_predictor)[1] != "rule_based_RandomForest") {
+    stop("Classifier must be a rule_based_RandomForest object.")
+  }
+  
+  if (!(gene_id %in% c("hgnc_symbol","ensembl_gene_id"))) {
+    stop("Gene ID must be one of the following: 'hgnc_symbol' or 'ensembl_gene_id'")
+  } else if (gene_id != "ensembl_gene_id") {
+    
+    # Testing
+    # load("D:/UROSCANSEQ_2024/Analysis/02.New_data/GradeClassifier/gene_info_grade_classifiers.RData")
+    load("C:/Users/earam/LBCG/gene_info_lund.rda")
+    # gene_info_grade_classifiers <- LundTax2023Classifier::gene_info
+    rownames(gene_info_grade_classifiers) <- gene_info_grade_classifiers[[gene_id]]
+    int_genes <- rownames(D)[which(rownames(D) %in% gene_info_grade_classifiers[[gene_id]])]
+    rownames(D)[which(rownames(D) %in% gene_info_grade_classifiers[[gene_id]])] <- gene_info_grade_classifiers[int_genes,"ensembl_gene_id"]
+    
+  }
+  
+  
+  require(multiclassPairs)
+  grade_results <- predict_RF(classifier = grade_predictor, Data = D, ...)
+  
+  
+  
+  # if (ncol(D) == 1) cat(paste0("Prediction: ", grade_results$predictions_classes, "\n","Score: ", grade_results$predictions[,2], "\n"))
+  
+  return(grade_results)
+}
+
+
+# Function to calculate all scores #
+
+lund_scores <- function(Data, # Input data. Data must be a matrix in log2 transformed format, with sample as column and genes as rows
+                        gene_id = c("hgnc_symbol", "ensembl_gene_id")[2], # gene IDs
+                        scoring_method = c("ratio", "singscore")[1], # Method to calculate the proliferation score
+                        threshold_prostate = 3, # Gene expression threshold to flag a sample as possible prostate
+                        threshold_progression = 0.58, #  threshold to flag a sample as high risk of progression
+                        logTransform = TRUE, # Scores are calculated on log transformed data. If the data is already log transformed, set logTransformed to FALSE. If logTranform = TRUE, data will be log2 transformed (log2(data+1)) before calculating the scores
+                        adjust = FALSE,
+                        adj_factor = 5.1431,
+                        verbose = FALSE,
+                        ... # arguments to pass to the ranger functions (add impute = TRUE here if gene are missing)
+)
+{
+  # Check data
+  # Data must be a matrix in log2 transformed format, with sample as column and genes as rows
+  if (!class(Data)[1] %in% c("data.frame","matrix")) {
+    stop("Data must be in dataframe or matrix format.")
+  }
+  
+  D <- Data
+  # Gene symbols
+  if (!gene_id %in% c("hgnc_symbol", "ensembl_gene_id")) {
+    stop("gene_id must be one of: 'hgnc_symbol', 'ensembl_gene_id'")
+  }
+  
+  # Log transform #
+  if (logTransform) {
+    D <- log2(D+1)
+  }
+  
+  # Apply #
+  
+  # Proliferation #
+  # Debug
+  if (verbose) print("Calculating Proliferation")
+  results_proliferation <- ratio_score(Data = D,
+                                       variable = "proliferation",
+                                       logTransform = FALSE,
+                                       gene_id = gene_id,
+                                       method = scoring_method)
+  # Grade #
+  # WHO 1999 (G3 vs G1/2)
+  load("D:/UROSCANSEQ_2024/Analysis/02.New_data/GradeClassifier/RF/hyperparameterCV/CLASSIFIER_RF_Grade.RData")
+  classifier_GRADE3 <- CLASSIFIER_RF_Grade
+  
+  # WHO 2004/2016 (HG vs LG)
+  load("D:/UROSCANSEQ_2024/Analysis/02.New_data/GradeClassifier/RF/HG/CLASSIFIER_RF_gradeHG_newCV2.RData")
+  classifier_HG <- rf_model_HG
+  
+  if (verbose) print("Calculating G3 score")
+  results_g3 <- predict_grade(Data = D,
+                              gene_id = gene_id,
+                              grade_predictor = classifier_GRADE3,
+                              ...)
+  
+  if (verbose) print("Calculating HG score")
+  results_hg <- predict_grade(Data = D,
+                              gene_id = gene_id,
+                              grade_predictor = classifier_HG,
+                              ...)
+  
+  # Progression #
+  if (verbose) print("Calculating Progression score")
+  score_progression <- ratio_score(Data = D,
+                                     variable = "progression",
+                                     logTransform = FALSE,
+                                     gene_id = gene_id,
+                                     method = scoring_method)
+  results_progression <- ifelse(score_progression$Score >= threshold_progression, "HR", "LR")
+  
+  # Prostate #
+  
+  if (verbose) print("Calculating Prostate score")
+  scores_prostate <- single_score(Data = D,
+                                  variable = "prostate",
+                                  logTransform = FALSE,
+                                  gene_id = gene_id,
+                                  adjust = adjust,
+                                  adj_factor = adj_factor)
+  
+  results_prostate <- as.numeric(scores_prostate >= threshold_prostate)
+  
+  # Immune
+  
+  if (verbose) print("Calculating Immune scores")
+  results_immune <- single_score(Data = D,
+                                 variable = "immune",
+                                 logTransform = FALSE,
+                                 gene_id = gene_id,
+                                 adjust = adjust,
+                                 adj_factor = adj_factor)
+  
+  # 141 UP
+  scores141up <- single_score(Data = D,
+                              variable = "score141up",
+                              logTransform = FALSE,
+                              gene_id = gene_id,
+                              adjust = adjust,
+                              adj_factor = adj_factor)
+                            
+  
+  # Immune Proportion
+  immune_proportions <- calculate_immune_proportions(results_immune)
+  
+  # Add 141UP to immune results
+  results_immune <- cbind(Immune141_UP=scores141up$Immune141_UP,
+                          results_immune[,1:10,drop=FALSE],
+                          Stromal141_UP=scores141up$Stromal141_UP,
+                          results_immune[,11:13,drop=FALSE])
+  
+  
+  
+  # Merge_scores
+  
+  if (verbose) print("Merging scores")
+  merge_scores <- cbind(Proliferation=results_proliferation,
+                        MolecularGradeWHO1999=results_g3$predictions_classes,
+                        MolecularGradeWHO1999_score=results_g3$predictions[,"G3"],
+                        MolecularGradeWHO2016=results_hg$predictions_classes,
+                        MolecularGradeWHO2016_score=results_hg$predictions[,"HG"],
+                        ProgressionScore = score_progression$Score,
+                        ProgressionRisk = results_progression,
+                        ProstateScore = scores_prostate,
+                        PossibleProstate = ifelse(results_prostate == 1, "YES", "NO"),
+                        results_immune,
+                        immune_proportions
+  )
+  
+  
+  
+}
+
+
+
+
+#' Predict Lund Taxonomy subtypes based on rule-based Random Forest classifiers
+#'
+#' @param data matrix, data frame or multiclassPairs_object of gene expression values
+#' @param subtype_only 
+#' @param include_data include data in output (disabled by default)
+#' @param include_pred_scores include prediction scores for each sample and class in output (default)
+#' @param gene_id specify the type of gene identifier used in the data:
+#' - "hgnc_symbol" for HUGO gene symbols
+#' - "ensembl_gene_id" for Ensembl gene IDs
+#' - "entrezgene" for Entrez IDs
+#' Default value is hgnc_symbol
+#' @param logTransform h
+#' @param adjust hh
+#' @param adj_factor default is 5.1431
+#' @param ... Additional parameters to be passed to the predict_RF function. If genes are missing in the data, include impute = TRUE here
+#' @return
+#' Returns a list object including:
+#' - Data (optional, not included by default)
+#' - Prediction scores for all classes (optional, included by default)
+#' - Predicted LundTax class for 7-class system
+#' - Predicted LundTax class for 5-class system
+#'
+#' @details
+#' This function uses 2 classifiers to classify the samples: 5-class classifier first  classifies samples into Uro, GU, BaSq, Mes or ScNE.
+#' Samples classified as Uro receive a second classification as UroA, B or C by the second classifier
+#'
+#'
+#' @examples
+#' results <- predict_LundTax2023(Lund2017)
+#' @examples
+#' # Include data in result
+#' results_data <- predict_LundTax2023(Lund2017,
+#'                                include_data = TRUE)
+#'
+#' @examples
+#' # Imputation
+#' # Remove 100 genes from data
+#' missing_genes <- sample(1:nrow(Lund2017),100)
+#' Lund2017_missinggenes <- Lund2017[-missing_genes,]
+#' results_imputation <- predict_LundTax2023(Lund2017_missinggenes,
+#'                                           impute = TRUE)
+#'
+#' @export
+#
+predict_LundTax2023 <- function(data,
+                                subtype_only = FALSE, # include only subtype prediction (no additional scores)
+                                include_data = FALSE, # return input data in the results object
+                                include_pred_scores = TRUE, # return prediction scores in the results object
+                                gene_id = c("hgnc_symbol","ensembl_gene_id")[1],
+                                scoring_method = c("ratio","singscore")[1],
+                                logTransform = FALSE,
+                                adjust = TRUE, # adjust scores by stable genes and adjustment factor
+                                adj_factor = 5.1431,# adjustment factor
+                                ...)
+                                    
+  
+{
+  # Check inputs
+  
+  ## Data ##
+  # Store as dataframe
+  if (!(class(data)[1] %in% c("matrix","data.frame","multiclassPairs_object"))) {
+    stop("Data should be in one of the following formats: matrix, data.frame, multiclassPairs_object")
+  }
+  
+  if (ncol(data) != length(unique(colnames(data)))) {
+    stop("Sample names (column names) should not be duplicated")
+  }
+  
+  if (class(data)[1] == "multiclassPairs_object") {
+    D <- data$data$Data
+    # Get ref labels
+    if (is.null(ref)) {
+      ref <- data$data$Labels
+    }
+  }
+  
+  if (is.data.frame(data)) {
+    D <- as.matrix(data)
+  }
+  
+  if (is.matrix(data)) {
+    # D <- as.data.frame(data, stringsAsFactors = FALSE)
+    D <- data
+  }
+  
+  # Check gene identifiers ####
+  if (gene_id != "hgnc_symbol") {
+    
+    original_D <- D
+    
+    # # Testing
+    load("D:/Packages/LundTaxonomy2023Classifier_DEV/gene_info_lund.rda")
+    # gene_info_lund <- LundTax2023Classifier::gene_info_lund
+    
+    rownames(gene_info_lund) <- gene_info_lund[[gene_id]]
+    int_genes <- rownames(D)[which(rownames(D) %in% gene_info_lund[[gene_id]])]
+    rownames(D)[which(rownames(D) %in% gene_info_lund[[gene_id]])] <- gene_info_lund[int_genes,"hgnc_symbol"]
+    
+  } else {
+    original_D <- D
+    # change "-" to "_" to avoid errors in RF
+    if (TRUE %in% grepl("-",rownames(D))) rownames(D) <- gsub("-","_",rownames(D))
+    
+    
+  }
+  
+  # Classifier ##
+  C <- LundTax2023Classifier::LundTax_RF_5c
+  C2 <- LundTax2023Classifier::LundTax_RF_Uro7c
+  
+  # Results object ##
+  
+  
+  results_suburo <- list(data = original_D,
+                         subtype_scores = NULL,
+                         predictions_7classes = NULL,
+                         predictions_5classes = NULL,
+                         scores = NULL)
+  
+  ## Predict 5 class ###
+  
+  prediction <- predict_RF(classifier = C,
+                           Data = D,
+                           verbose = TRUE, ...)
+  
+  # Reorder scores
+  pred <- prediction$predictions[,c("Uro","GU","BaSq","Mes","ScNE"), drop=FALSE]
+  prediction$predictions <- pred
+  prediction$predictions_classes <- colnames(pred)[max.col(replace(pred,is.na(pred),-Inf),ties.method = "first")]
+  
+  ## Get uro samples
+  if ("Uro" %in% prediction$predictions_classes) {
+    D_Uro <- D[,which(prediction$predictions_classes == "Uro"), drop = FALSE]
+    D_NoUro <- D[,which(prediction$predictions_classes != "Uro"), drop = FALSE]
+    
+    # Classify suburo if necessary ###
+    prediction_suburo <- predict_RF(classifier = C2,
+                                    Data = D_Uro,
+                                    verbose = TRUE, ...)
+    
+    names_uro <- colnames(D_Uro)
+    names_all <- colnames(D)
+    
+    # Merged score matrix
+    score_matrix <- merge_subUro_matrix(score_matrix1 = prediction_suburo$predictions,
+                                        score_matrix2 = prediction$predictions,
+                                        row.names = list(names_uro,names_all))
+  } else { # if there is no Uro
+    score_matrix <- cbind("Uro" = prediction$predictions[,"Uro"],
+                          "UroA" = NA,
+                          "UroB" = NA,
+                          "UroC" = NA,
+                          "GU" = prediction$predictions[,"GU"],
+                          "BaSq" = prediction$predictions[,"BaSq"],
+                          "Mes" = prediction$predictions[,"Mes"],
+                          "ScNE" = prediction$predictions[,"ScNE"])
+    
+  }
+  
+  # Calculate additional scores ##
+  if (!subtype_only) {
+  all_scores <- lund_scores(Data = original_D,
+                            gene_id = gene_id,
+                            scoring_method = scoring_method,
+                            logTransform = logTransform,
+                            adjust = adjust,
+                            adj_factor = adj_factor,
+                            verbose = verbose,
+                            ...)
+  } else {
+    all_scores <- NULL
+  }
+  
+  # Collect results ##
+  
+  # Additional scores
+  results_suburo$scores <- all_scores
+  
+  # Score matrices
+  results_suburo$subtype_scores <- score_matrix
+  
+  score_matrix_suburo <- score_matrix[,2:4, drop = FALSE]
+  score_matrix_5c <- score_matrix[,c(1,5:8), drop = FALSE]
+  
+  # 5 class level
+  results_suburo$predictions_5classes <- colnames(score_matrix_5c)[max.col(replace(score_matrix_5c,is.na(score_matrix_5c),-Inf),ties.method = "first")]
+  
+  # 7 class level
+  results_suburo$predictions_7classes <- results_suburo$predictions_5classes
+  max_suburo <- colnames(score_matrix_suburo)[max.col(replace(score_matrix_suburo,is.na(score_matrix_suburo),-Inf),ties.method = "first")]
+  
+  for (i in 1:length(results_suburo$predictions_7classes)) {
+    p <- results_suburo$predictions_7classes[i]
+    if (p == "Uro") {
+      suburo <- max_suburo[i]
+      results_suburo$predictions_7classes[i] <- suburo
+    }
+    
+  }
+  
+  # Score ties ##
+  
+  # 5 class level
+  first5 <- setNames(colnames(score_matrix_5c)[max.col(replace(score_matrix_5c,is.na(score_matrix_5c),-Inf),ties.method = "first")],rownames(score_matrix_5c))
+  last5  <- setNames(colnames(score_matrix_5c)[max.col(replace(score_matrix_5c,is.na(score_matrix_5c),-Inf),ties.method = "last")],rownames(score_matrix_5c))
+  
+  if (sum(first5 != last5)>0) {
+    check.ties(first5,last5)
+    
+  }
+  
+  # 7 class level
+  score_matrix_suburo_ties <- score_matrix_suburo[!is.na(score_matrix_suburo[,1]),]
+  first7 <- setNames(colnames(score_matrix_suburo_ties)[max.col(score_matrix_suburo_ties,ties.method = "first")],rownames(score_matrix_suburo_ties))
+  last7  <- setNames(colnames(score_matrix_suburo_ties)[max.col(score_matrix_suburo_ties,ties.method = "last")],rownames(score_matrix_suburo_ties))
+  
+  
+  if (sum(first7 != last7)>0) {
+    check.ties(first7,last7)
+  }
+  
+  # Final results ##
+  names(results_suburo$predictions_7classes) <- colnames(D)
+  names(results_suburo$predictions_5classes) <- colnames(D)
+  
+  if (subtype_only) {
+    predictions_suburo <- list(predictions_7classes = results_suburo$predictions_7classes,
+                               predictions_5classes = results_suburo$predictions_5classes)
+    
+    results_suburo_nodata <- list(subtype_scores = results_suburo$subtype_scores,
+                                  predictions_7classes = results_suburo$predictions_7classes,
+                                  predictions_5classes = results_suburo$predictions_5classes)
+  } else {
+    predictions_suburo <- list(predictions_7classes = results_suburo$predictions_7classes,
+                               predictions_5classes = results_suburo$predictions_5classes,
+                               scores = results_suburo$scores)
+    
+    results_suburo_nodata <- list(subtype_scores = results_suburo$subtype_scores,
+                                  predictions_7classes = results_suburo$predictions_7classes,
+                                  predictions_5classes = results_suburo$predictions_5classes,
+                                  scores = results_suburo$scores)
+  }
+  
+  if (include_data & include_pred_scores) {
+    result <- results_suburo
+  } else if (include_data == FALSE & include_pred_scores) {
+    result <- results_suburo_nodata
+  } else if (include_data == FALSE & include_pred_scores == FALSE) {
+    result <- predictions_suburo
+  }
   
 }
 

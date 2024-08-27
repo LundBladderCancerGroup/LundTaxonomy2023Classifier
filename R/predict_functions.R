@@ -639,9 +639,9 @@ ratio_score <- function(Data,
   # Load signatures
   
   # Testing 
-  load("C:/Users/earam/LBCG/updated_signatures.rda")
+  # load("C:/Users/earam/LBCG/updated_signatures.rda")
   
-  # signatures <- LundTax2023Classifier::signatures
+  signatures <- LundTax2023Classifier::signatures
   
   if (variable == "proliferation") {
     proliferation_signature <- updated_signatures$proliferation
@@ -773,8 +773,8 @@ single_score <- function(Data,
     
     # # Testing
     # load("D:/Packages/LundTaxonomy2023Classifier_DEV/gene_info_lund.rda")
-    load("C:/Users/earam/LBCG/gene_info_lund.rda")
-    # gene_info_lund <- LundTax2023Classifier::gene_info_lund
+    # load("C:/Users/earam/LBCG/gene_info_lund.rda")
+    gene_info_lund <- LundTax2023Classifier::gene_info_lund
     
     rownames(gene_info_lund) <- gene_info_lund[[gene_id]]
     int_genes <- rownames(D)[which(rownames(D) %in% gene_info_lund[[gene_id]])]
@@ -786,9 +786,9 @@ single_score <- function(Data,
   # Load signatures
   
   # Testing 
-  load("C:/Users/earam/LBCG/updated_signatures.rda")
+  # load("C:/Users/earam/LBCG/updated_signatures.rda")
   
-  # signatures <- LundTax2023Classifier::signatures
+  signatures <- LundTax2023Classifier::signatures
   
   if (variable == "immune") {
     
@@ -1173,8 +1173,8 @@ predict_LundTax2023 <- function(data,
     original_D <- D
     
     # # Testing
-    load("D:/Packages/LundTaxonomy2023Classifier_DEV/gene_info_lund.rda")
-    # gene_info_lund <- LundTax2023Classifier::gene_info_lund
+    # load("D:/Packages/LundTaxonomy2023Classifier_DEV/gene_info_lund.rda")
+    gene_info_lund <- LundTax2023Classifier::gene_info_lund
     
     rownames(gene_info_lund) <- gene_info_lund[[gene_id]]
     int_genes <- rownames(D)[which(rownames(D) %in% gene_info_lund[[gene_id]])]

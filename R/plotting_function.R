@@ -80,7 +80,7 @@ plot_signatures <- function(results_object,
     stop("Input should be the result of applying predict_LundTax2023")
   } else if (is.list(results_object) & "data" %in% names(results_object)) {
     D <- results_object$data
-    score_matrix <- results_object$scores
+    score_matrix <- results_object$subtype_scores
     pred_labels5 <- results_object$predictions_5classes
     pred_labels7 <- results_object$predictions_7classes
   } else if (is.list(results_object) & !"data" %in% names(results_object)) {
@@ -90,7 +90,7 @@ plot_signatures <- function(results_object,
       stop("Data should be in matrix or data.frame format")
     } else if (class(data)[1] %in%  c("matrix","data.frame")) {
       D <- data[,names(results_object$predictions_7classes)]
-      score_matrix <- results_object$scores
+      score_matrix <- results_object$subtype_scores
       pred_labels5 <- results_object$predictions_5classes
       pred_labels7 <- results_object$predictions_7classes
     }
@@ -148,17 +148,11 @@ plot_signatures <- function(results_object,
     stop("Gene ID must be one of the following: 'hgnc_symbol','ensembl_gene_id' or 'entrezgene'")
   }
   else if (gene_id != "hgnc_symbol") {
-    # all_heatmap_genes <- unique(unlist(genes_to_plot))
-
-    # # Testing
-    # load("gene_info_heatmap_final.RData", verbose = T)
-    # rownames(gene_info_heatmap_final) <- gene_info_heatmap_final[[gene_id]]
-    # int_genes <- rownames(D_norm)[which(rownames(D_norm) %in% gene_info_heatmap_final[[gene_id]])]
-    # rownames(D_norm)[which(rownames(D_norm) %in% gene_info_heatmap_final[[gene_id]])] <- gene_info_heatmap_final[int_genes,"hgnc_symbol"]
-    gene_info_heatmap <- LundTax2023Classifier::gene_info_heatmap
-    rownames(gene_info_heatmap) <- gene_info_heatmap[[gene_id]]
-    int_genes <- rownames(D_norm)[which(rownames(D_norm) %in% gene_info_heatmap[[gene_id]])]
-    rownames(D_norm)[which(rownames(D_norm) %in% gene_info_heatmap[[gene_id]])] <- gene_info_heatmap[int_genes,"hgnc_symbol"]
+   
+    gene_info_lund <- LundTax2023Classifier::gene_info_lund
+    rownames(gene_info_lund) <- gene_info_lund[[gene_id]]
+    int_genes <- rownames(D_norm)[which(rownames(D_norm) %in% gene_info_lund[[gene_id]])]
+    rownames(D_norm)[which(rownames(D_norm) %in% gene_info_lund[[gene_id]])] <- gene_info_lund[int_genes,"hgnc_symbol"]
 
   }
 

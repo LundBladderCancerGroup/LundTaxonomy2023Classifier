@@ -3,7 +3,8 @@ Title: Predictor of Lund Taxonomy molecular subtypes from gene-expression data
 Version: 1.1.4
 Authors@R: c(
     person("Elena", "Aramendía", , "elena.aramendia_cotillas@med.lu.se", role = c("aut", "cre")),
-    person("Pontus", "Eriksson", , "pontus.eriksson@med.lu.se", role = c("aut")))
+    person("Pontus", "Eriksson", , "pontus.eriksson@med.lu.se", role = c("aut")),
+    person("Adam", "Mattsson", , "adam.mattsson@med.lu.se", role = c("aut")))
 Description: The packages implements a Random Forest rule-based single-sample predictor that classifies 
     transcriptomic samples into the 5 (or 7, including subclasses) Lund Taxonomy molecular subtypes. 
     The final classifier is composed of two separate predictors applied sequentially - first a sample 

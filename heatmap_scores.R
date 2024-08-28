@@ -196,11 +196,3 @@ heatmap_scores = function(this_data = NULL,
   dev.off()
 
   }
-
-heatmap_scores(this_data = bowden_geTMM_scores_out,
-               title = "NEWPLasdasdOTdsds",
-               out_path = "../../figs_scratch/new/",
-               plot_font_size = 13,
-               out_format = "png",
-               hm_cluster = FALSE,
-               plot_hm_legend = FALSE)

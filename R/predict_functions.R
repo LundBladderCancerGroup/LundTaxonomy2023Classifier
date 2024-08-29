@@ -1,525 +1,4 @@
 
-#' ReadData
-#' Function to read the data and Labels
-#' From multiclassPairs
-#' @export
-ReadData <- function(Data,
-                     Labels,
-                     Platform = NULL,
-                     verbose = TRUE) {
-
-  # check the input Data format
-  if (!is.data.frame(Data) &
-      !is.matrix(Data) &
-      class(Data)[1] != "ExpressionSet") {
-    stop("Bad format for the input Data...should be:
-         matrix, data.frame, or ExpressionSet")
-  }
-
-  if (is.data.frame(Data)) {
-    Data_tmp <- Data
-  }
-
-  if (is.matrix(Data)) {
-    Data_tmp <- as.data.frame(Data, stringsAsFactors = FALSE)
-  }
-
-  # if the input Data is ExpressionSet object
-  if (class(Data)[1] == "ExpressionSet") {
-
-    # Biobase package is needed
-    if(!requireNamespace("Biobase", quietly = TRUE)){
-      message("ExpressionSet is used and 'Biobase' package from Bioconductor is needed!")
-      stop("Visit their website or install Biobase package using:
-      if (!requireNamespace('BiocManager', quietly = TRUE)) {
-      install.packages('BiocManager')
-      }
-      BiocManager::install('Biobase')", call. = FALSE)
-    } else {
-      requireNamespace("Biobase")
-    }
-
-    # extract the expression matrix from the ExpressionSet
-    Data_tmp <- as.data.frame(Biobase::exprs(Data), stringsAsFactors = FALSE)
-
-    # if labels are not provided then give the available variables in Eset
-    if (!hasArg(Labels)) {
-      message(capture.output(cat("Phenotype data has these variables:",
-                                 Biobase::varLabels(Data),
-                                 fill = TRUE)))
-      stop("input a vector with same length of samples number
-           or select one of these variable for Labels")
-    }
-
-    # extract the Labels - in case it is stored in the ExpressionSet
-    if (is.character(Labels) & length(Labels) == 1) {
-
-      if (Labels %in% Biobase::varLabels(Data)) {
-        Labels_tmp <- as.character(Biobase::pData(Data)[, Labels])
-
-      } else {
-        message(capture.output(cat("Phenotype data has these variables:",
-                                   Biobase::varLabels(Data),
-                                   fill = TRUE)))
-        stop("Labels variable is not found in the phenotype data of your ExpressionSet")
-      }
-    }
-
-    # get the input Labels vector as it is
-    if ((is.character(Labels) | is.factor(Labels)) & length(Labels) != 1) {
-      Labels_tmp <- as.character(Labels)
-
-      if (length(Labels_tmp) != ncol(Data_tmp)) {
-        message("Number of samples: ", ncol(Data_tmp))
-        message("Labels length: ", length(Labels_tmp))
-        stop("Labels vector length are not equal to samples in data")
-      }
-    }
-
-    # if user input platform name or vector
-    if (!is.null(Platform)) {
-      # extract the Labels - in case it is stored in the ExpressionSet
-      if (is.character(Platform) & length(Platform) == 1) {
-
-        if (Platform %in% Biobase::varLabels(Data)) {
-          Platform_tmp <- as.character(Biobase::pData(Data)[, Platform])
-
-        } else {
-          message(capture.output(
-            cat("Phenotype data has these variables:",
-                Biobase::varLabels(Data), fill = TRUE)))
-          stop("Platform variable is not found in the phenotype
-               data of your ExpressionSet")
-        }
-      }
-
-      # get the input Platform vector as it is
-      if ((is.character(Platform) |
-           is.factor(Platform)) &
-          length(Platform) != 1) {
-
-        Platform_tmp <- as.character(Platform)
-
-        if (length(Platform_tmp) != ncol(Data_tmp)) {
-          message("Number of samples:", ncol(Data_tmp))
-          message("Labels length:", length(Platform_tmp))
-          stop("Platform vector length are not equal to samples in data")
-        }
-      }
-    }
-  }
-
-  # check if rownames is not NULL to avoid error later
-  if (is.null(rownames(Data_tmp))) {
-    stop("Provide features/genes names as rownames in the Data matrix!")
-  }
-
-  # get the input Labels vector as it is
-  if ((is.character(Labels) |
-       is.factor(Labels)) &
-      class(Data)[1] != "ExpressionSet") {
-
-    Labels_tmp <- as.character(Labels)
-
-    if (length(Labels_tmp) != ncol(Data_tmp)) {
-      message(paste("Number of samples: ", ncol(Data_tmp)))
-      message(paste("Labels length: ", length(Labels_tmp)))
-      stop("Labels vector length are not equal to samples in data")
-    }
-  }
-
-  # get the input Platform vector as it is
-  if (!is.null(Platform)) {
-    if ((is.character(Platform) |
-         is.factor(Platform)) &
-        class(Data)[1] != "ExpressionSet") {
-
-      Platform_tmp <- as.character(Platform)
-
-      if (length(Platform_tmp) != ncol(Data_tmp)) {
-        message(paste("Number of samples: ", ncol(Data_tmp)))
-        message(paste("Labels length: ", length(Platform_tmp)))
-        stop("Platform vector length are not equal to samples in data")
-      }
-    }
-  } else {
-    Platform_tmp <- NULL
-  }
-
-  ###
-  # Remove genes with NAs in all samples
-  remove_na <- rowSums(is.na(Data_tmp)) == ncol(Data_tmp)
-
-  if (sum(remove_na) > 0) {
-    message(paste("These features will be removed because they have NA values
-                  in all samples:"))
-    message(paste(rownames(Data_tmp)[remove_na], collapse = " "))
-    Data_tmp <- Data_tmp[!remove_na, ]
-  }
-
-  # Remove genes with NAs in all genes
-  remove_na <- colSums(is.na(Data_tmp)) == nrow(Data_tmp)
-
-  if (sum(remove_na) > 0) {
-    message(paste("These samples will be removed because they have NA values
-                  for all features:"))
-    message(paste(colnames(Data_tmp)[remove_na], collapse = " "))
-    Data_tmp   <- Data_tmp[, !remove_na]
-    Labels_tmp <- Labels_tmp[!remove_na]
-
-    if (!is.null(Platform)) {
-      Platform_tmp <- Platform_tmp[!remove_na]
-    }
-  }
-
-  # print info about the input data and labels
-  if (verbose) {
-    message("Creating Data object...")
-    message("Number of samples: ", ncol(Data_tmp))
-    message("Number of genes/features: ", nrow(Data_tmp))
-    message(capture.output(cat("Classes:", unique(Labels_tmp), fill = TRUE)))
-
-    if (!is.null(Platform)) {
-      message(capture.output(cat("Platforms/studies:",
-                                 unique(Platform_tmp),
-                                 fill = TRUE)))
-    } else {
-      message("Platforms/studies: NULL")
-    }
-  }
-
-  # if any labels are NAs then stop
-  if (any(is.na(as.character(Labels_tmp)))) {
-    stop("NAs are not allowed in labels!")
-  }
-
-  if (any(is.na(as.character(Platform_tmp)))) {
-    stop("NAs are not allowed in Platform!")
-  }
-
-
-  # give warning message if the gene names have "-"
-  # This will give errors in RF models and Boruta and ranger
-  if (length(grep(x = rownames(Data_tmp), pattern = "-")) > 0) {
-    message("Gene names in the data have '-' symbol! This may generate errors during the training process of random forest! It is recommended to change these '-' to '_' or '.'")
-  }
-
-  if (length(grep(x = rownames(Data_tmp), pattern = ",")) > 0) {
-    message("Gene names in the data have ',' symbol! This may generate errors during the training process of random forest! It is recommended to change these ',' to '_' or '.'")
-  }
-
-  # create the object
-  object <- list(
-    data = list(Data=Data_tmp,
-                Labels=Labels_tmp,
-                Platform=Platform_tmp)
-  )
-  class(object) <- "multiclassPairs_object"
-
-  return(object)
-}
-
-#' predict_RF
-#' Predict sample class based on gene pair-based random forest classifier
-#' From multiclassPairs
-#'
-#' @import ranger
-#' @import rdist
-#' @export
-
-predict_RF <- function(classifier,
-                       Data,
-                       impute = FALSE,
-                       impute_reject = 0.67,
-                       impute_kNN = 5, # for kNN
-                       verbose = TRUE) {
-
-  # check the object class
-  if (!class(Data)[1] %in% c("multiclassPairs_object",
-                             "ExpressionSet",
-                             "data.frame",
-                             "matrix")) {
-    stop("Data should be class:
-    matrix/data.frame/ExpressionSet/multiclassPairs_object from ReadData function!")
-  }
-
-  # check classifier object
-  if (class(classifier)[1] != "rule_based_RandomForest") {
-    stop("classifier should be rule_based_RandomForest object from train_RF function!")
-  }
-
-  if (!is.numeric(impute_reject) |
-      !length(impute_reject) == 1 |
-      any(impute_reject >= 1) |
-      any(impute_reject <= 0)) {
-    stop("impute_reject argument should be a number between 0 and 1!")
-  }
-
-  # get the data matrix
-  if (is.data.frame(Data)) {
-    D <- Data
-  }
-
-  if (is.matrix(Data)) {
-    D <- as.data.frame(Data, stringsAsFactors = FALSE)
-  }
-
-  # if the input Data is ExpressionSet object
-  if (class(Data)[1] == "ExpressionSet") {
-
-    # Biobase package is needed
-    if(!requireNamespace("Biobase", quietly = TRUE)){
-      message("ExpressionSet is used and 'Biobase' package from Bioconductor is needed!")
-      stop("Visit their website or install Biobase package using:
-      if (!requireNamespace('BiocManager', quietly = TRUE)) {
-      install.packages('BiocManager')
-      }
-      BiocManager::install('Biobase')", call. = FALSE)
-    } else {
-      requireNamespace("Biobase")
-    }
-
-    # extract the expression matrix from the ExpressionSet
-    D <- as.data.frame(Biobase::exprs(Data), stringsAsFactors = FALSE)
-  }
-
-  if (class(Data)[1]  ==  "multiclassPairs_object") {
-    D <- Data$data$Data
-  }
-
-  # extract the genes and the rules
-  genes <- classifier$RF_scheme$genes
-  rules <- classifier$RF_scheme$rules
-
-  # check if all genes are in the data
-  if (any(!genes %in% rownames(D))) {
-
-    if (verbose){
-      message("These genes are not found in the data:")
-      message(capture.output(cat(genes[!genes %in% rownames(D)])))
-      message("Gene names should as rownames and sample names as columns!")
-      message("Check the genes in classifier object to see all the needed genes.")
-      message("Check if '-' or ',' symbols in the gene names in your data. You may need to change it to '_' or '.'")
-    }
-
-    if (impute == FALSE) {
-      stop("All genes should be in the data with no NA values! Or you can turn impute argument to TRUE to impute missed genes to the closest class for each sample!")
-    }
-
-    if (impute == TRUE & verbose) {
-      message("Missed genes will be imputed to the closest class for each sample!")
-    }
-  }
-
-  # create empty matrix for the data
-  complete <- data.frame(matrix(data = NA,
-                                nrow = length(genes),
-                                ncol = ncol(D),
-                                dimnames = list(genes, colnames(D))),
-                         check.names = FALSE,
-                         stringsAsFactors = FALSE)
-
-  # fill it with data
-  found <- genes[genes %in% rownames(D)]
-  complete[found,colnames(D)] <- D[found,]
-
-  # Remove genes with NAs
-  if (sum(!complete.cases(complete)) > 0) {
-    if (verbose){
-      message("These genes have NAs:")
-      message(paste(rownames(complete)[!complete.cases(complete)],
-                    collapse = " "))
-    }
-
-    if (impute == FALSE) {
-      message("Turn impute to TRUE to impute NAs to the closest class for each sample with NAs!")
-      stop("Gene which is used in the classifier should not have NAs!")
-    }
-
-    if (impute == TRUE & verbose) {
-      message("These genes will be imputed to the closest class for each sample with NAs")
-    }
-  }
-
-  # produce the binary matrix
-  binary <- complete[rules$gene1, , drop=FALSE] < complete[rules$gene2, , drop=FALSE]
-  rownames(binary) <- paste0(rules$gene1,
-                             "__",
-                             rules$gene2)
-
-
-  #Impute if needed
-  if (impute) {
-
-    getmode <- function(v) {
-      uniqv <- unique(v)
-      uniqv[which.max(tabulate(match(v, uniqv)))]
-    }
-
-    # get the mode values from the training data - stored in the classifier object
-    # mode_df <- classifier$RF_scheme$mode
-    TrainingMatrix_df <- classifier$RF_scheme$TrainingMatrix
-
-    # to store the index for the samples to be removed
-    # due to lack of a lot of rules
-    to_remove_sam <- c()
-
-    for(i in 1:ncol(binary)){
-
-      # get which rules are missed in this sample
-      is_na <- is.na(binary[,i])
-
-      # if everything is OK then go to the next sample
-      if (sum(is_na) == 0) {
-        next
-      }
-
-      # skip the sample if it misses >0.67 of rules
-      if (sum(is_na) > (nrow(binary)*impute_reject)) {
-        to_remove_sam <- c(to_remove_sam,i)
-        next()
-      } else {
-        # give warning if the sample misses >0.5 of the rules
-        if (sum(is_na) > (nrow(binary)*0.5) & verbose) {
-          message("More than the half of the rules need imputation for this sample:")
-          message(colnames(binary)[i])
-          message("This could affect the prediction accuracy for this sample!")
-        }
-      }
-
-      # remove the NAs before find the dist
-      ok_rules <- names(which(is_na==FALSE))
-      impute_rules <- names(which(is_na == TRUE)) #Pontus
-
-      dist_mat <- rdist::cdist(TrainingMatrix_df[, ok_rules],
-                               t(binary[ok_rules, i, drop=FALSE]),
-                               metric="jaccard") #Pontus (Uses the package "rdist")
-
-      binary[impute_rules, i] <- apply(TrainingMatrix_df[head(order(dist_mat[,1]),
-                                                              impute_kNN),
-                                                         impute_rules,
-                                                         drop=FALSE],
-                                       2, getmode)
-
-      # sam      <- binary[ok_rules,i, drop=FALSE]
-
-      # dist_mat <- as.matrix(dist(t(cbind(sam, mode_df[ok_rules,])),
-      #                            method="binary"))
-      #
-      # # remove the first because it is the sample itself
-      # closest  <- which.min(dist_mat[-1,1])
-      # closest  <- names(closest)[1]
-      #
-      # # get the rules those need imputation for this sample
-      # impute_rules <- names(which(is_na==TRUE))
-      #
-      # # get the mode values as imputations
-      # binary[impute_rules, i] <- mode_df[impute_rules, closest]
-    }
-
-    # tell the user that we skipped these samples
-    if (length(to_remove_sam)>0) {
-      message("#####")
-      message(length(to_remove_sam),
-              " sample(s) with missed values and passed the impute_reject cutoff, because of that these sample(s) were removed from the prediction:")
-      message(paste0(colnames(binary)[to_remove_sam],
-                     collapse = " "))
-      message("#####")
-
-      binary  <- binary[,-to_remove_sam, drop=FALSE]
-    }
-
-    if (any(dim(binary)== 0)) {
-      stop("No samples left!")
-    }
-  }
-
-  # predict by original ranger function
-  results <- predict(classifier[[1]]$RF_classifier,
-                     data = t(binary))
-
-  # give the prediction the sample names
-  if (is.matrix(results$predictions)) {
-    rownames(results$predictions) <- colnames(binary)
-
-    # get the highest score
-    pred <- as.data.frame(results$predictions, stringsAsFactors = FALSE)
-
-    # get the prediction labels
-    results$predictions_classes <- colnames(pred)[max.col(pred,
-                                                          ties.method = "first")]
-
-    names(results$predictions_classes) <- rownames(results$predictions)
-
-    # to generate warnings if there is ties
-    first <- colnames(pred)[max.col(pred,
-                                    ties.method = "first")]
-    last  <- colnames(pred)[max.col(pred,
-                                    ties.method = "last")]
-    if (sum(first != last)>0) {
-      message(paste("Score ties were found in", sum(first != last),
-                    "out of",nrow(pred),"samples in the data",
-                    collapse = " "))
-
-
-    }
-  }
-
-  if (is.factor(results$predictions)) {
-    names(results$predictions) <- colnames(binary)
-  }
-  #
-  return(results)
-}
-
-
-#' Print method for the RF classifier
-#' @export
-print.rule_based_RandomForest <- function(x, ...) {
-  # print info about the input data and labels
-  cat("multiclassPairs - Rule based Random Forest classifier\n")
-
-  # print what is not empty in the other slots
-  for (y in names(x)) {
-    if (all(sapply(x[[y]], is.null))) {
-      cat("  Object contains: NULL\n")
-    } else {
-      cat("  Object contains:\n")
-      for (i in names(x[[y]])) {
-        if (!is.null(x[[y]][[i]])) {
-          cat("     ","-",i)
-
-          if (i == "genes") {
-            cat(":", length(x[[y]][[i]]),"genes\n")
-          }
-
-          if (i == "rules") {
-            cat(":", nrow(x[[y]][[i]]),"rules\n")
-          }
-
-          if (i == "calls") {
-            cat(": ")
-            cat(gsub(capture.output(cat(capture.output(x[[y]][[i]]))),
-                     pattern = paste0(c(",", ",     "), collapse = "|"),
-                     replacement = ",\n            "))
-          }
-
-          if (i == "RF_classifier"| i== "boruta"  | i=="TrainingMatrix") {
-            #| i== "mode"
-            cat("\n")
-          }
-
-        } else { # if NULL
-          cat("     ","-",i,": NULL\n")
-        }
-        message()
-      }
-    }
-  }
-}
-
-
-
 #' Merge prediction score matrices from two classifiers
 #'
 #' This function merges the prediction score matrices from the 5-class and 7-class (UroA,UroB,UroC) classifiers into 1 unique score matrix
@@ -638,13 +117,10 @@ ratio_score <- function(Data,
   
   # Load signatures
   
-  # Testing 
-  # load("C:/Users/earam/LBCG/updated_signatures.rda")
-  
   signatures <- LundTax2023Classifier::signatures
   
   if (variable == "proliferation") {
-    proliferation_signature <- updated_signatures$proliferation
+    proliferation_signature <- signatures$proliferation
     # When included in the package
     # proliferation_signature <- LundTax2023Classifier::signatures$proliferation
     
@@ -668,7 +144,7 @@ ratio_score <- function(Data,
   
   if (variable == "progression") {
     
-    progression_signature <- updated_signatures$progression
+    progression_signature <- signatures$progression
     
     # When included in the package
     # progression_signature <- LundTax2023Classifier::signatures$progression
@@ -781,18 +257,18 @@ single_score <- function(Data,
     rownames(D)[which(rownames(D) %in% gene_info_lund[[gene_id]])] <- gene_info_lund[int_genes,"hgnc_symbol"]
     
   }
-  
+  gene_id <- "hgnc_symbol"
   
   # Load signatures
   
   # Testing 
-  # load("C:/Users/earam/LBCG/updated_signatures.rda")
+  # load("C:/Users/earam/LBCG/signatures.rda")
   
   signatures <- LundTax2023Classifier::signatures
   
   if (variable == "immune") {
     
-    s <- updated_signatures$immune[,c(gene_id, "signature"), drop = F]
+    s <- signatures$immune[,c(gene_id, "signature"), drop = F]
     
     # When included in the package
     # LundImmune <- LundTax2023Classifier::signatures$immune
@@ -802,7 +278,7 @@ single_score <- function(Data,
     
     diff_genes <- length(genes_immune) - length(genes_immune_int)
     
-    if(diff_genes > 0) {
+    if (diff_genes > 0) {
       message(paste0("Immune scores: ", diff_genes, "/",length(genes_immune)," genes are missing from the data."))
       print(setdiff(genes_immune, genes_immune_int))
     }
@@ -813,15 +289,18 @@ single_score <- function(Data,
   if (variable == "score141up") {
     
     
-    Immune141_UP <- updated_signatures$signatures_plot[which(updated_signatures$signatures_plot$signature == "Immune141_UP."),,drop = F]
-    Stromal141_UP <- updated_signatures$signatures_plot[which(updated_signatures$signatures_plot$signature == "Stromal141_UP."),,drop = F]
+    Immune141_UP <- signatures$signatures_plot[which(signatures$signatures_plot$signature == "Immune141_UP."),,drop = F]
+    Stromal141_UP <- signatures$signatures_plot[which(signatures$signatures_plot$signature == "Stromal141_UP."),,drop = F]
+    
+    colnames(Immune141_UP)[2] <- "hgnc_symbol"
+    colnames(Stromal141_UP)[2] <- "hgnc_symbol"
     
     genes141 <- unique(c(Immune141_UP$hgnc_symbol, Stromal141_UP$hgnc_symbol))
     genes141_int <- intersect(rownames(D),genes141)
     
     diff_genes <- length(genes141) - length(genes141_int)
     
-    if(diff_genes > 0) {
+    if (diff_genes > 0) {
       message(paste0("Infiltration scores: ", diff_genes, "/",length(genes141)," genes are missing from the data."))
       print(setdiff(genes141,genes141_int))
     }
@@ -841,7 +320,7 @@ single_score <- function(Data,
     #                                       ncol = 1,
     #                                       dimnames = list(colnames(Data), "ProstateScore")))
     
-    s <- updated_signatures$prostate[,gene_id, drop = F]
+    s <- signatures$prostate[,gene_id, drop = F]
     s$signature <- "Prostate"
     
     genes_prostate_int <- intersect(rownames(Data),s[[gene_id]])
@@ -868,7 +347,7 @@ single_score <- function(Data,
   
   if (adjust) {
     
-    StableGenes <- updated_signatures$stable_genes
+    StableGenes <- signatures$stable_genes
     # StableGenes <- LundTax2023Classifier::signatures$stable_genes
     
     stable_genes_int <- intersect(rownames(D),StableGenes[,gene_id])
@@ -893,17 +372,6 @@ calculate_immune_proportions <- function(immune_results) {
 
 
 # Grade predictor ##########
-# Needs:
-# Grade Predictor
-# Gene ID info?
-
-# # WHO 1999 (G3 vs G1/2)
-# load("D:/UROSCANSEQ_2024/Analysis/02.New_data/GradeClassifier/RF/hyperparameterCV/CLASSIFIER_RF_Grade.RData")
-# classifier_GRADE3 <- CLASSIFIER_RF_Grade
-#
-# # WHO 2004/2016 (HG vs LG)
-# load("D:/UROSCANSEQ_2024/Analysis/02.New_data/GradeClassifier/RF/HG/CLASSIFIER_RF_gradeHG_newCV2.RData")
-# classifier_HG <- rf_model_HG
 
 predict_grade <- function(Data, grade_predictor,
                           gene_id = c("ensembl_gene_id", "hgnc_symbol")[1],
@@ -925,11 +393,11 @@ predict_grade <- function(Data, grade_predictor,
     
     # Testing
     # load("D:/UROSCANSEQ_2024/Analysis/02.New_data/GradeClassifier/gene_info_grade_classifiers.RData")
-    load("C:/Users/earam/LBCG/gene_info_lund.rda")
-    # gene_info_grade_classifiers <- LundTax2023Classifier::gene_info
-    rownames(gene_info_grade_classifiers) <- gene_info_grade_classifiers[[gene_id]]
-    int_genes <- rownames(D)[which(rownames(D) %in% gene_info_grade_classifiers[[gene_id]])]
-    rownames(D)[which(rownames(D) %in% gene_info_grade_classifiers[[gene_id]])] <- gene_info_grade_classifiers[int_genes,"ensembl_gene_id"]
+    # load("C:/Users/earam/LBCG/gene_info_lund.rda")
+    gene_info_lund <- LundTax2023Classifier::gene_info_lund
+    rownames(gene_info_lund) <- gene_info_lund[[gene_id]]
+    int_genes <- rownames(D)[which(rownames(D) %in% gene_info_lund[[gene_id]])]
+    rownames(D)[which(rownames(D) %in% gene_info_lund[[gene_id]])] <- gene_info_lund[int_genes,"ensembl_gene_id"]
     
   }
   
@@ -950,7 +418,7 @@ predict_grade <- function(Data, grade_predictor,
 lund_scores <- function(Data, # Input data. Data must be a matrix in log2 transformed format, with sample as column and genes as rows
                         gene_id = c("hgnc_symbol", "ensembl_gene_id")[2], # gene IDs
                         scoring_method = c("ratio", "singscore")[1], # Method to calculate the proliferation score
-                        threshold_prostate = 3, # Gene expression threshold to flag a sample as possible prostate
+                        threshold_prostate = 4, # Gene expression threshold to flag a sample as possible prostate
                         threshold_progression = 0.58, #  threshold to flag a sample as high risk of progression
                         logTransform = TRUE, # Scores are calculated on log transformed data. If the data is already log transformed, set logTransformed to FALSE. If logTranform = TRUE, data will be log2 transformed (log2(data+1)) before calculating the scores
                         adjust = FALSE,
@@ -959,6 +427,7 @@ lund_scores <- function(Data, # Input data. Data must be a matrix in log2 transf
                         ... # arguments to pass to the ranger functions (add impute = TRUE here if gene are missing)
 )
 {
+  require(multiclassPairs)
   # Check data
   # Data must be a matrix in log2 transformed format, with sample as column and genes as rows
   if (!class(Data)[1] %in% c("data.frame","matrix")) {
@@ -988,12 +457,12 @@ lund_scores <- function(Data, # Input data. Data must be a matrix in log2 transf
                                        method = scoring_method)
   # Grade #
   # WHO 1999 (G3 vs G1/2)
-  load("D:/UROSCANSEQ_2024/Analysis/02.New_data/GradeClassifier/RF/hyperparameterCV/CLASSIFIER_RF_Grade.RData")
-  classifier_GRADE3 <- CLASSIFIER_RF_Grade
+  # load("C:/Users/earam/LBCG/LundTaxonomy2023Classifier/data/classifier_GRADE3.rda")
+  classifier_GRADE3 <- LundTax2023Classifier::classifier_GRADE3
   
   # WHO 2004/2016 (HG vs LG)
-  load("D:/UROSCANSEQ_2024/Analysis/02.New_data/GradeClassifier/RF/HG/CLASSIFIER_RF_gradeHG_newCV2.RData")
-  classifier_HG <- rf_model_HG
+  load("C:/Users/earam/LBCG/LundTaxonomy2023Classifier/data/classifier_HG.rda")
+  classifier_HG <- LundTax2023Classifier::classifier_HG
   
   if (verbose) print("Calculating G3 score")
   results_g3 <- predict_grade(Data = D,
@@ -1039,6 +508,7 @@ lund_scores <- function(Data, # Input data. Data must be a matrix in log2 transf
                                  adj_factor = adj_factor)
   
   # 141 UP
+  if (verbose) print("Calculating 141UP scores")
   scores141up <- single_score(Data = D,
                               variable = "score141up",
                               logTransform = FALSE,
@@ -1061,7 +531,7 @@ lund_scores <- function(Data, # Input data. Data must be a matrix in log2 transf
   # Merge_scores
   
   if (verbose) print("Merging scores")
-  merge_scores <- cbind(Proliferation=results_proliferation,
+  merge_scores <- cbind(ProliferationScore=results_proliferation$Score,
                         MolecularGradeWHO1999=results_g3$predictions_classes,
                         MolecularGradeWHO1999_score=results_g3$predictions[,"G3"],
                         MolecularGradeWHO2016=results_hg$predictions_classes,
@@ -1113,15 +583,8 @@ lund_scores <- function(Data, # Input data. Data must be a matrix in log2 transf
 #' @examples
 #' # Include data in result
 #' results_data <- predict_LundTax2023(Lund2017,
-#'                                include_data = TRUE)
-#'
-#' @examples
-#' # Imputation
-#' # Remove 100 genes from data
-#' missing_genes <- sample(1:nrow(Lund2017),100)
-#' Lund2017_missinggenes <- Lund2017[-missing_genes,]
-#' results_imputation <- predict_LundTax2023(Lund2017_missinggenes,
-#'                                           impute = TRUE)
+#'                                     impute = TRUE,
+#'                                     include_data = TRUE)
 #'
 #' @export
 #
@@ -1131,13 +594,15 @@ predict_LundTax2023 <- function(data,
                                 include_pred_scores = TRUE, # return prediction scores in the results object
                                 gene_id = c("hgnc_symbol","ensembl_gene_id")[1],
                                 scoring_method = c("ratio","singscore")[1],
-                                logTransform = FALSE,
+                                logTransform = TRUE, # Scores are calculated on log transformed data. If the data is already log transformed, set logTransform to FALSE. If logTranform = TRUE, data will be log2 transformed (log2(data+1)) before calculating the scores
                                 adjust = TRUE, # adjust scores by stable genes and adjustment factor
                                 adj_factor = 5.1431,# adjustment factor
+                                verbose = TRUE,
                                 ...)
                                     
   
 {
+  require(multiclassPairs)
   # Check inputs
   
   ## Data ##
@@ -1205,7 +670,7 @@ predict_LundTax2023 <- function(data,
   
   prediction <- predict_RF(classifier = C,
                            Data = D,
-                           verbose = TRUE, ...)
+                           verbose = verbose, ...)
   
   # Reorder scores
   pred <- prediction$predictions[,c("Uro","GU","BaSq","Mes","ScNE"), drop=FALSE]
@@ -1220,7 +685,7 @@ predict_LundTax2023 <- function(data,
     # Classify suburo if necessary ###
     prediction_suburo <- predict_RF(classifier = C2,
                                     Data = D_Uro,
-                                    verbose = TRUE, ...)
+                                    verbose = verbose, ...)
     
     names_uro <- colnames(D_Uro)
     names_all <- colnames(D)

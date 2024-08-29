@@ -116,28 +116,26 @@ plot_signatures <- function(results_object,
 
   # Gene signatures #
   signatures <- LundTax2023Classifier::signatures
+  signatures_plot <- signatures$signatures_plot
 
-  # Testing
-  # signatures <- read.csv("D:/Signatures_reduced.csv")
-
-  genes_to_plot <- list(Early_CC=c(signatures[which(signatures$Signature == "early_cell_cycle."),2]),
-                        Late_CC=c(signatures[which(signatures$Signature == "Late_Cell_Cycle."),2]),
+  genes_to_plot <- list(Early_CC=c(signatures$proliferation[which(signatures$proliferation$signature == "EarlyCellCycle"),2]),
+                        Late_CC=c(signatures$proliferation[which(signatures$proliferation$signature == "LateCellCycle"),2]),
                         Late_Early=NULL,
                         UroDiff=c("PPARG","FOXA1","GATA3","ELF3"),
                         UPKs=c("UPK1A","UPK1B","UPK2","UPK3A","KRT20"),
                         Circuit=c("FGFR3","CCND1","E2F3","RB1","CDKN2A"),
                         Circuit_score=NULL,
-                        FGFR3=c(signatures[which(signatures$Signature == "FGFR3."),2]),
+                        FGFR3=c(signatures_plot[which(signatures_plot$signature == "FGFR3."),2]),
                         BaSq=c("KRT5","KRT14","FOXA1","GATA3"),
                         BaSq_ratio=NULL,
-                        Keratinization=c(signatures[which(signatures$Signature == "Keratinization_QTC."),2]),
+                        Keratinization=c(signatures_plot[which(signatures_plot$signature == "Keratinization_QTC."),2]),
                         Adhesion=c("EPCAM","CDH1","CDH3"),
                         MYC=c("MYCL","MYCN","MYC"),
                         ERBB=c("EGFR","ERBB2","ERBB3"),
                         ERBB_score=NULL,
                         ScNE=c("CHGA","SYP","ENO2"),
-                        Immune141_UP=c(signatures[which(signatures$Signature == "Immune141_UP."),2]),
-                        Stromal141_UP=c(signatures[which(signatures$Signature == "Stromal141_UP."),2]),
+                        Immune141_UP=c(signatures_plot[which(signatures_plot$signature == "Immune141_UP."),2]),
+                        Stromal141_UP=c(signatures_plot[which(signatures_plot$signature == "Stromal141_UP."),2]),
                         Immune141_UP_score=NULL,
                         Stromal141_UP_score=NULL)
   # Lund colors #

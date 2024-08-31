@@ -452,16 +452,13 @@ lund_scores <- function(Data, # Input data. Data must be a matrix in log2 transf
   if (verbose) print("Calculating Proliferation")
   results_proliferation <- ratio_score(Data = D,
                                        variable = "proliferation",
-                                       logTransform = FALSE,
                                        gene_id = gene_id,
                                        method = scoring_method)
   # Grade #
   # WHO 1999 (G3 vs G1/2)
-  # load("C:/Users/earam/LBCG/LundTaxonomy2023Classifier/data/classifier_GRADE3.rda")
   classifier_GRADE3 <- LundTax2023Classifier::classifier_GRADE3
   
   # WHO 2004/2016 (HG vs LG)
-  load("C:/Users/earam/LBCG/LundTaxonomy2023Classifier/data/classifier_HG.rda")
   classifier_HG <- LundTax2023Classifier::classifier_HG
   
   if (verbose) print("Calculating G3 score")
@@ -480,7 +477,6 @@ lund_scores <- function(Data, # Input data. Data must be a matrix in log2 transf
   if (verbose) print("Calculating Progression score")
   score_progression <- ratio_score(Data = D,
                                      variable = "progression",
-                                     logTransform = FALSE,
                                      gene_id = gene_id,
                                      method = scoring_method)
   results_progression <- ifelse(score_progression$Score >= threshold_progression, "HR", "LR")

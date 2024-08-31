@@ -5,14 +5,12 @@
 \alias{signatures}
 \title{Signature table}
 \format{
-An object of class \code{data.frame} with 475 rows and 2 columns.
+An object of class \code{list} of length 6.
 }
 \usage{
 signatures
 }
 \description{
-Dataframe containing gene symbols and corresponding signature for
-each gene included in the following gene singatures: FGFR3, Keratinization,
-early cell cycle, late cycle, Immune141 UP and Stromal141UP
+Signature table
 }
 \keyword{datasets}

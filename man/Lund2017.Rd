@@ -11,7 +11,7 @@ An object of class \code{data.frame} with 15697 rows and 301 columns.
 Lund2017
 }
 \description{
-Matrix of RMA normalized gene expression values for 15697 genes with
+Matrix of RMA normalized and ComBat adjusted gene expression values for 15697 genes with
 HGNC symbols and 301 samples
 }
 \references{

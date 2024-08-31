@@ -80,7 +80,7 @@ plot_signatures <- function(results_object,
     stop("Input should be the result of applying predict_LundTax2023")
   } else if (is.list(results_object) & "data" %in% names(results_object)) {
     D <- results_object$data
-    score_matrix <- results_object$scores
+    score_matrix <- results_object$subtype_scores
     pred_labels5 <- results_object$predictions_5classes
     pred_labels7 <- results_object$predictions_7classes
   } else if (is.list(results_object) & !"data" %in% names(results_object)) {
@@ -90,7 +90,7 @@ plot_signatures <- function(results_object,
       stop("Data should be in matrix or data.frame format")
     } else if (class(data)[1] %in%  c("matrix","data.frame")) {
       D <- data[,names(results_object$predictions_7classes)]
-      score_matrix <- results_object$scores
+      score_matrix <- results_object$subtype_scores
       pred_labels5 <- results_object$predictions_5classes
       pred_labels7 <- results_object$predictions_7classes
     }
@@ -116,28 +116,26 @@ plot_signatures <- function(results_object,
 
   # Gene signatures #
   signatures <- LundTax2023Classifier::signatures
+  signatures_plot <- signatures$signatures_plot
 
-  # Testing
-  # signatures <- read.csv("D:/Signatures_reduced.csv")
-
-  genes_to_plot <- list(Early_CC=c(signatures[which(signatures$Signature == "early_cell_cycle."),2]),
-                        Late_CC=c(signatures[which(signatures$Signature == "Late_Cell_Cycle."),2]),
+  genes_to_plot <- list(Early_CC=c(signatures$proliferation[which(signatures$proliferation$signature == "EarlyCellCycle"),2]),
+                        Late_CC=c(signatures$proliferation[which(signatures$proliferation$signature == "LateCellCycle"),2]),
                         Late_Early=NULL,
                         UroDiff=c("PPARG","FOXA1","GATA3","ELF3"),
                         UPKs=c("UPK1A","UPK1B","UPK2","UPK3A","KRT20"),
                         Circuit=c("FGFR3","CCND1","E2F3","RB1","CDKN2A"),
                         Circuit_score=NULL,
-                        FGFR3=c(signatures[which(signatures$Signature == "FGFR3."),2]),
+                        FGFR3=c(signatures_plot[which(signatures_plot$signature == "FGFR3."),2]),
                         BaSq=c("KRT5","KRT14","FOXA1","GATA3"),
                         BaSq_ratio=NULL,
-                        Keratinization=c(signatures[which(signatures$Signature == "Keratinization_QTC."),2]),
+                        Keratinization=c(signatures_plot[which(signatures_plot$signature == "Keratinization_QTC."),2]),
                         Adhesion=c("EPCAM","CDH1","CDH3"),
                         MYC=c("MYCL","MYCN","MYC"),
                         ERBB=c("EGFR","ERBB2","ERBB3"),
                         ERBB_score=NULL,
                         ScNE=c("CHGA","SYP","ENO2"),
-                        Immune141_UP=c(signatures[which(signatures$Signature == "Immune141_UP."),2]),
-                        Stromal141_UP=c(signatures[which(signatures$Signature == "Stromal141_UP."),2]),
+                        Immune141_UP=c(signatures_plot[which(signatures_plot$signature == "Immune141_UP."),2]),
+                        Stromal141_UP=c(signatures_plot[which(signatures_plot$signature == "Stromal141_UP."),2]),
                         Immune141_UP_score=NULL,
                         Stromal141_UP_score=NULL)
   # Lund colors #
@@ -148,17 +146,11 @@ plot_signatures <- function(results_object,
     stop("Gene ID must be one of the following: 'hgnc_symbol','ensembl_gene_id' or 'entrezgene'")
   }
   else if (gene_id != "hgnc_symbol") {
-    # all_heatmap_genes <- unique(unlist(genes_to_plot))
-
-    # # Testing
-    # load("gene_info_heatmap_final.RData", verbose = T)
-    # rownames(gene_info_heatmap_final) <- gene_info_heatmap_final[[gene_id]]
-    # int_genes <- rownames(D_norm)[which(rownames(D_norm) %in% gene_info_heatmap_final[[gene_id]])]
-    # rownames(D_norm)[which(rownames(D_norm) %in% gene_info_heatmap_final[[gene_id]])] <- gene_info_heatmap_final[int_genes,"hgnc_symbol"]
-    gene_info_heatmap <- LundTax2023Classifier::gene_info_heatmap
-    rownames(gene_info_heatmap) <- gene_info_heatmap[[gene_id]]
-    int_genes <- rownames(D_norm)[which(rownames(D_norm) %in% gene_info_heatmap[[gene_id]])]
-    rownames(D_norm)[which(rownames(D_norm) %in% gene_info_heatmap[[gene_id]])] <- gene_info_heatmap[int_genes,"hgnc_symbol"]
+   
+    gene_info_lund <- LundTax2023Classifier::gene_info_lund
+    rownames(gene_info_lund) <- gene_info_lund[[gene_id]]
+    int_genes <- rownames(D_norm)[which(rownames(D_norm) %in% gene_info_lund[[gene_id]])]
+    rownames(D_norm)[which(rownames(D_norm) %in% gene_info_lund[[gene_id]])] <- gene_info_lund[int_genes,"hgnc_symbol"]
 
   }
 

@@ -3,7 +3,13 @@
 \docType{data}
 \name{LundTax_RF_Uro7c}
 \alias{LundTax_RF_Uro7c}
-\title{Classifier as a 'rule_based_RandomForest' object.}
+\title{Classifier as a 'rule_based_RandomForest' object. Predicts samples as one of
+the 3 Uro subclasses, UroA, UroB, or UroC
+Object includes the final RF classifier, the used genes and rules in the final model,
+the Boruta results, and the training matrix. The training matrix is a binary matrix
+containing the rule values for the training data and it is used for
+imputation purposes during the prediction if values are missing in the sample.
+This object was generated using the multiclassPairs package}
 \format{
 An object of class \code{rule_based_RandomForest} of length 1.
 }
@@ -11,7 +17,7 @@ An object of class \code{rule_based_RandomForest} of length 1.
 LundTax_RF_Uro7c
 }
 \description{
-Predicts samples as one of
+Classifier as a 'rule_based_RandomForest' object. Predicts samples as one of
 the 3 Uro subclasses, UroA, UroB, or UroC
 Object includes the final RF classifier, the used genes and rules in the final model,
 the Boruta results, and the training matrix. The training matrix is a binary matrix

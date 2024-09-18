@@ -4,7 +4,7 @@ Version: 1.1.4
 Authors@R: c(
     person("Elena", "Aramendía", , "elena.aramendia_cotillas@med.lu.se", role = c("aut", "cre")),
     person("Pontus", "Eriksson", , "pontus.eriksson@med.lu.se", role = c("aut")),
-    person("Adam", "Mattsson", , "adam.mattsson@med.lu.se", role = c("aut")))
+    person("Adam", "Mattsson", , "adam.mattsson@med.lu.se", role = c("aut", "cre")))
 Description: The packages implements a Random Forest rule-based single-sample predictor that classifies 
     transcriptomic samples into the 5 (or 7, including subclasses) Lund Taxonomy molecular subtypes. 
     The final classifier is composed of two separate predictors applied sequentially - first a sample 
@@ -13,13 +13,19 @@ Description: The packages implements a Random Forest rule-based single-sample pr
 Depends: 
     R (>= 2.10)
 Imports: 
-    ranger,
-    rdist
-Suggests: 
     circlize,
-    ComplexHeatmap
+    ComplexHeatmap,
+    dplyr,
+    ggplot2,
+    grDevices,
+    grid,
+    multiclassPairs,
+    openxlsx,
+    ranger,
+    rdist,
+    utils
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2

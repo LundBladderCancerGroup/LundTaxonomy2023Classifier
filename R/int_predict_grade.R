@@ -83,7 +83,7 @@ int_predict_grade <- function(this_data = NULL,
                                  duplicated(ensembl_gene_id) == FALSE)
     
     #convert the first column back to rownames
-    row.names(mutated_data) <-unique(mutated_data$ensembl_gene_id)
+    row.names(mutated_data) = unique(mutated_data$ensembl_gene_id)
     mutated_data[1:2] <- NULL
     
     #convert back to expected name

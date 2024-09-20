@@ -9,8 +9,8 @@
 #' @param gene_id Specify the type of gene identifier used in `this_data`. Accepted values are; 
 #' hgnc_symbol (default) or ensembl_gene_id.
 #' @param threshold_progression Threshold to flag a sample as high risk of progression, default is 0.58.
-#' @param log_transform Boolean parameter. If TRUE, the function log transforms the incoming expression
-#' values. Default is FALSE.
+#' @param log_transform Boolean parameter. If TRUE (default), the function log transforms the incoming expression
+#' values.
 #' @param adjust Boolean parameter. If TRUE, the function will proceed with adjusting the scores based
 #' on stable genes. If FALSE (default), no adjustment will be made and the original score values will be retained. 
 #' @param adj_factor Only applicable if adjust is set to TRUE. Allows users to apply a proportional 
@@ -23,7 +23,6 @@
 #' @param impute_kNN From [multiclassPairs::predict_RF()]. Integer determines the number of the nearest
 #' samples in the training data to be used in the imputation. Default is 5. It is not recommended to
 #'  use large number (i.e. >10).
-#' @param verbose A logical value indicating whether processing messages will be printed or not. Default is TRUE.
 #' 
 #' @return A data frame with scores for the selected variable.
 #' 
@@ -44,7 +43,8 @@ score_lundtax = function(this_data = NULL,
                          adj_factor = 5.1431,
                          impute = FALSE, 
                          impute_reject = 0.67, 
-                         impute_kNN = 5){
+                         impute_kNN = 5, 
+                         verbose = TRUE){
   
   #proliferation
   results_proliferation = int_ratio_score(this_data = this_data,
@@ -67,7 +67,8 @@ score_lundtax = function(this_data = NULL,
                                  gene_id = gene_id, 
                                  impute = impute, 
                                  impute_reject = impute_reject, 
-                                 impute_kNN = impute_kNN)
+                                 impute_kNN = impute_kNN, 
+                                 verbose = verbose)
 
   #WHO 2004/2016 (HG vs LG)
   results_hg = int_predict_grade(this_data = this_data, 
@@ -75,7 +76,8 @@ score_lundtax = function(this_data = NULL,
                                  gene_id = gene_id, 
                                  impute = impute, 
                                  impute_reject = impute_reject, 
-                                 impute_kNN = impute_kNN)
+                                 impute_kNN = impute_kNN, 
+                                 verbose = verbose)
 
   #immune
   results_immune = int_calc_score(this_data = this_data, 

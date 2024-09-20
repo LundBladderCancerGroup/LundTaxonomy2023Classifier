@@ -9,8 +9,8 @@
 #' @param this_data Required parameter. Data frame or matrix with expression values.
 #' @param variable Required parameter. Input should be one of the following; 
 #' proliferation, or progression.
-#' @param log_transform Boolean parameter. If TRUE, the function log transforms 
-#' the incoming expression values. Default is FALSE.
+#' @param log_transform Boolean parameter. If TRUE (default), the function log transforms 
+#' the incoming expression values.
 #' @param gene_id Specify the type of gene identifier used in `this_data`. 
 #' Accepted values are; hgnc_symbol (default) or ensembl_gene_id.
 #' 
@@ -34,7 +34,7 @@
 #'
 int_ratio_score = function(this_data = NULL,
                            variable = NULL,
-                           logTransform = FALSE,
+                           logTransform = TRUE,
                            gene_id = "hgnc_symbol"){
   
   #check the incoming data

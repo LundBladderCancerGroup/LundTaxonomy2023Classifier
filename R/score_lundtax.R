@@ -95,22 +95,56 @@ score_lundtax = function(this_data = NULL,
                                adjust = adjust, 
                                adj_factor = adj_factor)
 
-  #add 141UP to immune results
-  results_immune <- cbind(Immune141_UP=scores141up$Immune141_UP,
-                          results_immune[,1:10,drop=FALSE],
-                          Stromal141_UP=scores141up$Stromal141_UP,
-                          results_immune[,11:13,drop=FALSE])
-  
   #merge scores
   message("Merging scores...")
-  merge_scores <- cbind(ProliferationScore=results_proliferation$Score,
-                        MolecularGradeWHO1999=results_g3$predictions_classes,
-                        MolecularGradeWHO1999_score=results_g3$predictions[,"G3"],
-                        MolecularGradeWHO2016=results_hg$predictions_classes,
-                        MolecularGradeWHO2016_score=results_hg$predictions[,"HG"],
-                        ProgressionScore = score_progression$Score,
-                        ProgressionRisk = results_progression,
-                        results_immune)
+  merge_scores <- cbind(proliferation_score = results_proliferation$Score,
+                        molecular_grade_who_1999 = results_g3$predictions_classes,
+                        molecular_grade_who_1999_score = results_g3$predictions[,"G3"],
+                        molecular_grade_who_2016 = results_hg$predictions_classes,
+                        molecular_grade_who_2016_score = results_hg$predictions[,"HG"],
+                        progression_score = score_progression$Score,
+                        progression_risk = results_progression,
+                        results_immune, 
+                        scores141up)
+  
+  #set new column names for easy access
+  oldnames = c("B-cells", "T-cells","T-cells CD8+", "NK-cells", "Cytotoxicity Score", "Neutrophils",
+               "Monocytic lineage", "Macrophages","M2 macrophage", "Myeloid Dendritic Cells", 
+               "Endothelial cells", "Fibroblasts", "Smooth muscle", "B-cells Proportion", 
+               "T-cells Proportion", "T-cells CD8+ Proportion","NK-cells Proportion", 
+               "Cytotoxicity Score Proportion", "Neutrophils Proportion",
+               "Monocytic lineage Proportion", "Macrophages Proportion","M2 macrophage Proportion", 
+               "Myeloid Dendritic Cells Proportion", "Endothelial cells Proportion", 
+               "Fibroblasts Proportion", "Smooth muscle Proportion", "Immune141_UP", "Stromal141_UP")
+  
+  newnames = c("b_cells", "t_cells","t_cells_cd8", "nk_cells", "cytotoxicity_score", "neutrophils",
+               "monocytic_lineage", "macrophages","m2_macrophage", "myeloid_dendritic_cells", 
+               "endothelial_cells", "fibroblasts", "smooth_muscle", "b_cells_proportion", 
+               "t_cells_proportion", "t_cells_cd8_proportion","nk_cells_proportion", 
+               "cytotoxicity_score_proportion", "neutrophils_proportion",
+               "monocytic_lineage_proportion", "macrophages_proportion","m2_macrophage_proportion", 
+               "myeloid_dendritic_cells_proportion", "endothelial_cells_proportion", 
+               "fibroblasts_proportion", "smooth_muscle_proportion", "immune141_up", "stromal141_up")
+  
+  merge_scores = merge_scores %>% 
+    rename_at(vars(oldnames), ~ newnames)
+  
+  #set column types
+  factor_cols = c("molecular_grade_who_1999", "molecular_grade_who_2016", "progression_risk")
+  merge_scores[factor_cols] = lapply(merge_scores[factor_cols], factor)
+  
+  #set custom order of columns
+  merge_scores = merge_scores %>% 
+    dplyr::select(proliferation_score, progression_score, progression_risk, 
+                  molecular_grade_who_2016_score, molecular_grade_who_2016, 
+                  molecular_grade_who_1999_score,molecular_grade_who_1999, stromal141_up, immune141_up, 
+                  b_cells, b_cells_proportion, t_cells, t_cells_proportion,
+                  t_cells_cd8, t_cells_cd8_proportion, nk_cells, nk_cells_proportion,
+                  cytotoxicity_score, cytotoxicity_score_proportion, neutrophils, neutrophils_proportion,
+                  monocytic_lineage, monocytic_lineage_proportion, macrophages, macrophages_proportion,
+                  m2_macrophage, m2_macrophage_proportion, myeloid_dendritic_cells, 
+                  myeloid_dendritic_cells_proportion, endothelial_cells, endothelial_cells_proportion,
+                  fibroblasts, fibroblasts_proportion, smooth_muscle, smooth_muscle_proportion)
   
   return(merge_scores)
 }

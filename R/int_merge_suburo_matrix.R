@@ -13,7 +13,7 @@
 #' @return  Merged matrix including scores for 8 classes (Uro, UroA, UroB, UroC, 
 #' GU, BaSq, Mes, ScNE)
 #'
-merge_suburo_matrix = function(score_matrix1,
+int_merge_suburo_matrix = function(score_matrix1,
                                score_matrix2,
                                row.names = list(NULL, NULL)){
   #check inputs

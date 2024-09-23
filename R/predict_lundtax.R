@@ -41,6 +41,9 @@
 #' @export
 #' 
 #' @examples
+#' sjodahl_predicted = predict_lundtax(this_data = sjodahl_2017, 
+#'                                     impute = TRUE)
+#' 
 #'
 predict_lundtax = function(this_data = NULL,
                            gene_id = "hgnc_symbol",
@@ -121,9 +124,9 @@ predict_lundtax = function(this_data = NULL,
     names_all = colnames(this_data)
     
     #merge score matrix
-    score_matrix = merge_suburo_matrix(score_matrix1 = prediction_suburo$predictions,
-                                       score_matrix2 = prediction$predictions,
-                                       row.names = list(names_uro,names_all))
+    score_matrix = int_merge_suburo_matrix(score_matrix1 = prediction_suburo$predictions,
+                                           score_matrix2 = prediction$predictions,
+                                           row.names = list(names_uro,names_all))
   }else{
     score_matrix <- cbind("Uro" = prediction$predictions[,"Uro"],
                           "UroA" = NA,
@@ -189,7 +192,7 @@ predict_lundtax = function(this_data = NULL,
   
   #run check.ties
   if(sum(first5 != last5) > 0){
-    check.ties(first5,last5)
+    int_check_ties(first5,last5)
   }
   
   #7 class level
@@ -199,7 +202,7 @@ predict_lundtax = function(this_data = NULL,
   
   #run check.ties
   if(sum(first7 != last7) > 0){
-    check.ties(first7,last7)
+    int_check_ties(first7,last7)
   }
   
   #final results

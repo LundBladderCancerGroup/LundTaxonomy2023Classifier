@@ -36,7 +36,7 @@
 #' @return Data frame with prediction score for each sample and class, if return_scores = TRUE.
 #' Otherwise, nothing.
 #'
-#' @import ComplexHeatmap ggplot2 circlize openxlsx grDevices utils grid
+#' @import ComplexHeatmap ggplot2 circlize openxlsx grDevices grid
 #'
 #' @export
 #'

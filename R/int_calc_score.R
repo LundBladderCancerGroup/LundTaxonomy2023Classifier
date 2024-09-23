@@ -39,7 +39,7 @@
 #' 141_scores = int_calc_score(this_data = sjodahl_2017, 
 #'                             variable = "score141up", 
 #'                             gene_id = "hgnc_symbol")
-#
+#'
 int_calc_score = function(this_data = NULL,
                           variable = NULL,
                           logTransform = TRUE,
@@ -113,9 +113,8 @@ int_calc_score = function(this_data = NULL,
   
   #calculate proportions
   if(variable == "immune"){
-    immune_proportions = t(apply(score_results,1,function(x){x/sum(x)}))
-    colnames(immune_proportions) <- paste0(colnames(immune_proportions)," Proportion")
-    score_results = cbind(score_results, immune_proportions)
+    immune__prop = int_calc_immune_proportions(immune_results = score_results)
+    score_results = cbind(score_results, immune__prop)
   }
   
   return(score_results)

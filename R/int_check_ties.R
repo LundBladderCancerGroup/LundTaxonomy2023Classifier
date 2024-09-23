@@ -12,7 +12,7 @@
 #'
 #' @return Nothing.
 #'
-check_ties = function(first, last){
+int_check_ties = function(first, last){
   for(tie in which(first != last)){
     sample = names(first)[tie]
     subtype1 = first[tie]

@@ -13,7 +13,8 @@ score_lundtax(
   adj_factor = 5.1431,
   impute = FALSE,
   impute_reject = 0.67,
-  impute_kNN = 5
+  impute_kNN = 5,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -40,10 +41,8 @@ the mode value for nearest samples in the training data will be assigned to the 
 samples in the training data to be used in the imputation. Default is 5. It is not recommended to
 use large number (i.e. >10).}
 
-\item{log_transform}{Boolean parameter. If TRUE, the function log transforms the incoming expression
-values. Default is FALSE.}
-
-\item{verbose}{A logical value indicating whether processing messages will be printed or not. Default is TRUE.}
+\item{log_transform}{Boolean parameter. If TRUE (default), the function log transforms the incoming expression
+values.}
 }
 \value{
 A data frame with scores for the selected variable.

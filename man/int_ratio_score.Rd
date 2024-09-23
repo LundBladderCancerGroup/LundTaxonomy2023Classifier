@@ -7,7 +7,7 @@
 int_ratio_score(
   this_data = NULL,
   variable = NULL,
-  logTransform = FALSE,
+  logTransform = TRUE,
   gene_id = "hgnc_symbol"
 )
 }
@@ -20,8 +20,8 @@ proliferation, or progression.}
 \item{gene_id}{Specify the type of gene identifier used in \code{this_data}.
 Accepted values are; hgnc_symbol (default) or ensembl_gene_id.}
 
-\item{log_transform}{Boolean parameter. If TRUE, the function log transforms
-the incoming expression values. Default is FALSE.}
+\item{log_transform}{Boolean parameter. If TRUE (default), the function log transforms
+the incoming expression values.}
 }
 \value{
 A data frame with scores for the selected variable.

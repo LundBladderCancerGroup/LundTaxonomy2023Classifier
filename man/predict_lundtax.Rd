@@ -2,67 +2,78 @@
 % Please edit documentation in R/predict_lundtax.R
 \name{predict_lundtax}
 \alias{predict_lundtax}
-\title{Predict Lund Taxonomy subtypes based on rule-based Random Forest classifiers}
+\title{Lund Taxonomy Predict.}
 \usage{
 predict_lundtax(
-  data,
+  this_data = NULL,
+  gene_id = "hgnc_symbol",
+  threshold_progression = 0.58,
+  logTransform = TRUE,
+  adjust = FALSE,
+  adj_factor = 5.1431,
+  impute = FALSE,
+  impute_reject = 0.67,
+  impute_kNN = 5,
   subtype_only = FALSE,
   include_data = FALSE,
   include_pred_scores = TRUE,
-  gene_id = c("hgnc_symbol", "ensembl_gene_id")[1],
-  scoring_method = c("ratio", "singscore")[1],
-  logTransform = TRUE,
-  adjust = TRUE,
-  adj_factor = 5.1431,
-  verbose = TRUE,
-  ...
+  verbose = TRUE
 )
 }
 \arguments{
-\item{data}{matrix, data frame or multiclassPairs_object of gene expression values}
+\item{this_data}{Required parameter. Data frame or matrix with expression values.}
 
-\item{subtype_only}{}
+\item{gene_id}{Specify the type of gene identifier used in \code{this_data}. Accepted values are;
+hgnc_symbol (default) or ensembl_gene_id.}
 
-\item{include_data}{include data in output (disabled by default)}
+\item{threshold_progression}{Threshold to flag a sample as high risk of progression, default is 0.58.}
 
-\item{include_pred_scores}{include prediction scores for each sample and class in output (default)}
+\item{adjust}{Boolean parameter. If TRUE, the function will proceed with adjusting the scores based
+on stable genes. If FALSE (default), no adjustment will be made and the original score values will be retained.}
 
-\item{gene_id}{specify the type of gene identifier used in the data:
-\itemize{
-\item "hgnc_symbol" for HUGO gene symbols
-\item "ensembl_gene_id" for Ensembl gene IDs
-\item "entrezgene" for Entrez IDs
-Default value is hgnc_symbol
-}}
+\item{adj_factor}{Only applicable if adjust is set to TRUE. Allows users to apply a proportional
+adjustment to the normalized scores, enabling finer control over the final output values.
+After dividing each score by the mean expression of stable genes, the result is multiplied by this factor.}
 
-\item{logTransform}{h}
+\item{impute}{From \code{\link[multiclassPairs:predict_RF]{multiclassPairs::predict_RF()}}. Boolean. To determine if missed genes and NA
+values should be imputed or not. The non missed rules will be used to determine the closest samples
+in the training binary matrix (i.e. which is stored in the classifier object). For each sample,
+the mode value for nearest samples in the training data will be assigned to the missed rules. Default is FALSE.}
 
-\item{adjust}{hh}
+\item{impute_kNN}{From \code{\link[multiclassPairs:predict_RF]{multiclassPairs::predict_RF()}}. Integer determines the number of the nearest
+samples in the training data to be used in the imputation. Default is 5. It is not recommended to
+use large number (i.e. >10).}
 
-\item{adj_factor}{default is 5.1431}
+\item{subtype_only}{Boolean parameter. Set to TRUE to return subtypes and nothing else. Default is FALSE.}
 
-\item{...}{Additional parameters to be passed to the predict_RF function. If genes are missing in the data, include impute = TRUE here}
+\item{include_data}{Boolean parameter. Set to TRUE to include data in output, FALSE is default.}
+
+\item{include_pred_scores}{Boolean parameter. Set to TRUE (default) to include
+prediction scores for each sample and class in output.}
+
+\item{verbose}{A logical value indicating whether processing messages will be
+printed or not. Default is TRUE.}
+
+\item{log_transform}{Boolean parameter. If TRUE, the function log transforms the incoming expression
+values. Default is FALSE.}
 }
 \value{
-Returns a list object including:
-\itemize{
-\item Data (optional, not included by default)
-\item Prediction scores for all classes (optional, included by default)
-\item Predicted LundTax class for 7-class system
-\item Predicted LundTax class for 5-class system
-}
+Returns a list object including: Data (optional, not included by default),
+Prediction scores for all classes (optional, included by default), Predicted LundTax
+class for 7-class system, Predicted LundTax class for 5-class system
 }
 \description{
-Predict Lund Taxonomy subtypes based on rule-based Random Forest classifiers
+Predict Lund Taxonomy subtypes based on rule-based Random Forest classifiers.
 }
 \details{
-This function uses 2 classifiers to classify the samples: 5-class classifier first  classifies samples into Uro, GU, BaSq, Mes or ScNE.
-Samples classified as Uro receive a second classification as UroA, B or C by the second classifier
+This function uses 2 classifiers to classify the samples: 5-class
+classifier first  classifies samples into Uro, GU, BaSq, Mes or ScNE.
+Samples classified as Uro receive a second classification as UroA, B or C by
+the second classifier.
 }
 \examples{
-# Include data in result
-results_data <- predict_lundtax(Lund2017,
-                                impute = TRUE,
-                                include_data = TRUE)
+sjodahl_predicted = predict_lundtax(this_data = sjodahl_2017, 
+                                    impute = TRUE)
+
 
 }

@@ -7,7 +7,7 @@
 int_calc_score(
   this_data = NULL,
   variable = NULL,
-  logTransform = FALSE,
+  logTransform = TRUE,
   gene_id = "hgnc_symbol",
   adjust = TRUE,
   adj_factor = 5.1431
@@ -32,8 +32,8 @@ control over the final output values. After dividing each score by the mean
 expression of stable genes, the result is multiplied by this factor.
 Default is 5.1431}
 
-\item{log_transform}{Boolean parameter. If TRUE, the function log transforms
-the incoming expression values. Default is FALSE.}
+\item{log_transform}{Boolean parameter. If TRUE (default), the function log transforms
+the incoming expression values.}
 }
 \value{
 A data frame with scores for the selected variable.
@@ -59,4 +59,5 @@ immune_scores = int_calc_score(this_data = sjodahl_2017,
 141_scores = int_calc_score(this_data = sjodahl_2017, 
                             variable = "score141up", 
                             gene_id = "hgnc_symbol")
+
 }

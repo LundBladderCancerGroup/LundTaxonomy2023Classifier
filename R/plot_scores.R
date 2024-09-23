@@ -1,6 +1,6 @@
 #' @title Plot Signature Scores.
 #'
-#' @description Build a heatmap with scores retrieved with the predict_LundTax2023 function.
+#' @description Build a heatmap with scores retrieved with the `predict_lundtax` function.
 #'
 #' @details Construct and export (pdf or png) a highly customizable heatmap visualizing prediction
 #' scores for each sample and class, predicted with `predict_lundtax`.
@@ -112,7 +112,7 @@ plot_scores = function(this_data = NULL,
     }
 
     #set sample order
-    sample_order <- order(this_data$scores$ProliferationScore)
+    sample_order <- order(this_data$scores$proliferation_score)
 
     #set split (top annotation track of heatmap)
     if(!is.null(hm_split)){
@@ -123,49 +123,47 @@ plot_scores = function(this_data = NULL,
      }
 
     #get immune names
-    immune_names <- c("Immune141_UP", "B-cells", "T-cells",
-                      "T-cells CD8+", "NK-cells",
-                      "Cytotoxicity Score", "Neutrophils",
-                      "Monocytic lineage", "Macrophages",
-                      "M2 macrophage", "Myeloid Dendritic Cells")
+    immune_names <- c("immune141_up", "b_cells", "t_cells",
+                      "t_cells_cd8", "nk_cells",
+                      "cytotoxicity_score", "neutrophils",
+                      "monocytic_lineage", "macrophages",
+                      "m2_macrophage", "myeloid_dendritic_cells")
 
     #get stromal names
-    stromal_names <- c("Stromal141_UP", "Endothelial cells",
-                       "Fibroblasts", "Smooth muscle")
+    stromal_names <- c("stromal141_up", "endothelial_cells",
+                       "fibroblasts", "smooth_muscle")
 
     #set colours
     #proliferation
     col_fun_proliferation =
-      circlize::colorRamp2(c(quantile(this_data$scores$ProliferationScore, 0.05),
-                             median(this_data$scores$ProliferationScore),
-                             quantile(this_data$scores$ProliferationScore, 0.95)),
+      circlize::colorRamp2(c(quantile(this_data$scores$proliferation_score, 0.05),
+                             median(this_data$scores$proliferation_score),
+                             quantile(this_data$scores$proliferation_score, 0.95)),
                            c("#21908CFF","white", "#B63679FF"))
 
     #progression
     col_fun_progression =
-      circlize::colorRamp2(c(quantile(this_data$scores$ProgressionScore, 0.05),
-                             median(this_data$scores$ProgressionScore),
-                             quantile(this_data$scores$ProgressionScore, 0.90)),
+      circlize::colorRamp2(c(quantile(this_data$scores$progression_score, 0.05),
+                             median(this_data$scores$progression_score),
+                             quantile(this_data$scores$progression_score, 0.90)),
                            c("#FAEBDDFF","#A11A5BFF", "#4C1D4BFF"))
 
     #create colour object
-    colour_obj = list(Lund = lund_colors$lund_colors,
-                      ProliferationScore = col_fun_proliferation,
-                      MolecularGradeWHO1999 = c("G1_2"="white","G3"="black"),
-                      MolecularGradeWHO2016 = c("HG"="black","LG"="white"),
-                      ProgressionScore = col_fun_progression,
-                      ProgressionRisk = c("HR" = "#A11A5BFF", "LR" = "#FAEBDDFF"),
-                      PossibleProstate = c("NO" = "#eae5eb", "YES" = "#ee82ee"))
+    colour_obj = list(lund_subtype = lund_colors$lund_colors,
+                      proliferation_score = col_fun_proliferation,
+                      molecular_grade_who_1999 = c("G1_2" = "white", "G3" = "black"),
+                      molecular_grade_who_2016 = c("HG" = "black", "LG" = "white"),
+                      progression_score = col_fun_progression,
+                      progression_risk = c("HR" = "#A11A5BFF", "LR" = "#FAEBDDFF"))
 
     #plotting
     #build heatmap annotation (top)
-    hm <- HeatmapAnnotation(Lund = split,
-                            ProliferationScore = this_data$scores$ProliferationScore,Lund = split,
-                            MolecularGradeWHO1999 = this_data$scores$MolecularGradeWHO1999,
-                            MolecularGradeWHO2016 = this_data$scores$MolecularGradeWHO2016,
-                            ProgressionScore = this_data$scores$ProgressionScore,
-                            ProgressionRisk = this_data$scores$ProgressionRisk,
-                           #PossibleProstate = this_data$scores$PossibleProstate,
+    hm <- HeatmapAnnotation(lund_subtype = split,
+                            proliferation_score = this_data$scores$proliferation_score,lund_subtype = split,
+                            molecular_grade_who_1999 = this_data$scores$molecular_grade_who_1999,
+                            molecular_grade_who_2016 = this_data$scores$molecular_grade_who_2016,
+                            progression_score = this_data$scores$progression_score,
+                            progression_risk = this_data$scores$progression_risk,
                             annotation_name_side = "left",
                             show_legend = plot_anno_legend,
                             annotation_name_gp = gpar(fontsize = plot_font_size),
@@ -232,11 +230,11 @@ plot_scores = function(this_data = NULL,
     my_scores = as.data.frame(my_scores)
 
     #add new column with cohort information
-    my_scores$Cohort = title
+    my_scores$cohort = title
 
     #convert correct columns to factors
-    factor_cols <- c('MolecularGradeWHO1999' ,'MolecularGradeWHO2016',
-                     'ProgressionRisk', 'PossibleProstate', 'Cohort')
+    factor_cols <- c('molecular_grade_who_1999' ,'molecular_grade_who_2016',
+                     'progression_risk', 'cohort')
 
     my_scores[,factor_cols] <- lapply(my_scores[,factor_cols] , factor)
 
@@ -246,7 +244,9 @@ plot_scores = function(this_data = NULL,
       if(verbose){
         message(paste0("Prediction scores exported as xlsx to ", out_path, title, "_scores.xlsx"))
         }
-      }
+    }
+    
+    dev.off()
 
     #return data frame
     return(my_scores)

@@ -1,190 +1,187 @@
-#' Plot heatmap for classification results
+#' @title Plot Signature Results.
 #'
-#' This function plots a heatmap including genes and signatures of interest, with prediction results and scores on top
-#' @param results_object description
-#' @param data results_object
-#' @param title heatmap title
-#' @param annotation use 5 or 7 class annotation
-#' @param plot_scores plot prediction scores for each class
-#' @param show_ann_legend show annotation legend (Lund classes)
-#' @param show_hm_legend show heatmap legend
-#' @param set_order set sample order. Samples are split by subtype, and order within each subtype. By default, samples are order by late/early cell cycle ratio (low to high)
-#' @param ann_heigh annotation height in cm (default = 6)
-#' @param font.size font size (default = 8)
-#' @param norm normalize the data into Z-scaled values (default TRUE)
-#' @param gene_id specify the type of gene identifier used in the data:
-#' - "hgnc_symbol" for HUGO gene symbols
-#' - "ensembl_gene_id" for Ensembl gene IDs
-#' - "entrezgene" for Entrez IDs
-#' Default value is hgnc_symbol
-#' @return Draws heatmap and silently returns the sample order
+#' @description Plot heatmap for classification results.
 #'
-#'@examples
-#'# Including data in results object
-#' results <- predict_lundtax(Lund2017,
-#'                            include_data = TRUE)
-#' plot_signatures(results)
+#' @details This function plots a heatmap including genes and signatures of interest, with 
+#' prediction results and scores on top.
+#' 
+#' @param these_predictions Required parameter, should be the output from `predict_lundtax`.
+#' @param this_data Expression data used for predictions. 
+#' Required if the output from `predict_lundtax` is run with include_data = FALSE (default).
+#' @param gene_id Specify the type of gene identifier used in `this_data`. Accepted values are; 
+#' hgnc_symbol (default) or ensembl_gene_id.
+#' @param annotation Can be one of the following; "5 class" (default) or "7 class" annotation.
+#' @param norm Boolean parameter. Set to TRUE (default) to normalize the data into Z-scaled values.
+#' @param plot_scores Boolean parameter. Set to TRUE (default) to plot prediction scores for each class.
+#' @param show_ann_legend Boolean parameter, set to TRUE to show annotation legend (Lund classes). Default is FALSE.
+#' @param show_hm_legend Boolean parameter, set to TRUE to show heatmap legend, default is FALSE.
+#' @param set_order Optional parameter. Set sample order. Samples are split by subtype, and order 
+#' within each subtype. By default, samples are order by late/early cell cycle ratio (low to high).
+#' @param ann_heigh Plotting parameter, optional. Annotation height in cm. Default = 6.
+#' @param font.size Plotting parameter, optional. font size. Default = 8.
+#' @param title Plotting parameter. The title for the generated heatmap. Deafult is "My Plot".
+#' 
+#' @return Draws heatmap and silently returns the sample order.
+#' 
+#' @import ComplexHeatmap circlize dplyr
+#' 
+#' @export 
 #'
-#'@examples
-#'# Loading data separately
-#'results <- predict_lundtax(Lund2017)
-#'plot_signatures(results, data = Lund2017)
+#' @examples
+#' #example 1 including data in results object
+#' sjodahl_predicted = predict_lundtax(this_data = sjodahl_2017,
+#'                                     include_data = TRUE)
+#'                           
+#' plot_signatures(these_predictions = sjodahl_predicted)
 #'
-#'# 5 class annotation and Without prediction scores
-#' plot_signatures(results,
-#'                data = Lund2017,
-#'                annotation = "5 classes",
-#'                ann_height = 0.5,
-#'                plot_scores = FALSE)
+#' #example 2 - loading data separately
+#' sjodahl_predicted = predict_lundtax(this_data = sjodahl_2017)
+#' 
+#' plot_signatures(these_predictions = sjodahl_predicted, 
+#'                 this_data = sjodahl_2017)
 #'
-#'# Plot and get sample order
-#' sample_order <- plot_signatures(results,
-#'                                data = Lund2017)
-#'print(head(sample_order))
+#' #example 3 - 5 class annotation and Without prediction scores
+#' plot_signatures(these_predictions = sjodahl_predicted, 
+#'                 this_data = sjodahl_2017,
+#'                 annotation = "5 classes",
+#'                 ann_height = 0.5,
+#'                 plot_scores = FALSE)
 #'
-#'# Save to pdf
-#'pdf("heatmap_example.pdf", width = 15, height = 10)
-#'plot_signatures(results,
-#'                data = Lund2017,
-#'                ann_height = 0.5,
-#'                plot_scores = FALSE)
-#'dev.off()
-#'
-#'@export
+plot_signatures = function(these_predictions = NULL,
+                           this_data = NULL,
+                           gene_id = "hgnc_symbols",
+                           annotation = "5 classes",
+                           norm = TRUE,
+                           plot_scores = TRUE,
+                           show_ann_legend = FALSE,
+                           show_hm_legend = FALSE,
+                           set_order = NULL,
+                           ann_height = 6,
+                           font.size = 8,
+                           title = "My Plot"){
 
-
-plot_signatures <- function(results_object,
-                            data = NULL,
-                            title = "",
-                            gene_id = c("hgnc_symbol","ensembl_gene_id","entrezgene")[1],
-                            annotation = c("5 classes", "7 classes")[2],
-                            plot_scores = TRUE,
-                            show_ann_legend = FALSE,
-                            show_hm_legend = FALSE,
-                            set_order = NULL,
-                            ann_height = 6,
-                            font.size = 8,
-                            norm = TRUE
-) {
-
-  if (!requireNamespace("ComplexHeatmap", quietly = TRUE) | !requireNamespace("circlize", quietly = TRUE)) {
-    stop("The ComplexHeatmap and circlize packages must be installed to use this function")
-  }
-
-  suppressPackageStartupMessages(require("ComplexHeatmap",quietly = TRUE))
-
-
-  ### Data ######
-
-  if (is.null(results_object) | !is.list(results_object)) {
-    stop("Input should be the result of applying predict_LundTax2023")
-  } else if (is.list(results_object) & "data" %in% names(results_object)) {
-    D <- results_object$data
-    score_matrix <- results_object$subtype_scores
-    pred_labels5 <- results_object$predictions_5classes
-    pred_labels7 <- results_object$predictions_7classes
-  } else if (is.list(results_object) & !"data" %in% names(results_object)) {
-    if (is.null(data)) {
-      stop("Data is missing. Include it in results object by running predict_LundTax2023 with include_data = TRUE or provide it in the data argument.")
-    } else if (!(class(data)[1] %in%  c("matrix","data.frame"))) {
+  #check incoming data and parameter combinations
+  if(is.null(these_predictions) | !is.list(these_predictions)){
+    stop("Input should be the result of applying predict_lundtax...")
+  }else if(is.list(these_predictions) & "data" %in% names(these_predictions)){
+    this_data = these_predictions$data
+    score_matrix = these_predictions$subtype_scores
+    pred_labels5 = these_predictions$predictions_5classes
+    pred_labels7 = these_predictions$predictions_7classes
+  }else if(is.list(these_predictions) & !"data" %in% names(these_predictions)){
+    if(is.null(this_data)){
+      stop("Data is missing. Include it in results object by running predict_lundtax with include_data = TRUE or provide it in the this_data argument...")
+    }else if(!(class(this_data)[1] %in%  c("matrix","data.frame"))){
       stop("Data should be in matrix or data.frame format")
-    } else if (class(data)[1] %in%  c("matrix","data.frame")) {
-      D <- data[,names(results_object$predictions_7classes)]
-      score_matrix <- results_object$subtype_scores
-      pred_labels5 <- results_object$predictions_5classes
-      pred_labels7 <- results_object$predictions_7classes
+    }else if (class(this_data)[1] %in%  c("matrix","data.frame")){
+      this_data = this_data[,names(these_predictions$predictions_7classes)]
+      score_matrix = these_predictions$subtype_scores
+      pred_labels5 = these_predictions$predictions_5classes
+      pred_labels7 = these_predictions$predictions_7classes
     }
   }
-
-  ## Legend ##
-  if (!is.null(show_ann_legend)) {
-    show_legend = show_ann_legend
+  
+  #convert ensembl gene id to hgnc symbols
+  if(gene_id == "ensembl_gene_id"){
+    
+    #convert the rownames to first column
+    mutated_data = dplyr::as_tibble(this_data, 
+                                    rownames = "ensembl_gene_id")
+    
+    #left join with gene list to get ensembl IDs
+    mutated_data = dplyr::left_join(gene_list, 
+                                    mutated_data, 
+                                    by = "ensembl_gene_id")
+    
+    #remove duplicated rows
+    mutated_data = dplyr::filter(mutated_data, 
+                                 duplicated(hgnc_symbol) == FALSE)
+    
+    #convert the first column back to rownames
+    row.names(mutated_data) = unique(mutated_data$hgnc_symbol)
+    mutated_data[1:2] <- NULL
+    
+    #convert back to expected name
+    this_data = mutated_data
   }
 
-  ## Scale ##
-  if (norm) {
-
-    D_norm<-as.matrix(D)
-    D_norm <- scale(t(D))
-    D_norm <- t(D_norm)
-
-  } else {
-    D_norm <- as.matrix(D)
+  #scale and set this_data as matrix
+  if(norm){
+    this_data = as.matrix(this_data)
+    this_data = scale(t(this_data))
+    this_data = t(this_data)
+  }else{
+    this_data = as.matrix(this_data)
   }
 
-  ######## Heatmaps ########
+  #plotting
+  #gene signatures
+  signatures_plot = signatures$signatures_plot
 
-  # Gene signatures #
-  signatures <- LundTax2023Classifier::signatures
-  signatures_plot <- signatures$signatures_plot
+  genes_to_plot = list(Early_CC = c(signatures$proliferation[which(signatures$proliferation$signature == "EarlyCellCycle"), 1]),
+                       Late_CC = c(signatures$proliferation[which(signatures$proliferation$signature == "LateCellCycle"), 1]),
+                       Late_Early = NULL,
+                       UroDiff = c("PPARG", "FOXA1", "GATA3", "ELF3"),
+                       UPKs = c("UPK1A", "UPK1B", "UPK2", "UPK3A", "KRT20"),
+                       Circuit = c("FGFR3", "CCND1", "E2F3", "RB1", "CDKN2A"),
+                       Circuit_score = NULL,
+                       FGFR3 = c(signatures_plot[which(signatures_plot$signature == "FGFR3"), 1]),
+                       BaSq = c("KRT5", "KRT14", "FOXA1", "GATA3"),
+                       BaSq_ratio = NULL,
+                       Keratinization = c(signatures_plot[which(signatures_plot$signature == "Keratinization_QTC"), 1]),
+                       Adhesion = c("EPCAM", "CDH1", "CDH3"),
+                       MYC = c("MYCL", "MYCN", "MYC"),
+                       ERBB = c("EGFR", "ERBB2", "ERBB3"),
+                       ERBB_score = NULL,
+                       ScNE = c("CHGA", "SYP", "ENO2"),
+                       Immune141_UP = c(signatures_plot[which(signatures_plot$signature == "Immune141_UP"), 1]),
+                       Stromal141_UP = c(signatures_plot[which(signatures_plot$signature == "Stromal141_UP"), 1]),
+                       Immune141_UP_score = NULL,
+                       Stromal141_UP_score = NULL)
+  
+  #Heatmap 1 - late/early cell cycle
+  
+  #get genes in provided data for downstream filtering steps
+  these_genes = row.names(this_data)
+  genes_early = intersect(genes_to_plot$Early_CC, these_genes)
+  genes_late = intersect(genes_to_plot$Late_CC, these_genes)
 
-  genes_to_plot <- list(Early_CC=c(signatures$proliferation[which(signatures$proliferation$signature == "EarlyCellCycle"),2]),
-                        Late_CC=c(signatures$proliferation[which(signatures$proliferation$signature == "LateCellCycle"),2]),
-                        Late_Early=NULL,
-                        UroDiff=c("PPARG","FOXA1","GATA3","ELF3"),
-                        UPKs=c("UPK1A","UPK1B","UPK2","UPK3A","KRT20"),
-                        Circuit=c("FGFR3","CCND1","E2F3","RB1","CDKN2A"),
-                        Circuit_score=NULL,
-                        FGFR3=c(signatures_plot[which(signatures_plot$signature == "FGFR3."),2]),
-                        BaSq=c("KRT5","KRT14","FOXA1","GATA3"),
-                        BaSq_ratio=NULL,
-                        Keratinization=c(signatures_plot[which(signatures_plot$signature == "Keratinization_QTC."),2]),
-                        Adhesion=c("EPCAM","CDH1","CDH3"),
-                        MYC=c("MYCL","MYCN","MYC"),
-                        ERBB=c("EGFR","ERBB2","ERBB3"),
-                        ERBB_score=NULL,
-                        ScNE=c("CHGA","SYP","ENO2"),
-                        Immune141_UP=c(signatures_plot[which(signatures_plot$signature == "Immune141_UP."),2]),
-                        Stromal141_UP=c(signatures_plot[which(signatures_plot$signature == "Stromal141_UP."),2]),
-                        Immune141_UP_score=NULL,
-                        Stromal141_UP_score=NULL)
-  # Lund colors #
-  lund_colors <- LundTax2023Classifier::lund_colors
-  # Gene IDs #
+  #combine genes
+  genes_cc = na.omit(c(genes_early, genes_late))
 
-  if (!(gene_id %in% c("hgnc_symbol","ensembl_gene_id","entrezgene"))) {
-    stop("Gene ID must be one of the following: 'hgnc_symbol','ensembl_gene_id' or 'entrezgene'")
-  }
-  else if (gene_id != "hgnc_symbol") {
-   
-    gene_info_lund <- LundTax2023Classifier::gene_info_lund
-    rownames(gene_info_lund) <- gene_info_lund[[gene_id]]
-    int_genes <- rownames(D_norm)[which(rownames(D_norm) %in% gene_info_lund[[gene_id]])]
-    rownames(D_norm)[which(rownames(D_norm) %in% gene_info_lund[[gene_id]])] <- gene_info_lund[int_genes,"hgnc_symbol"]
+  #check if genes from both early and late are present
+  if(length(genes_early) != 0 & !all(is.na(genes_late))){
+    
+    #row split for the heatmap
+    row_split = c(rep("Early", length(genes_early)),
+                  rep("Late", length(genes_late)))
+    #row title
+    row_title_cc = c("Late Cell Cycle", "Early Cell Cycle")
 
-  }
+    #late and Early scores
+    late_score = apply(this_data[intersect(rownames(this_data),genes_to_plot$Late_CC),], 2, median)
+    early_score = apply(this_data[intersect(rownames(this_data),genes_to_plot$Early_CC),], 2, median)
 
-  ## hm1 -> late/early cell cycle #####
+    #ratio
+    late_early = late_score-early_score
 
-  genes_early <- genes_to_plot$Early_CC[which(genes_to_plot$Early_CC %in% rownames(D_norm))]
-  genes_late <- genes_to_plot$Late_CC[which(genes_to_plot$Late_CC %in% rownames(D_norm))][1:10]
-  genes_cc <- na.omit(c(genes_early,genes_late))
+    #add genes to genes_to_plot object
+    genes_to_plot$Late_Early = late_early
+    
+    #create color palette for late/early
+    col_fun_cc = circlize::colorRamp2(c(quantile(late_early, 0.05),
+                                        median(late_early),
+                                        quantile(late_early, 0.95)),
+                                      c("blue","white", "red"))
 
-  # Check if genes from both early and late are present
-  if (length(genes_early) != 0 & !all(is.na(genes_late))) {
-    # Row split for the heatmap
-    row_split <- c(rep("Early",length(genes_early)),
-                   rep("Late",length(genes_late)))
-    # Row title
-    row_title_cc <- c("Late Cell Cycle", "Early Cell Cycle")
-
-    # Late and Early scores
-    late_score <- apply(D_norm[intersect(rownames(D_norm),genes_to_plot$Late_CC),], 2, median)
-    early_score <- apply(D_norm[intersect(rownames(D_norm),genes_to_plot$Early_CC),], 2, median)
-
-    # Ratio
-    late_early <- late_score-early_score
-
-    genes_to_plot$Late_Early <- late_early
-    col_fun_cc <- circlize::colorRamp2(c(quantile(late_early, 0.05),median(late_early),quantile(late_early, 0.95)),
-                                       c("blue","white", "red"))
-
-    # Order samples by late_early cell cycle
+    #order samples by late_early cell cycle
     sample_order <- order(late_early)
 
-    # Heatmap annotation
+    #heatmap annotation
     col = list(Predictions = lund_colors$lund_colors,
                late_early = col_fun_cc)
+    
+    #draw first heatmap
     ha1b = HeatmapAnnotation(late_early = genes_to_plot$Late_Early,
                              annotation_name_side = "left",
                              simple_anno_size = unit(4, "mm"),
@@ -194,39 +191,35 @@ plot_signatures <- function(results_object,
                              border = TRUE,
                              annotation_name_gp = gpar(fontsize = 8))
 
-
-  } else if (length(genes_early) == 0 & !all(is.na(genes_late))) { # If early cell cycle is missing
+  }else if(length(genes_early) == 0 & !all(is.na(genes_late))){ #if early cell cycle is missing
     message("All genes from the early cell cycle signature are missing.\nSamples will not be ordered by cell cycle.")
-    # skip_cellcycle <- TRUE
-    sample_order <- NULL
-    ha1b <- NULL
-    row_split <- NULL
-    row_title_cc <- "Late cell cycle"
-  } else if (length(genes_early) != 0 & all(is.na(genes_late))) { # If late cell cycle is missing
+    sample_order = NULL
+    ha1b = NULL
+    row_split = NULL
+    row_title_cc = "Late cell cycle"
+  }else if(length(genes_early) != 0 & all(is.na(genes_late))){ #if late cell cycle is missing
     message("All genes from the late cell cycle signature are missing.\nSamples will not be ordered by cell cycle.")
-    # skip_cellcycle <- TRUE
-    sample_order <- NULL
-    ha1b <- NULL
-    row_split <- NULL
-    row_title_cc <- "Early cell cycle"
-  } else { # Both are missing
+    sample_order = NULL
+    ha1b = NULL
+    row_split = NULL
+    row_title_cc = "Early cell cycle"
+  }else{ #both are missing
     message("All genes from the late/early cell cycle signatures are missing.\nSamples will not be ordered by cell cycle.")
-    # skip_cellcycle <- TRUE
-    sample_order <- NULL
-    ha1b <- NULL
-    row_split <- NULL
-    row_title_cc <- NULL
+    sample_order = NULL
+    ha1b = NULL
+    row_split = NULL
+    row_title_cc = NULL
   }
 
-  # Subtype annotations #
-
-  # 7 classes
+  
+  #HERE...............
+  #subtype annotations 
+  #7 classes
   if (annotation == "7 classes") {
+    #predictions
+    pred_lab = pred_labels7
 
-    # Predictions
-    pred_lab <- pred_labels7
-
-    # Column split
+    #column split
     split <- factor(pred_lab,levels=c("UroA","UroB","UroC","GU","BaSq","Mes","ScNE"))
 
     # Score plots

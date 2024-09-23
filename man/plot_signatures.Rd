@@ -2,88 +2,79 @@
 % Please edit documentation in R/plot_signatures.R
 \name{plot_signatures}
 \alias{plot_signatures}
-\title{Plot heatmap for classification results}
+\title{Plot Signature Results.}
 \usage{
 plot_signatures(
-  results_object,
-  data = NULL,
-  title = "",
-  gene_id = c("hgnc_symbol", "ensembl_gene_id", "entrezgene")[1],
-  annotation = c("5 classes", "7 classes")[2],
+  these_predictions = NULL,
+  this_data = NULL,
+  gene_id = "hgnc_symbols",
+  annotation = "5 classes",
+  norm = TRUE,
   plot_scores = TRUE,
   show_ann_legend = FALSE,
   show_hm_legend = FALSE,
   set_order = NULL,
   ann_height = 6,
   font.size = 8,
-  norm = TRUE
+  title = "My Plot"
 )
 }
 \arguments{
-\item{results_object}{description}
+\item{these_predictions}{Required parameter, should be the output from \code{predict_lundtax}.}
 
-\item{data}{results_object}
+\item{this_data}{Expression data used for predictions.
+Required if the output from \code{predict_lundtax} is run with include_data = FALSE (default).}
 
-\item{title}{heatmap title}
+\item{gene_id}{Specify the type of gene identifier used in \code{this_data}. Accepted values are;
+hgnc_symbol (default) or ensembl_gene_id.}
 
-\item{gene_id}{specify the type of gene identifier used in the data:
-\itemize{
-\item "hgnc_symbol" for HUGO gene symbols
-\item "ensembl_gene_id" for Ensembl gene IDs
-\item "entrezgene" for Entrez IDs
-Default value is hgnc_symbol
-}}
+\item{annotation}{Can be one of the following; "5 class" (default) or "7 class" annotation.}
 
-\item{annotation}{use 5 or 7 class annotation}
+\item{norm}{Boolean parameter. Set to TRUE (default) to normalize the data into Z-scaled values.}
 
-\item{plot_scores}{plot prediction scores for each class}
+\item{plot_scores}{Boolean parameter. Set to TRUE (default) to plot prediction scores for each class.}
 
-\item{show_ann_legend}{show annotation legend (Lund classes)}
+\item{show_ann_legend}{Boolean parameter, set to TRUE to show annotation legend (Lund classes). Default is FALSE.}
 
-\item{show_hm_legend}{show heatmap legend}
+\item{show_hm_legend}{Boolean parameter, set to TRUE to show heatmap legend, default is FALSE.}
 
-\item{set_order}{set sample order. Samples are split by subtype, and order within each subtype. By default, samples are order by late/early cell cycle ratio (low to high)}
+\item{set_order}{Optional parameter. Set sample order. Samples are split by subtype, and order
+within each subtype. By default, samples are order by late/early cell cycle ratio (low to high).}
 
-\item{font.size}{font size (default = 8)}
+\item{font.size}{Plotting parameter, optional. font size. Default = 8.}
 
-\item{norm}{normalize the data into Z-scaled values (default TRUE)}
+\item{title}{Plotting parameter. The title for the generated heatmap. Deafult is "My Plot".}
 
-\item{ann_heigh}{annotation height in cm (default = 6)}
+\item{ann_heigh}{Plotting parameter, optional. Annotation height in cm. Default = 6.}
 }
 \value{
-Draws heatmap and silently returns the sample order
+Draws heatmap and silently returns the sample order.
 }
 \description{
-This function plots a heatmap including genes and signatures of interest, with prediction results and scores on top
+Plot heatmap for classification results.
+}
+\details{
+This function plots a heatmap including genes and signatures of interest, with
+prediction results and scores on top.
 }
 \examples{
-# Including data in results object
-results <- predict_lundtax(Lund2017,
-                           include_data = TRUE)
-plot_signatures(results)
+#example 1 including data in results object
+sjodahl_predicted = predict_lundtax(this_data = sjodahl_2017,
+                                    include_data = TRUE)
+                          
+plot_signatures(these_predictions = sjodahl_predicted)
 
-# Loading data separately
-results <- predict_lundtax(Lund2017)
-plot_signatures(results, data = Lund2017)
+#example 2 - loading data separately
+sjodahl_predicted = predict_lundtax(this_data = sjodahl_2017)
 
-# 5 class annotation and Without prediction scores
-plot_signatures(results,
-               data = Lund2017,
-               annotation = "5 classes",
-               ann_height = 0.5,
-               plot_scores = FALSE)
+plot_signatures(these_predictions = sjodahl_predicted, 
+                this_data = sjodahl_2017)
 
-# Plot and get sample order
-sample_order <- plot_signatures(results,
-                               data = Lund2017)
-print(head(sample_order))
-
-# Save to pdf
-pdf("heatmap_example.pdf", width = 15, height = 10)
-plot_signatures(results,
-               data = Lund2017,
-               ann_height = 0.5,
-               plot_scores = FALSE)
-dev.off()
+#example 3 - 5 class annotation and Without prediction scores
+plot_signatures(these_predictions = sjodahl_predicted, 
+                this_data = sjodahl_2017,
+                annotation = "5 classes",
+                ann_height = 0.5,
+                plot_scores = FALSE)
 
 }

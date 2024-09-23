@@ -65,7 +65,7 @@ Data frame with prediction score for each sample and class, if return_scores = T
 Otherwise, nothing.
 }
 \description{
-Build a heatmap with scores retrieved with the predict_LundTax2023 function.
+Build a heatmap with scores retrieved with the \code{predict_lundtax} function.
 }
 \details{
 Construct and export (pdf or png) a highly customizable heatmap visualizing prediction

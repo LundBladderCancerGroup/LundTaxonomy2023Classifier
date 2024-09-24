@@ -38,6 +38,7 @@
 #' @importFrom stats median quantile
 #' @importFrom grDevices dev.off pdf png
 #' @importFrom openxlsx write.xlsx
+#' @importFrom tibble rownames_to_column
 #' 
 #'
 #' @export

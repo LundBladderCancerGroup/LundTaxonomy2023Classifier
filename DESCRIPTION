@@ -19,7 +19,8 @@ Imports:
     ggplot2,
     grDevices,
     multiclassPairs,
-    openxlsx
+    openxlsx,
+    tibble
 License: GPL (>= 2) + file LICENSE
 Encoding: UTF-8
 LazyData: true

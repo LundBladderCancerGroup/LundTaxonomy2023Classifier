@@ -33,7 +33,8 @@
 #' library(dplyr, multiclassPairs)
 #' 
 #' #get scores for bundled data
-#' my_scores = score_lundtax(this_data = sjodahl_2017, impute = TRUE)
+#' my_scores = score_lundtax(this_data = sjodahl_2017, 
+#'                           impute = TRUE)
 #'                             
 score_lundtax = function(this_data = NULL,
                          gene_id = "hgnc_symbol",

@@ -15,7 +15,7 @@
 #' @param plot_scores Boolean parameter. Set to TRUE (default) to plot prediction scores for each class.
 #' @param show_ann_legend Boolean parameter, set to TRUE to show annotation legend (Lund classes). Default is FALSE.
 #' @param show_hm_legend Boolean parameter, set to TRUE to show heatmap legend, default is FALSE.
-#' @param ann_heigh Plotting parameter, optional. Annotation height in cm. Default = 8.
+#' @param ann_height Plotting parameter, optional. Annotation height in cm. Default = 8.
 #' @param title Plotting parameter. The title for the generated heatmap. Deafult is "My Plot".
 #' @param plot_width This parameter controls the width in inches. Default is 14 (4200 pixels at 300 PPI).
 #' @param plot_height This parameter controls the height in pixels. Default is 10 (3000 pixels at 300 PPI)
@@ -30,19 +30,18 @@
 #' @return Draws heatmap and silently returns the sample order.
 #' 
 #' @import ComplexHeatmap circlize dplyr
+#' @importFrom stats na.omit quantile
+#' @importFrom grDevices dev.off pdf png
 #' 
 #' @export 
 #'
 #' @examples
-#' \dontrun{
-#' #load packages
-#' library(dplyr, Complexheatmap, circlize)
-#' 
+#' \dontrun{ 
 #' #example 1 including data in results object
 #' #run predictor on the bunlded expression data
-#' sjodahl_predicted = predict_lundtax(this_data = sjodahl_2017,
-#'                                     include_data = TRUE, 
-#'                                     impute = TRUE)
+#' sjodahl_predicted = lundtax_predict_sub(this_data = sjodahl_2017,
+#'                                         include_data = TRUE, 
+#'                                         impute = TRUE)
 #'
 #' plot_signatures(these_predictions = sjodahl_predicted, 
 #' out_path = "", 

@@ -34,19 +34,20 @@
 #' @return Data frame with prediction score for each sample and class, if return_scores = TRUE.
 #' Otherwise, nothing.
 #'
-#' @import ComplexHeatmap ggplot2 circlize openxlsx grDevices grid
+#' @import ComplexHeatmap ggplot2 circlize
+#' @importFrom stats median quantile
+#' @importFrom grDevices dev.off pdf png
+#' @importFrom openxlsx write.xlsx
+#' 
 #'
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' #load pacakges
-#' library(ComplexHeatmap, ggplot2, grid, circlize, openxlsx, grDevices, utils)
-#' 
-#' my_predictions = predict_lundtax(these_predictions = sjodahl_2017, 
-#'                                  gene_id = "hgnc_symbol", 
-#'                                  impute = TRUE, 
-#'                                  adjust = TRUE)
+#' my_predictions = lundtax_predict_sub(these_predictions = sjodahl_2017, 
+#'                                      gene_id = "hgnc_symbol", 
+#'                                      impute = TRUE, 
+#'                                      adjust = TRUE)
 #' 
 #' plot_scores(these_predictions = my_predictions,
 #'             out_path = "../",

@@ -24,25 +24,11 @@
 #' 
 #' @return A data frame with scores for the selected variable.
 #' 
-#' @import dplyr multiclassPairs
-#
-#' @examples
-#' #load packages
-#' library(dplyr, multiclasspairs)
-#' 
-#' #calculate immune scores from hgnc symbols 
-#' immune_scores = int_calc_score(this_data = sjodahl_2017, 
-#'                                 variable = "immune", 
-#'                                 gene_id = "hgnc_symbol")
-#' 
-#' #calculate progression score from hgnc symbols 
-#' 141_scores = int_calc_score(this_data = sjodahl_2017, 
-#'                             variable = "score141up", 
-#'                             gene_id = "hgnc_symbol")
+#' @import dplyr
 #'
 int_calc_score = function(this_data = NULL,
                           variable = NULL,
-                          logTransform = TRUE,
+                          log_transform = TRUE,
                           gene_id = "hgnc_symbol",
                           adjust = TRUE,
                           adj_factor = 5.1431){
@@ -63,7 +49,7 @@ int_calc_score = function(this_data = NULL,
   }
   
   #log transform
-  if(logTransform) {
+  if(log_transform) {
     this_data <- log2(this_data + 1)
   }
   

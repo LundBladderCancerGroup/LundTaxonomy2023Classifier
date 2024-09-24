@@ -30,31 +30,15 @@
 #'
 #' @return A data frame with grade results.
 #'
-#' @import multiclassPairs dplyr
+#' @importFrom multiclassPairs predict_RF
 #' 
-#' @examples
-#' #load packages
-#' library(dplyr, multiclassPairs)
-#' 
-#' #classifier grade 3
-#' grade_3 = int_predict_grade(this_data = sjodahl_2017, 
-#'                             grade_predictor = classifier_grade3, 
-#'                             gene_id = "hgnc_symbol", 
-#'                             impute = TRUE)
-#' 
-#' #classifier high grade
-#' high_grade = int_predict_grade(this_data = sjodahl_2017,  
-#'                                grade_predictor = classifier_hg, 
-#'                                gene_id = "hgnc_symbol", 
-#'                                impute = TRUE)
-#'
-int_predict_grade <- function(this_data = NULL, 
-                              grade_predictor = NULL,
-                              gene_id = "hgnc_symbol",
-                              impute = FALSE, 
-                              impute_reject = 0.67, 
-                              impute_kNN = 5, 
-                              verbose = TRUE){
+int_predict_grade = function(this_data = NULL, 
+                             grade_predictor = NULL,
+                             gene_id = "hgnc_symbol",
+                             impute = FALSE, 
+                             impute_reject = 0.67, 
+                             impute_kNN = 5, 
+                             verbose = TRUE){
   
   #check the incoming data
   if(!class(this_data)[1] %in% c("data.frame","matrix")){

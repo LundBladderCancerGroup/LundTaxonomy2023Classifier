@@ -9,32 +9,15 @@
 #' @param this_data Required parameter. Data frame or matrix with expression values.
 #' @param variable Required parameter. Input should be one of the following; 
 #' proliferation, or progression.
-#' @param log_transform Boolean parameter. If TRUE (default), the function log transforms 
-#' the incoming expression values.
 #' @param gene_id Specify the type of gene identifier used in `this_data`. 
 #' Accepted values are; hgnc_symbol (default) or ensembl_gene_id.
 #' 
 #' @return A data frame with scores for the selected variable.
 #' 
 #' @import dplyr
-#
-#' @examples
-#' #load packages
-#' library(dplyr)
-#' 
-#' #calculate immune scores from hgnc symbols 
-#' immune_scores = int_ratio_score(this_data = sjodahl_2017, 
-#'                                 variable = "proliferation", 
-#'                                 gene_id = "hgnc_symbol")
-#' 
-#' #calculate progression score from hgnc symbols 
-#' progression_scores = int_ratio_score(this_data = sjodahl_2017, 
-#'                                   variable = "progression", 
-#'                                   gene_id = "hgnc_symbol")
 #'
 int_ratio_score = function(this_data = NULL,
                            variable = NULL,
-                           logTransform = TRUE,
                            gene_id = "hgnc_symbol"){
   
   #check the incoming data

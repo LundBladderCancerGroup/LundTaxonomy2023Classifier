@@ -4,12 +4,7 @@
 \alias{int_ratio_score}
 \title{Calculate Scores.}
 \usage{
-int_ratio_score(
-  this_data = NULL,
-  variable = NULL,
-  logTransform = TRUE,
-  gene_id = "hgnc_symbol"
-)
+int_ratio_score(this_data = NULL, variable = NULL, gene_id = "hgnc_symbol")
 }
 \arguments{
 \item{this_data}{Required parameter. Data frame or matrix with expression values.}
@@ -19,9 +14,6 @@ proliferation, or progression.}
 
 \item{gene_id}{Specify the type of gene identifier used in \code{this_data}.
 Accepted values are; hgnc_symbol (default) or ensembl_gene_id.}
-
-\item{log_transform}{Boolean parameter. If TRUE (default), the function log transforms
-the incoming expression values.}
 }
 \value{
 A data frame with scores for the selected variable.
@@ -33,19 +25,4 @@ Calculate proliferation and progression scores.
 Internal function called by \code{score_lundtax}.
 Not meant for out of package use. Takes a data frame of matrix with expression
 values and calculates scores based on gene expression.
-}
-\examples{
-#load packages
-library(dplyr)
-
-#calculate immune scores from hgnc symbols 
-immune_scores = int_ratio_score(this_data = sjodahl_2017, 
-                                variable = "proliferation", 
-                                gene_id = "hgnc_symbol")
-
-#calculate progression score from hgnc symbols 
-progression_scores = int_ratio_score(this_data = sjodahl_2017, 
-                                  variable = "progression", 
-                                  gene_id = "hgnc_symbol")
-
 }

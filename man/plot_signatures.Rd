@@ -42,6 +42,8 @@ hgnc_symbol (default) or ensembl_gene_id.}
 
 \item{show_hm_legend}{Boolean parameter, set to TRUE to show heatmap legend, default is FALSE.}
 
+\item{ann_height}{Plotting parameter, optional. Annotation height in cm. Default = 8.}
+
 \item{title}{Plotting parameter. The title for the generated heatmap. Deafult is "My Plot".}
 
 \item{plot_width}{This parameter controls the width in inches. Default is 14 (4200 pixels at 300 PPI).}
@@ -58,8 +60,6 @@ Note, the title of the plot will always be twice that of the set value here (def
 
 \item{out_format}{Required parameter if \code{out_path} is specified. Can be "png" (default) or "pdf".
 The user can control the dimensions with \code{plot_width} and \code{plot_height}.}
-
-\item{ann_heigh}{Plotting parameter, optional. Annotation height in cm. Default = 8.}
 }
 \value{
 Draws heatmap and silently returns the sample order.
@@ -72,15 +72,12 @@ This function plots a heatmap including genes and signatures of interest, with
 prediction results and scores on top.
 }
 \examples{
-\dontrun{
-#load packages
-library(dplyr, Complexheatmap, circlize)
-
+\dontrun{ 
 #example 1 including data in results object
 #run predictor on the bunlded expression data
-sjodahl_predicted = predict_lundtax(this_data = sjodahl_2017,
-                                    include_data = TRUE, 
-                                    impute = TRUE)
+sjodahl_predicted = lundtax_predict_sub(this_data = sjodahl_2017,
+                                        include_data = TRUE, 
+                                        impute = TRUE)
 
 plot_signatures(these_predictions = sjodahl_predicted, 
 out_path = "", 

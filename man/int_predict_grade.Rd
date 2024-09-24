@@ -54,20 +54,3 @@ This function is internally calling \code{\link[multiclassPairs:predict_RF]{mult
 to run a random forest prediction using one of the two bundled classifiers
 for grade prediction.
 }
-\examples{
-#load packages
-library(dplyr, multiclassPairs)
-
-#classifier grade 3
-grade_3 = int_predict_grade(this_data = sjodahl_2017, 
-                            grade_predictor = classifier_grade3, 
-                            gene_id = "hgnc_symbol", 
-                            impute = TRUE)
-
-#classifier high grade
-high_grade = int_predict_grade(this_data = sjodahl_2017,  
-                               grade_predictor = classifier_hg, 
-                               gene_id = "hgnc_symbol", 
-                               impute = TRUE)
-
-}

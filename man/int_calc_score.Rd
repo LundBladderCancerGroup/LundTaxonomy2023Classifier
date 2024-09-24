@@ -7,7 +7,7 @@
 int_calc_score(
   this_data = NULL,
   variable = NULL,
-  logTransform = TRUE,
+  log_transform = TRUE,
   gene_id = "hgnc_symbol",
   adjust = TRUE,
   adj_factor = 5.1431
@@ -18,6 +18,9 @@ int_calc_score(
 
 \item{variable}{Required parameter. Input should be one of the following; immune,
 score141up, proliferation, or progression.}
+
+\item{log_transform}{Boolean parameter. If TRUE (default), the function log transforms
+the incoming expression values.}
 
 \item{gene_id}{Specify the type of gene identifier used in \code{this_data}.
 Accepted values are; hgnc_symbol (default) or ensembl_gene_id.}
@@ -31,9 +34,6 @@ apply a proportional adjustment to the normalized scores, enabling finer
 control over the final output values. After dividing each score by the mean
 expression of stable genes, the result is multiplied by this factor.
 Default is 5.1431}
-
-\item{log_transform}{Boolean parameter. If TRUE (default), the function log transforms
-the incoming expression values.}
 }
 \value{
 A data frame with scores for the selected variable.
@@ -45,19 +45,4 @@ Calculate immune and infiltration scores.
 Internal function called by \code{score_lundtax}.
 Not meant for out of package use. Takes a data frame of matrix with expression
 values and calculates scores based on gene expression.
-}
-\examples{
-#load packages
-library(dplyr, multiclasspairs)
-
-#calculate immune scores from hgnc symbols 
-immune_scores = int_calc_score(this_data = sjodahl_2017, 
-                                variable = "immune", 
-                                gene_id = "hgnc_symbol")
-
-#calculate progression score from hgnc symbols 
-141_scores = int_calc_score(this_data = sjodahl_2017, 
-                            variable = "score141up", 
-                            gene_id = "hgnc_symbol")
-
 }

@@ -18,6 +18,7 @@ Uro are subclassified into UroA, UroB or UroC by a second predictor
 Authors:
 \itemize{
   \item Pontus Eriksson \email{pontus.eriksson@med.lu.se}
+  \item Adam Mattsson \email{adam.mattsson@med.lu.se}
 }
 
 }

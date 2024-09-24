@@ -18,11 +18,3 @@ Calculate immune score proportions.
 \details{
 Internal function called by \code{in_calc_score} if varaible is set to immune.
 }
-\examples{
-#calculate immune scores from hgnc symbols 
-immune_scores = int_calc_score(this_data = sjodahl_2017, 
-                                variable = "immune", 
-                                gene_id = "hgnc_symbol")
-
-immune_prop = int_calc_immune_proportions(immune_results = immune_scores)
-}

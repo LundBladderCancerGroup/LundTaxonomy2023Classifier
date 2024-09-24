@@ -74,13 +74,10 @@ on how to use the function, see parameter descriptions and examples.
 }
 \examples{
 \dontrun{
-#load pacakges
-library(ComplexHeatmap, ggplot2, grid, circlize, openxlsx, grDevices, utils)
-
-my_predictions = predict_lundtax(these_predictions = sjodahl_2017, 
-                                 gene_id = "hgnc_symbol", 
-                                 impute = TRUE, 
-                                 adjust = TRUE)
+my_predictions = lundtax_predict_sub(these_predictions = sjodahl_2017, 
+                                     gene_id = "hgnc_symbol", 
+                                     impute = TRUE, 
+                                     adjust = TRUE)
 
 plot_scores(these_predictions = my_predictions,
             out_path = "../",

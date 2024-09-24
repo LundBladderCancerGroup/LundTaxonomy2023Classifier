@@ -5,7 +5,7 @@
 \title{Plot Signature Scores.}
 \usage{
 plot_scores(
-  this_data = NULL,
+  these_predictions = NULL,
   out_path = NULL,
   out_format = "png",
   return_scores = FALSE,
@@ -22,7 +22,7 @@ plot_scores(
 )
 }
 \arguments{
-\item{this_data}{A list with a data frame object called scores. Returned with \code{predict_lundtax}.}
+\item{these_predictions}{A list with a data frame object called scores. Returned with \code{predict_lundtax}.}
 
 \item{out_path}{Optional, set path to export plot. If not provided, tidy version of incoming
 scores in data frame format will be returned (\code{return_scores} will be auto-defaulted to TRUE).}
@@ -49,11 +49,9 @@ will be on the final heatmap. Default is to only show the legend for the subtype
 
 \item{plot_hm_legend}{Boolean parameter. Set to TRUE to show heatmap legend. Default is FALSE.}
 
-\item{plot_width}{If \code{out_format = "png"}, this parameter controls the width in pixels.
-Default is 14 inches (4200 pixels at 300 PPI).}
+\item{plot_width}{This parameter controls the width in inches. Default is 14(4200 pixels at 300 PPI).}
 
-\item{plot_height}{If \code{out_format = "png"}, this parameter controls the height in pixels.
-Default is 6 inches (1800 pixels at 300 PPI)}
+\item{plot_height}{This parameter controls the height in inches.Default is 6(1800 pixels at 300 PPI)}
 
 \item{plot_font_size}{Optional parameter to control the size of the font in the generated heatmap.
 Note, the title of the plot will always be twice that of the set value here (default = 12).}
@@ -79,12 +77,12 @@ on how to use the function, see parameter descriptions and examples.
 #load pacakges
 library(ComplexHeatmap, ggplot2, grid, circlize, openxlsx, grDevices, utils)
 
-my_predictions = predict_lundtax(this_data = sjodahl_2017, 
+my_predictions = predict_lundtax(these_predictions = sjodahl_2017, 
                                  gene_id = "hgnc_symbol", 
                                  impute = TRUE, 
                                  adjust = TRUE)
 
-plot_scores(this_data = my_predictions,
+plot_scores(these_predictions = my_predictions,
             out_path = "../",
             out_format = "pdf",
             title = "Lund2017")

@@ -8,15 +8,19 @@ plot_signatures(
   these_predictions = NULL,
   this_data = NULL,
   gene_id = "hgnc_symbols",
-  annotation = "5 classes",
+  subtype_annotation = "5 classes",
   norm = TRUE,
   plot_scores = TRUE,
   show_ann_legend = FALSE,
   show_hm_legend = FALSE,
-  set_order = NULL,
-  ann_height = 6,
-  font.size = 8,
-  title = "My Plot"
+  ann_height = 8,
+  title = "My Plot",
+  plot_width = 14,
+  plot_height = 10,
+  plot_font_size = 10,
+  plot_font_row_size = 8,
+  out_path = NULL,
+  out_format = "png"
 )
 }
 \arguments{
@@ -28,7 +32,7 @@ Required if the output from \code{predict_lundtax} is run with include_data = FA
 \item{gene_id}{Specify the type of gene identifier used in \code{this_data}. Accepted values are;
 hgnc_symbol (default) or ensembl_gene_id.}
 
-\item{annotation}{Can be one of the following; "5 class" (default) or "7 class" annotation.}
+\item{subtype_annotation}{Can be one of the following; "5 class" (default) or "7 class" annotation.}
 
 \item{norm}{Boolean parameter. Set to TRUE (default) to normalize the data into Z-scaled values.}
 
@@ -38,14 +42,24 @@ hgnc_symbol (default) or ensembl_gene_id.}
 
 \item{show_hm_legend}{Boolean parameter, set to TRUE to show heatmap legend, default is FALSE.}
 
-\item{set_order}{Optional parameter. Set sample order. Samples are split by subtype, and order
-within each subtype. By default, samples are order by late/early cell cycle ratio (low to high).}
-
-\item{font.size}{Plotting parameter, optional. font size. Default = 8.}
-
 \item{title}{Plotting parameter. The title for the generated heatmap. Deafult is "My Plot".}
 
-\item{ann_heigh}{Plotting parameter, optional. Annotation height in cm. Default = 6.}
+\item{plot_width}{This parameter controls the width in inches. Default is 14 (4200 pixels at 300 PPI).}
+
+\item{plot_height}{This parameter controls the height in pixels. Default is 10 (3000 pixels at 300 PPI)}
+
+\item{plot_font_size}{Optional parameter to control the size of the font in the generated heatmap.
+Note, the title of the plot will always be twice that of the set value here (default = 10).}
+
+\item{plot_font_row_size}{Optional parameter to control the size of the font in the generated heatmap.
+Note, the title of the plot will always be twice that of the set value here (default = 8).}
+
+\item{out_path}{Optional, set path to export plot.}
+
+\item{out_format}{Required parameter if \code{out_path} is specified. Can be "png" (default) or "pdf".
+The user can control the dimensions with \code{plot_width} and \code{plot_height}.}
+
+\item{ann_heigh}{Plotting parameter, optional. Annotation height in cm. Default = 8.}
 }
 \value{
 Draws heatmap and silently returns the sample order.
@@ -58,23 +72,27 @@ This function plots a heatmap including genes and signatures of interest, with
 prediction results and scores on top.
 }
 \examples{
+\dontrun{
+#load packages
+library(dplyr, Complexheatmap, circlize)
+
 #example 1 including data in results object
+#run predictor on the bunlded expression data
 sjodahl_predicted = predict_lundtax(this_data = sjodahl_2017,
-                                    include_data = TRUE)
-                          
-plot_signatures(these_predictions = sjodahl_predicted)
-
-#example 2 - loading data separately
-sjodahl_predicted = predict_lundtax(this_data = sjodahl_2017)
+                                    include_data = TRUE, 
+                                    impute = TRUE)
 
 plot_signatures(these_predictions = sjodahl_predicted, 
-                this_data = sjodahl_2017)
+out_path = "", 
+out_format = "pdf", 
+subtype_annotation = "7 classes")
 
-#example 3 - 5 class annotation and Without prediction scores
+
+#example 2 - 5 class annotation and Without prediction scores
 plot_signatures(these_predictions = sjodahl_predicted, 
-                this_data = sjodahl_2017,
-                annotation = "5 classes",
+                subtype_annotation = "5 classes",
                 ann_height = 0.5,
                 plot_scores = FALSE)
+}
 
 }

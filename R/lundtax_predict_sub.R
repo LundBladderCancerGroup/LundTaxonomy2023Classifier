@@ -148,16 +148,16 @@ lundtax_predict_sub = function(this_data = NULL,
     if(verbose){
       message("Calculating signature scores...")
     }
-  all_scores = score_lundtax(this_data = this_data,
-                             gene_id = gene_id,
-                             threshold_progression = threshold_progression,
-                             log_transform = log_transform,
-                             adjust = adjust,
-                             adj_factor = adj_factor,
-                             impute = impute, 
-                             impute_reject = impute_reject, 
-                             impute_kNN = impute_kNN,
-                             verbose = verbose)
+  all_scores = lundtax_calc_sigscore(this_data = this_data,
+                                     gene_id = gene_id,
+                                     threshold_progression = threshold_progression,
+                                     log_transform = log_transform,
+                                     adjust = adjust,
+                                     adj_factor = adj_factor,
+                                     impute = impute, 
+                                     impute_reject = impute_reject, 
+                                     impute_kNN = impute_kNN,
+                                     verbose = verbose)
   }else{
     if(verbose){
       message("Signature scores will be skipped, set subtype_only = FALSE to return scores...")

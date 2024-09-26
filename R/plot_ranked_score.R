@@ -27,8 +27,9 @@
 #'
 #' @return Nothing.
 #' 
-#' @import ggplot2 dplyr ggpmisc
+#' @import ggplot2 dplyr
 #' @importFrom tibble rownames_to_column
+#' @importFrom ggpubr stat_cor
 #'
 #' @export
 #'

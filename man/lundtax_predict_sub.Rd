@@ -74,7 +74,8 @@ Predict Lund Taxonomy subtypes based on rule-based Random Forest classifiers.
 This function uses 2 classifiers to classify the samples: 5-class
 classifier first  classifies samples into Uro, GU, BaSq, Mes or ScNE.
 Samples classified as Uro receive a second classification as UroA, B or C by
-the second classifier.
+the second classifier. This function internally calls
+\code{\link[=lundtax_calc_sigscore]{lundtax_calc_sigscore()}} for retrieving signature scores.
 }
 \examples{
 sjodahl_predicted = lundtax_predict_sub(this_data = sjodahl_2017, 

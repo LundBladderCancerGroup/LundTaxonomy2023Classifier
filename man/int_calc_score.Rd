@@ -42,7 +42,7 @@ A data frame with scores for the selected variable.
 Calculate immune and infiltration scores.
 }
 \details{
-Internal function called by \code{score_lundtax}.
-Not meant for out of package use. Takes a data frame of matrix with expression
-values and calculates scores based on gene expression.
+Internal function called by \code{\link[=lundtax_calc_sigscore]{lundtax_calc_sigscore()}}.
+Not meant for out of package use. Takes a data frame of matrix with expression values and
+calculates scores based on gene expression.
 }

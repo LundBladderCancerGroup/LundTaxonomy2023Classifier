@@ -46,11 +46,11 @@ printed or not. Default is TRUE.}
 A data frame with grade results.
 }
 \description{
-Internal function called by \code{score_lundtax} and \code{predict_lundtax}.
-Not meant for out of package use.
+Function for predicting grade using random forest and the bundled classifiers.
 }
 \details{
-This function is internally calling \code{\link[multiclassPairs:predict_RF]{multiclassPairs::predict_RF()}}
-to run a random forest prediction using one of the two bundled classifiers
-for grade prediction.
+Internal function called by \code{\link[=lundtax_calc_sigscore]{lundtax_calc_sigscore()}}.
+Not meant for out of package use. This function is internally calling
+\code{\link[multiclassPairs:predict_RF]{multiclassPairs::predict_RF()}} to run a random forest prediction using one of the two bundled
+classifiers for grade prediction.
 }

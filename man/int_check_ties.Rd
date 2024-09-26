@@ -15,11 +15,11 @@ int_check_ties(first, last)
 Nothing.
 }
 \description{
-Internal function called by \code{score_lundtax}.
-Not meant for out of package use.
+Check score ties between predictions scores.
 }
 \details{
-Checks score ties in the prediction scores and prints a message indicating
-the sample where the tie occurred, the two subtypes with the tied scores and
-the subtype that is reported in the output object.
+Internal function called by \code{\link[=lundtax_calc_sigscore]{lundtax_calc_sigscore()}}.
+Not meant for out of package use. Checks score ties in the prediction scores and prints a message
+indicating the sample where the tie occurred, the two subtypes with the tied scores and the
+subtype that is reported in the output object.
 }

@@ -2,8 +2,9 @@
 
 export(lundtax_calc_sigscore)
 export(lundtax_predict_sub)
-export(plot_scores)
-export(plot_signatures)
+export(plot_hm_scores)
+export(plot_hm_signatures)
+export(plot_ranked_score)
 import(ComplexHeatmap)
 import(circlize)
 import(dplyr)

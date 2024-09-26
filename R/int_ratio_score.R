@@ -2,9 +2,9 @@
 #'
 #' @description Calculate proliferation and progression scores.
 #'
-#' @details Internal function called by `score_lundtax`. 
-#' Not meant for out of package use. Takes a data frame of matrix with expression 
-#' values and calculates scores based on gene expression.
+#' @details Internal function called by [LundTax2023Classifier::lundtax_calc_sigscore()]. 
+#' Not meant for out of package use. Takes a data frame of matrix with expression values and 
+#' calculates scores based on gene expression.
 #'
 #' @param this_data Required parameter. Data frame or matrix with expression values.
 #' @param variable Required parameter. Input should be one of the following; 

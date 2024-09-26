@@ -2,8 +2,8 @@
 #'
 #' @description Merge prediction score matrices from two classifiers.
 #'
-#' @details Internal function called by `predict_lundtax`. Not meant for out of 
-#' package use. This function merges the prediction score matrices from the 
+#' @description Internal function called by [LundTax2023Classifier::lundtax_calc_sigscore()]. 
+#' Not meant for out of package use. This function merges the prediction score matrices from the 
 #' 5-class and 7-class (UroA,UroB,UroC) classifiers into 1 unique score matrix.
 #'
 #' @param score_matrix1 Prediction score matrix from the 7 class classifier.

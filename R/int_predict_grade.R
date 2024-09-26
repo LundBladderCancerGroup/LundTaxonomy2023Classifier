@@ -1,11 +1,11 @@
 #' @title Predict Grade
 #'
-#' @description Internal function called by `score_lundtax` and `predict_lundtax`. 
-#' Not meant for out of package use.
+#' @description Function for predicting grade using random forest and the bundled classifiers.
 #'
-#' @details This function is internally calling [multiclassPairs::predict_RF()]
-#' to run a random forest prediction using one of the two bundled classifiers 
-#' for grade prediction.
+#' @details Internal function called by [LundTax2023Classifier::lundtax_calc_sigscore()]. 
+#' Not meant for out of package use. This function is internally calling 
+#' [multiclassPairs::predict_RF()] to run a random forest prediction using one of the two bundled 
+#' classifiers for grade prediction.
 #'
 #' @param this_data Required parameter. Data frame or matrix with expression values.
 #' @param grade_predictor Required parameter, the predictor needed for grading.

@@ -2,9 +2,11 @@
 #'
 #' @description Calculate immune score proportions.
 #'
-#' @details Internal function called by `in_calc_score` if varaible is set to immune.
+#' @details Internal function called by [LundTax2023Classifier::int_calc_score()], if variable is 
+#' set to immune. Not meant for out-of-package use.
 #'
-#' @param immune_results Required parameter. Data frame with immune scores from int_calc_score.
+#' @param immune_results Required parameter. Data frame with immune scores from 
+#' [LundTax2023Classifier::int_calc_score()].
 #' 
 #' @return A data frame with scores as percentages.
 #'

@@ -5,7 +5,8 @@
 #' @details This function uses 2 classifiers to classify the samples: 5-class 
 #' classifier first  classifies samples into Uro, GU, BaSq, Mes or ScNE.
 #' Samples classified as Uro receive a second classification as UroA, B or C by 
-#' the second classifier.
+#' the second classifier. This function internally calls 
+#' [LundTax2023Classifier::lundtax_calc_sigscore()] for retrieving signature scores.
 #'
 #' @param this_data Required parameter. Data frame or matrix with expression values.
 #' @param gene_id Specify the type of gene identifier used in `this_data`. Accepted values are; 

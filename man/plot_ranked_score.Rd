@@ -6,23 +6,37 @@
 \usage{
 plot_ranked_score(
   these_predictions = NULL,
+  this_data = NULL,
   this_score = NULL,
+  this_subtype = NULL,
   subtype_class = NULL,
-  plot_title = NULL
+  plot_title = NULL,
+  return_plot_data = FALSE
 )
 }
 \arguments{
-\item{these_predictions}{Required parameter. Predictions returned with
-\code{\link[=lundtax_predict_sub]{lundtax_predict_sub()}}.}
+\item{these_predictions}{Required parameter, if no data provided with \code{this_data}.
+Predictions returned with \code{\link[=lundtax_predict_sub]{lundtax_predict_sub()}}.}
+
+\item{this_data}{Optional parameter, makes it possible for the user to give the plotting function
+their own data, preferably retrieved with this function with return_plot_data = TRUE. If provided,
+the plotting function will disregard any other parameters and only draw the plot using the data
+provided.}
 
 \item{this_score}{Required parameter, should be one of the numeric columns in the scores data
 frame from the list returned with \code{\link[=lundtax_predict_sub]{lundtax_predict_sub()}}.}
+
+\item{this_subtype}{Optional parameter, lets the user subset the return to a specific subtype.
+If nopt provided, all subtypes within the selected class will be returned.}
 
 \item{subtype_class}{Required, one of the following; 5_class or 7_class. Needed for coloring the
 points based on subtype classification.}
 
 \item{plot_title}{Optional parameter, the name of the returned plot. If NULL (default), no title
 will be printed to the generated figure.}
+
+\item{return_plot_data}{Boolean parameter, set to TRUE and return the formatted data used for
+plotting. Default is FALSE}
 }
 \value{
 Nothing.

@@ -146,9 +146,6 @@ lundtax_predict_sub = function(this_data = NULL,
   
   #calculate additional scores
   if(!subtype_only){
-    if(verbose){
-      message("Calculating signature scores...")
-    }
   all_scores = lundtax_calc_sigscore(this_data = this_data,
                                      gene_id = gene_id,
                                      threshold_progression = threshold_progression,

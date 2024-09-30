@@ -88,10 +88,6 @@ sjodahl_predicted = lundtax_predict_sub(this_data = sjodahl_2017,
                                         include_data = TRUE, 
                                         impute = TRUE)
 
-plot_hm_signatures(these_predictions = sjodahl_predicted, 
-                   out_path = "", 
-                   out_format = "pdf", 
-                   subtype_annotation = "7_class")
 
 
 #example 2 - 5 class annotation and Without prediction scores

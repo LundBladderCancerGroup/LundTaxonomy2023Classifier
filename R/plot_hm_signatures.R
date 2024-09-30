@@ -52,10 +52,7 @@
 #'                                         include_data = TRUE, 
 #'                                         impute = TRUE)
 #'
-#' plot_hm_signatures(these_predictions = sjodahl_predicted, 
-#'                    out_path = "", 
-#'                    out_format = "pdf", 
-#'                    subtype_annotation = "7_class")
+
 #'
 #'
 #' #example 2 - 5 class annotation and Without prediction scores
@@ -214,26 +211,26 @@ plot_hm_signatures = function(these_predictions = NULL,
                             border = TRUE,
                             height = unit(ann_height, "cm"),
                             annotation_name_gp = gpar(fontsize = plot_font_size))
-    
+
   #5 classes
   }else if(subtype_annotation == "5_class"){
-    
+  
     #predictions
     pred_lab = pred_labels5
-    
+  
     #column split
     split = factor(pred_lab, levels = c("Uro", "GU", "BaSq", "Mes", "ScNE"))
-    
+  
     #score plots
     bar1 = bar_anno(plot_scores = plot_scores, subtype = "Uro")
     bar2 = bar_anno(plot_scores = plot_scores, subtype = "GU")
     bar3 = bar_anno(plot_scores = plot_scores, subtype = "BaSq")
     bar4 = bar_anno(plot_scores = plot_scores, subtype = "Mes")
     bar5 = bar_anno(plot_scores = plot_scores, subtype = "ScNE")
-    
+
     #colors
     col = list(Predictions = lund_colors$lund_colors)
-    
+
     #draw heatmap for subtype predictions
     ha1 = HeatmapAnnotation(Predictions = pred_lab,
                             annotation_name_side = "left",
@@ -418,7 +415,7 @@ plot_hm_signatures = function(these_predictions = NULL,
 
     #calculate circuit sore
     circuit_score = apply(this_data, 2, function(col) sum(col[c("RB1", "FGFR3", "CCND1")]) - sum(col[c("E2F3", "CDKN2A")]))
-    
+  
     #add scores to genes_to_plot object
     genes_to_plot$Circuit_score = circuit_score
 
@@ -439,7 +436,7 @@ plot_hm_signatures = function(these_predictions = NULL,
                             show_legend = FALSE,
                             border = TRUE,
                             annotation_name_gp = gpar(fontsize = plot_font_row_size))
-    
+
     #draw heatmap 4 - circuit score
     hm4 = Heatmap(this_data[genes_circ,, drop = FALSE],
                   name = "hm4_circ",
@@ -467,7 +464,7 @@ plot_hm_signatures = function(these_predictions = NULL,
     ha4 = NULL
     message("Genes involved in the circuit score are missing.
             \nCircuit score will not be calculated...")
-    
+
     #draw heatmap 4 - circuit score
     hm4 = Heatmap(this_data[genes_circ,,drop = FALSE],
                   name = "hm4_circ",
@@ -683,7 +680,6 @@ plot_hm_signatures = function(these_predictions = NULL,
     hm7 = NULL
   }
 
-
   ##heatmap 8 - adhesion
   genes_ad = genes_to_plot$Adhesion
   genes_ad = genes_ad[which(genes_ad %in% rownames(this_data))]
@@ -875,11 +871,10 @@ plot_hm_signatures = function(these_predictions = NULL,
     col_fun_stromal = NULL
   }
 
-
   col = list(Immune141_UP = col_fun_immune,
              Stromal141_UP = col_fun_stromal)
 
-  #draw annotation track for heatmap 11 - SnNE and immune/stromnal scores
+  #draw annotation track for heatmap 11 - SnNE and immune/stromal scores
   ha11 = HeatmapAnnotation(Immune141_UP = genes_to_plot$Immune141_UP_score,
                            Stromal141_UP = genes_to_plot$Stromal141_UP_score,
                            simple_anno_size = unit(4, "mm"),

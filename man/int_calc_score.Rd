@@ -10,7 +10,8 @@ int_calc_score(
   log_transform = TRUE,
   gene_id = "hgnc_symbol",
   adjust = TRUE,
-  adj_factor = 5.1431
+  adj_factor = 5.1431,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -34,6 +35,9 @@ apply a proportional adjustment to the normalized scores, enabling finer
 control over the final output values. After dividing each score by the mean
 expression of stable genes, the result is multiplied by this factor.
 Default is 5.1431}
+
+\item{verbose}{A logical value indicating whether processing messages will be
+printed or not. Default is TRUE.}
 }
 \value{
 A data frame with scores for the selected variable.

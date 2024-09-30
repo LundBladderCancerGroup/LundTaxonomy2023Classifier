@@ -59,12 +59,14 @@ lundtax_calc_sigscore = function(this_data = NULL,
   #proliferation
   results_proliferation = int_ratio_score(this_data = this_data,
                                           variable = "proliferation",
-                                          gene_id = gene_id)
+                                          gene_id = gene_id,
+                                          verbose = verbose)
   
   #progression
   score_progression = int_ratio_score(this_data = this_data,
                                       variable = "progression",
-                                      gene_id = gene_id)
+                                      gene_id = gene_id,
+                                      verbose = verbose)
   
   results_progression = ifelse(score_progression$Score >= threshold_progression, "HR", "LR")
   
@@ -93,7 +95,8 @@ lundtax_calc_sigscore = function(this_data = NULL,
                                   log_transform = log_transform, 
                                   gene_id = gene_id, 
                                   adjust = adjust, 
-                                  adj_factor = adj_factor)
+                                  adj_factor = adj_factor, 
+                                  verbose = verbose)
 
   #141UP
   scores141up = int_calc_score(this_data = this_data, 
@@ -101,10 +104,14 @@ lundtax_calc_sigscore = function(this_data = NULL,
                                log_transform = log_transform, 
                                gene_id = gene_id, 
                                adjust = adjust, 
-                               adj_factor = adj_factor)
+                               adj_factor = adj_factor, 
+                               verbose = verbose)
 
   #merge scores
-  message("Merging scores...")
+  if(verbose){
+    message("Merging scores...")  
+  }
+  
   merge_scores <- cbind(proliferation_score = results_proliferation$Score,
                         molecular_grade_who_1999 = results_g3$predictions_classes,
                         molecular_grade_who_1999_score = results_g3$predictions[,"G3"],

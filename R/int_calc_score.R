@@ -21,6 +21,8 @@
 #' control over the final output values. After dividing each score by the mean 
 #' expression of stable genes, the result is multiplied by this factor. 
 #' Default is 5.1431
+#' @param verbose A logical value indicating whether processing messages will be 
+#' printed or not. Default is TRUE.
 #' 
 #' @return A data frame with scores for the selected variable.
 #' 
@@ -31,7 +33,8 @@ int_calc_score = function(this_data = NULL,
                           log_transform = TRUE,
                           gene_id = "hgnc_symbol",
                           adjust = TRUE,
-                          adj_factor = 5.1431){
+                          adj_factor = 5.1431,
+                          verbose = TRUE){
   
   #check the incoming data
   if(!class(this_data)[1] %in% c("data.frame","matrix")){
@@ -55,11 +58,15 @@ int_calc_score = function(this_data = NULL,
   
   #get scores for selected varaible
   if(variable == "immune"){
-    message("Calculating immune scores...")
+    if(verbose){
+      message("Calculating immune scores...")
+    }
     
     these_signatures = dplyr::select(signatures$immune, signature, !!as.symbol(gene_id))
   }else if(variable == "score141up"){
-    message("Calculating 141 scores...")
+    if(verbose){
+      message("Calculating 141 scores...") 
+    }
     
     these_signatures = filter(signatures$signatures_plot, signature %in% c("Stromal141_UP", "Immune141_UP")) %>% 
       select(signature, !!as.symbol(gene_id))

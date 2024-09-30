@@ -11,6 +11,8 @@
 #' proliferation, or progression.
 #' @param gene_id Specify the type of gene identifier used in `this_data`. 
 #' Accepted values are; hgnc_symbol (default) or ensembl_gene_id.
+#' @param verbose A logical value indicating whether processing messages will be 
+#' printed or not. Default is TRUE.
 #' 
 #' @return A data frame with scores for the selected variable.
 #' 
@@ -18,7 +20,8 @@
 #'
 int_ratio_score = function(this_data = NULL,
                            variable = NULL,
-                           gene_id = "hgnc_symbol"){
+                           gene_id = "hgnc_symbol",
+                           verbose = TRUE){
   
   #check the incoming data
   if(!class(this_data)[1] %in% c("data.frame","matrix")){
@@ -36,7 +39,9 @@ int_ratio_score = function(this_data = NULL,
   }
 
   if(variable == "proliferation"){
-    message("Calculating proliferation scores...")
+    if(verbose){
+      message("Calculating proliferation scores...") 
+    }
     
     #get all genes with signature LateCellCycle
     up_genes = filter(signatures$proliferation, signature == "LateCellCycle") %>% 
@@ -46,7 +51,9 @@ int_ratio_score = function(this_data = NULL,
     down_genes = filter(signatures$proliferation, signature == "EarlyCellCycle") %>% 
       select(signature, !!as.symbol(gene_id))
   }else if(variable == "progression"){
-    message("Calculating progression scores...")
+    if(verbose){
+      message("Calculating progression scores...") 
+    }
     
     #get all genes with signature LateCellCycle
     up_genes = filter(signatures$progression, direction_in_prog == "Up") %>% 

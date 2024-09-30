@@ -4,7 +4,12 @@
 \alias{int_ratio_score}
 \title{Calculate Scores.}
 \usage{
-int_ratio_score(this_data = NULL, variable = NULL, gene_id = "hgnc_symbol")
+int_ratio_score(
+  this_data = NULL,
+  variable = NULL,
+  gene_id = "hgnc_symbol",
+  verbose = TRUE
+)
 }
 \arguments{
 \item{this_data}{Required parameter. Data frame or matrix with expression values.}
@@ -14,6 +19,9 @@ proliferation, or progression.}
 
 \item{gene_id}{Specify the type of gene identifier used in \code{this_data}.
 Accepted values are; hgnc_symbol (default) or ensembl_gene_id.}
+
+\item{verbose}{A logical value indicating whether processing messages will be
+printed or not. Default is TRUE.}
 }
 \value{
 A data frame with scores for the selected variable.

@@ -36,8 +36,5 @@ rsconnect/
 man/figures/*.pdf
 man/figures/*.png
 
-# Exclude html knitted vignette
-vignettes/*.html
-
 # Exclude DS_Store
 .DS_Store

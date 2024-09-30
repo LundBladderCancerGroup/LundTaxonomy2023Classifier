@@ -82,7 +82,7 @@ makes prediction calls based on gene expression data. It also internally calls `
 
 ### Example 1 - Predict Subtype
 In this first example we will call this function on the bundled expression data to determine a subtype for each of the included samples. Note, that we run this example with `impute = TRUE` to compensate for missing genes in the demo data set. For transparency, all other parameters are called with default parameters for demonstrating purposes.
-```{r sjodahl predicted}
+```{r sjodahl predicted, results = 'hide', message = FALSE}
 sjodahl_predicted = lundtax_predict_sub(this_data = sjodahl_2017, 
                                         gene_id = "hgnc_symbol",
                                         impute = TRUE,
@@ -138,10 +138,63 @@ knitr::kable(sjodahl_predicted$scores[1:5, 1:3],
 
 ## Visualization
 This part of the vignette will demonstrate how to integrate the plotting functions to the return of the main functions in this package. Currently, there are three alternatives for visualize the results;
-`plot_hm_signatures`, `plot_hm_score`, `plot_ranked_score`. The first of these is developed to plots a heatmap, including genes and signatures of interest, with prediction results and scores on top. Let's call this function on the generated prediction call set in the previous example.
+`plot_hm_signatures`, `plot_hm_score`, `plot_ranked_score`. 
 
-```{r heatmap signatures}
+### Plot Heatmap Signatures
+Constructs a heatmap, including genes and signatures of interest, with prediction results and scores on top. Here, we are using the prediction dataset generated in the previous example as input for the plotting function. Tip, it's possible to run the plotting function on just one object (i.e no need to provide `this_data` separately), to do so, run the prediction function with `include_data = TRUE`.
+
+```{r heatmap signatures, results = 'hide'}
 plot_hm_signatures(these_predictions = sjodahl_predicted, 
                    this_data = sjodahl_2017,
-                   subtype_annotation = "7_class")
+                   subtype_annotation = "7_class",
+                   out_format = "png", 
+                   out_path = "../man/figures/", 
+                   gene_id = "hgnc_symbol", 
+                   title = "Sjodahl 2017 - Classifications")
+```
+
+```{r figure 1, echo = FALSE, out.width = '100%', dpi = 300}
+knitr::include_graphics("../man/figures/Sjodahl 2017 - Classifications_heatmap_scores.png")
+```
+
+### Plot Heatmap Signatures
+This functions builds a heatmap for the signature scores (4th element in the returned list with the classifier function). This allows for a rapid and comprehenssive overview of how the different signature scores can relate to the different subtypes. In this example, again, we are using the prediction calls from the classifier in the example. The function is called with default paraemters.
+
+```{r heatmap scores, echo = FALSE, out.width = '100%'}
+plot_hm_scores(these_predictions = sjodahl_predicted,
+               verbose = FALSE, 
+               out_format = "png",
+               out_path = "../man/figures/",
+               title = "Sjodahl 2017 - Signature Scores")
+```
+
+```{r figure 2, echo = FALSE, out.width = '100%', dpi = 300}
+knitr::include_graphics("../man/figures/Sjodahl 2017 - Signature Scores_heatmap_scores.png")
+```
+
+This function can also be run with `return_scores = TRUE` to return the plotting data in a tidy format for the user to either run their own ploting scripts or, aggregating with clinical data, etc. Let's return this version of the data with the function and see what it looks like.
+
+```{r return plot data, echo = FALSE}
+sjodahl_scores = plot_hm_scores(these_predictions = sjodahl_predicted, 
+                                title = "sjodahl_2017",
+                                verbose = FALSE, 
+                                return_scores = TRUE)
+```
+
+Let's print the column names and type of the returned scores data frame.
+
+```{r scored data frame}
+str(sjodahl_scores)
+```
+
+The function can also return the data from in xlsx format. To do so, run the function with `return_xlsx = TRUE`. 
+
+### Plot Ranked Score
+This function returns a point plot with ranked scores for a set variable. It takes a predictions data set together with a score variable, subtype class and returns a point plot (grob) with ranked scores along the x axis and scores along the y axis. The returned plot will also color fill the points based on subtype classification. In this example, we are plotting proliferation score for all subtypes in the 7 class group.
+
+```{r figure 3, message = FALSE, echo = FALSE, out.width = '100%', dpi = 300}
+plot_ranked_score(these_predictions = sjodahl_predicted, 
+                  this_score = "proliferation_score", 
+                  subtype_class = "7_class", 
+                  plot_title = "Sjodahl 2017 - Proliferation Score")
 ```

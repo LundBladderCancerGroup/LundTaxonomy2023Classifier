@@ -1,8 +1,8 @@
 ---
-title: "Lund Taxonomy Classifier Tutorial"
+title: "Tutorial"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{tutorial}
+  %\VignetteIndexEntry{Tutorial}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,10 +16,132 @@ knitr::opts_chunk$set(warning = FALSE,
 ```{r load_packages, message = FALSE, warning = FALSE}
 #load Lund Taxonomy Classifier
 library(LundTax2023Classifier)
+library(knitr)
+library(grid)
 ```
 
-# Subtype Prediction
+# Lund Taxonomy Classifier
+This package depends on a set of internal and exported functions.
+The main funcitons inteded for the user are; `lundtax_predict_sub`, `lundtax_calc_sigscore`, `plot_hm_signatures`, `plot_hm_sigscores`, `plot_ranked_score`. In this tutorial, we will demonstrate 
+how to use these functions, using the bundled data to get the most out from this package.
 
-# Visualization
+## Bundled Data
+Before we get started, let's start with exploring some of the relevant bunlded data objects.
 
-# Bundled Data
+### Expression Data
+This package includes an example expression data set. This data is a subset of samples from the Sjodahl 2017 paper. Let's first see the dimensions of the data object.
+
+```{r, expression data dimensions}
+dim(sjodahl_2017)
+```
+
+The expression data set has 15607 rows (genes) and 267 columns (samples). Let's have a look at the a the first 5 rows and 5 columns to get an idea of what the data looks like.
+
+```{r expression data overview}
+knitr::kable(sjodahl_2017[1:5, 1:5], 
+             caption = "Table 1. Bundled expression data subset")
+```
+
+### Metadata
+The package also includes meta data for the expression data. The metadata can be used to aggregate the prediction calls, allowing for interesting association between various metadata variables and specific subtype. Let's explore this data set by overviewing what clinical information is available.
+
+```{r metadata}
+str(sjodahl_2017_meta)
+```
+
+If the user wants to use their own metadata, this should be in a data frame format wiith unique sample identifiers in a column called `sample_id`. For a more detailed explanation of the variables, see that data set documentation.
+
+### Other Bundled Objects
+this package also includes a variety of data objects needed for the predictor. For example, classifiers for predicting grade and subtype, lists with genes identifiers for making prediction calls and gene signatures. Let's explore a few of these.
+
+The `gene_list` holds information on gene identifiers that the predictor is based on. This object has
+gene identfiers in both HGNC and Ensembl format, allowing the incoming data to be in either of these formats. 
+
+```{r gene list}
+knitr::kable(head(gene_list, 5),
+             caption = "Table 2. Gene List")
+```
+
+How many genes in total, are included in the `gene_list` object?
+
+```{r n genes}
+nrow(gene_list)
+```
+
+The `signatures` object has all the information on what genes are associated with what signature. This object is a list of 6 data frames, for different signatures. Typically, the columns of each data frame are the following; `hgnc_symbol`, `ensembl_gene_id` and `signature`. Let's have a look at the immune signatures object in this list.
+
+```{r immune signatures}
+knitr::kable(table(signatures$immune$signature), 
+             caption = "Table 3. Immune Signatures", 
+             col.names = c("Signature", "Genes (n)"))
+```
+
+## Subtype Prediction
+The main function in this package is `lundtax_predict_sub`. This function
+makes prediction calls based on gene expression data. It also internally calls `lundtax_calc_sigscore` to calculate signature scores for a variety of,for the subtype, relevant signature scores. The main input for this function is a data object with expression values, given to the `this_data` parameter. This should be a data frame or matrix with expression values, gene identifiers in as row names and samples in columns. The function supports gene identifiers in one of the following formats; **HGNC symbols** (default) or **Ensembl Gene IDs**. The format for the provided gene identifiers should be given to the `gene_id` parameter. This function also depends on the `predict_RF` function from `multiclassPairs`. Thus, the function can also take arguments from this function. For example, if required genes are missing from the input data, the user can run the prediction function with `impute = TRUE`.
+
+### Example 1 - Predict Subtype
+In this first example we will call this function on the bundled expression data to determine a subtype for each of the included samples. Note, that we run this example with `impute = TRUE` to compensate for missing genes in the demo data set. For transparency, all other parameters are called with default parameters for demonstrating purposes.
+```{r sjodahl predicted}
+sjodahl_predicted = lundtax_predict_sub(this_data = sjodahl_2017, 
+                                        gene_id = "hgnc_symbol",
+                                        impute = TRUE,
+                                        threshold_progression = 0.58,
+                                        log_transform = TRUE, 
+                                        adjust = FALSE, 
+                                        adj_factor = 5.1431, 
+                                        impute_reject = 0.67, 
+                                        impute_kNN = 5, 
+                                        subtype_only = FALSE, 
+                                        include_data = FALSE, 
+                                        include_pred_scores = TRUE, 
+                                        verbose = FALSE)
+```
+
+Let's explore what the returned object looks like. The return is a lsit of 4, with the following information in it:
+
+```{r predicted lsit}
+knitr::kable(summary(sjodahl_predicted), 
+             caption = "Table 4. Prediction Calls", 
+             col.names = c("Object", "Length", "Class", "Mode"))
+```
+
+The `subtype_scores` object holds all the subtype prediction scores for all included samples.
+
+```{r subtype score}
+knitr::kable(head(sjodahl_predicted$subtype_scores, 5), 
+             caption = "Table 5. Prediction Scores",)
+```
+
+The second and third element in the list has the 7 class  and 5 class prediction calls respectivly. 
+
+```{r prediction classes}
+
+knitr::kable(cbind(head(sjodahl_predicted$predictions_7classes, 5),
+                   head(sjodahl_predicted$predictions_5classes, 5)), 
+             caption = "Table 6. Prediction Classes Combined",
+             col.names = c("Sample ID", "7 Class", "5 Class"))
+```
+
+The last object in the returned list has all the signature scores, let's start with printing the available variables in this object
+
+```{r signature scores variables}
+colnames(sjodahl_predicted$scores)
+```
+
+Let's also print out the first 5 rows and 3 columns of this object.
+
+```{r signature sample}
+knitr::kable(sjodahl_predicted$scores[1:5, 1:3], 
+             caption = "Table 7. Signature Score Subset")
+```
+
+## Visualization
+This part of the vignette will demonstrate how to integrate the plotting functions to the return of the main functions in this package. Currently, there are three alternatives for visualize the results;
+`plot_hm_signatures`, `plot_hm_score`, `plot_ranked_score`. The first of these is developed to plots a heatmap, including genes and signatures of interest, with prediction results and scores on top. Let's call this function on the generated prediction call set in the previous example.
+
+```{r heatmap signatures}
+plot_hm_signatures(these_predictions = sjodahl_predicted, 
+                   this_data = sjodahl_2017,
+                   subtype_annotation = "7_class")
+```

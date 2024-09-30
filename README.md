@@ -6,14 +6,22 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-This package implements a Random Forest rule-based single-sample
-predictor that classifies gene expression samples into the 5 (or 7,
-including subclasses) Lund Taxonomy molecular subtypes. The final
-classifier is composed of two separate predictors applied sequentially -
-first a sample is classified as one of the 5 main classes (Uro, GU,
-BaSq, Mes or ScNE), and then samples classified as Uro are subclassified
-into UroA, UroB or UroC by a second predictor. The package includes a
-sample dataset (Lund2017) to run the classifier.
+A Random Forest rule-based single-sample predictor that classifies urothelial cancer samples to one 
+of the the 5 (or 7, including subclasses) Lund Taxonomy molecular subtypes, based on gene expression
+data. 
+
+This classifier is composed of two separate predictors applied sequentially - first a sample is 
+classified as one of the 5 main classes (Uro, GU, BaSq, Mes or ScNE). Then, samples classified as
+Uro are further sub classified into UroA, UroB or UroC by a second predictor. 
+
+Furthermore, the package can also be deployed to visualize the prediction calls and signatures used 
+for subtype prediction. This package also includes a bundled data set with gene expression data 
+([Sjodahl 2017](man/sjodahl_2017.Rd)), as well as paired metadata for the same samples 
+([Sjodahl 2017 Metadata](man/sjodahl_2017_meta.Rd)). 
+
+This package depends on a set of internal and exported functions.
+The main funcitons inteded for the user are; [lundtax_predict_sub](man/lundtax_predict_sub.Rd), 
+[lundtax_calc_sigscore](man/lundtax_calc_sigscore.Rd), [plot_hm_signatures.](man/plot_hm_signatures.Rd),  [plot_hm_sigscores](man/plot_hm_sigscore.Rd), [plot_ranked_score](man/plot_ranked_score.Rd). In this vignette, these functions will be explained and explored.
 
 ## Installation
 

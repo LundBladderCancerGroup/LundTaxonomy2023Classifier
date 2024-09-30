@@ -84,8 +84,12 @@ plot_hm_scores = function(these_predictions = NULL,
   }
 
   if(is.null(title)){
-    stop("Please specify a title for your plot with `title`...")
-  }
+    if(!return_scores){
+      stop("Please specify a title for your plot with `title`...")
+    }else{
+      stop("Please provide a title for your data with `title`...")
+    }
+  } 
 
   #set the default legend properties
   if(is.null(plot_anno_legend)){
@@ -107,7 +111,7 @@ plot_hm_scores = function(these_predictions = NULL,
           height = plot_height)
     #set PNG outputs
     }else if(out_format == "png"){
-        png(paste0(out_path, title, "heatmap_scores.png"),
+        png(paste0(out_path, title, "_heatmap_scores.png"),
             width = plot_width,
             height = plot_height,
             units = "in",
@@ -259,10 +263,9 @@ plot_hm_scores = function(these_predictions = NULL,
       write.xlsx(my_scores, paste0(out_path, title, "_scores.xlsx"))
       if(verbose){
         message(paste0("Prediction scores exported as xlsx to ", out_path, title, "_scores.xlsx"))
-        }
+      }
+      dev.off()
     }
-    
-    dev.off()
 
     #return data frame
     return(my_scores)

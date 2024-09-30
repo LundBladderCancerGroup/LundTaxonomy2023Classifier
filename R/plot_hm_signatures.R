@@ -920,7 +920,7 @@ plot_hm_signatures = function(these_predictions = NULL,
           height = plot_height)
       #set PNG outputs
     }else if(out_format == "png"){
-      png(paste0(out_path, title, "heatmap_scores.png"),
+      png(paste0(out_path, title, "_heatmap_scores.png"),
           width = plot_width,
           height = plot_height,
           units = "in",

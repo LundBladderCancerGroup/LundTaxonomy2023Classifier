@@ -1,0 +1,25 @@
+---
+title: "Lund Taxonomy Classifier Tutorial"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{tutorial}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(warning = FALSE, 
+                      fig.width = 7, 
+                      fig.height = 5, 
+                      fig.align = "center")
+```
+
+```{r load_packages, message = FALSE, warning = FALSE}
+#load Lund Taxonomy Classifier
+library(LundTax2023Classifier)
+```
+
+# Subtype Prediction
+
+# Visualization
+
+# Bundled Data

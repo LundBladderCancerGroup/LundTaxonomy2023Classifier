@@ -53,7 +53,8 @@ use large number (i.e. >10).}
 printed or not. Default is TRUE.}
 }
 \value{
-A data frame with scores for the selected variable.
+A list of 2, a data frame with scores for the selected variable and a data frame with
+infomration on missing genes.
 }
 \description{
 Wrapper function for calculating Lund Taxonomy scores.

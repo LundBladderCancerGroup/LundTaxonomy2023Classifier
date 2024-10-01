@@ -65,7 +65,8 @@ printed or not. Default is TRUE.}
 \value{
 Returns a list object including: Data (optional, not included by default),
 Prediction scores for all classes (optional, included by default), Predicted LundTax
-class for 7-class system, Predicted LundTax class for 5-class system
+class for 7-class system, Predicted LundTax class for 5-class system, as well a data frame with
+missing genes information.
 }
 \description{
 Predict Lund Taxonomy subtypes based on rule-based Random Forest classifiers.

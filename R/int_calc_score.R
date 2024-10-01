@@ -79,6 +79,17 @@ int_calc_score = function(this_data = NULL,
   #get genes that are not in the incoming data
   diff_genes = setdiff(these_signatures[,gene_id], rownames(genes_int))
   
+  #create data frame with missing gene information
+  missing_genes = data.frame(genes = as.character(), 
+                             signature = as.character(), 
+                             process = as.character())
+  
+  #append missing genes information to the data frame
+  missing_genes = add_row(missing_genes, 
+                          genes = diff_genes, 
+                          signature = variable, 
+                          process = "NA")
+  
   #notify the user what genes are missing
   if(length(diff_genes > 0)){
     message(paste0(length(diff_genes), " out of ", length(unique(these_signatures[,gene_id]))," genes are missing from the data..."))
@@ -110,6 +121,6 @@ int_calc_score = function(this_data = NULL,
     score_results = cbind(score_results, immune__prop)
   }
   
-  return(score_results)
+  return(list(sig_score = score_results, na_genes = missing_genes))
 }
 

@@ -30,7 +30,8 @@
 #' @param verbose A logical value indicating whether processing messages will be 
 #' printed or not. Default is TRUE.
 #' 
-#' @return A data frame with scores for the selected variable.
+#' @return A list of 2, a data frame with scores for the selected variable and a data frame with 
+#' infomration on missing genes.
 #' 
 #' @import dplyr
 #' @importFrom multiclassPairs predict_RF
@@ -68,7 +69,7 @@ lundtax_calc_sigscore = function(this_data = NULL,
                                       gene_id = gene_id,
                                       verbose = verbose)
   
-  results_progression = ifelse(score_progression$Score >= threshold_progression, "HR", "LR")
+  results_progression = ifelse(score_progression$sig_score$Score >= threshold_progression, "HR", "LR")
   
   #grade
   #WHO 1999 (G3 vs G1/2)
@@ -112,15 +113,15 @@ lundtax_calc_sigscore = function(this_data = NULL,
     message("Merging scores...")  
   }
   
-  merge_scores <- cbind(proliferation_score = results_proliferation$Score,
-                        molecular_grade_who_1999 = results_g3$predictions_classes,
-                        molecular_grade_who_1999_score = results_g3$predictions[,"G3"],
-                        molecular_grade_who_2016 = results_hg$predictions_classes,
-                        molecular_grade_who_2016_score = results_hg$predictions[,"HG"],
-                        progression_score = score_progression$Score,
-                        progression_risk = results_progression,
-                        results_immune, 
-                        scores141up)
+  merge_scores = cbind(proliferation_score = results_proliferation$sig_score$Score,
+                       molecular_grade_who_1999 = results_g3$predictions_classes,
+                       molecular_grade_who_1999_score = results_g3$predictions[,"G3"],
+                       molecular_grade_who_2016 = results_hg$predictions_classes,
+                       molecular_grade_who_2016_score = results_hg$predictions[,"HG"],
+                       progression_score = score_progression$sig_score$Score,
+                       progression_risk = results_progression,
+                       results_immune$sig_score, 
+                       scores141up$sig_score)
   
   #set new column names for easy access
   oldnames = c("B-cells", "T-cells","T-cells CD8+", "NK-cells", "Cytotoxicity Score", "Neutrophils",
@@ -161,5 +162,14 @@ lundtax_calc_sigscore = function(this_data = NULL,
                   myeloid_dendritic_cells_proportion, endothelial_cells, endothelial_cells_proportion,
                   fibroblasts, fibroblasts_proportion, smooth_muscle, smooth_muscle_proportion)
   
-  return(merge_scores)
+  #combine list of missing genes
+  missing_genes = rbind(proliferation_score = results_proliferation$na_genes,
+                        progression_score = score_progression$na_genes,
+                        results_immune$na_genes, 
+                        scores141up$na_genes)
+  
+  #remove row names
+  row.names(missing_genes) = NULL
+  
+  return(list(merged_scores = merge_scores, na_genes = missing_genes))
 }

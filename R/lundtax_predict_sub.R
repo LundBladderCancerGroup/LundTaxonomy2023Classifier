@@ -39,7 +39,8 @@
 #'
 #' @return Returns a list object including: Data (optional, not included by default), 
 #' Prediction scores for all classes (optional, included by default), Predicted LundTax 
-#' class for 7-class system, Predicted LundTax class for 5-class system
+#' class for 7-class system, Predicted LundTax class for 5-class system, as well a data frame with 
+#' missing genes information.
 #'
 #' @import dplyr
 #' @importFrom stats setNames median na.omit quantile
@@ -165,7 +166,7 @@ lundtax_predict_sub = function(this_data = NULL,
   
   #gather return
   #additional scores
-  results_suburo$scores = all_scores
+  results_suburo$scores = all_scores$merged_scores
   
   #score matrices
   results_suburo$subtype_scores = score_matrix
@@ -218,16 +219,18 @@ lundtax_predict_sub = function(this_data = NULL,
     
     results_suburo_nodata = list(subtype_scores = results_suburo$subtype_scores,
                                  predictions_7classes = results_suburo$predictions_7classes,
-                                  predictions_5classes = results_suburo$predictions_5classes)
+                                 predictions_5classes = results_suburo$predictions_5classes)
   }else{
     predictions_suburo = list(predictions_7classes = results_suburo$predictions_7classes,
                               predictions_5classes = results_suburo$predictions_5classes,
-                              scores = results_suburo$scores)
+                              scores = results_suburo$scores,
+                              na_genes = all_scores$na_genes)
     
     results_suburo_nodata = list(subtype_scores = results_suburo$subtype_scores,
                                  predictions_7classes = results_suburo$predictions_7classes,
                                  predictions_5classes = results_suburo$predictions_5classes,
-                                 scores = results_suburo$scores)
+                                 scores = results_suburo$scores,
+                                 na_genes = all_scores$na_genes)
   }
   
   if(include_data & include_pred_scores){

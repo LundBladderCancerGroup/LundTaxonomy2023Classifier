@@ -75,6 +75,22 @@ int_ratio_score = function(this_data = NULL,
   diff_genes_up = setdiff(up_genes[,gene_id], rownames(int_up_genes))
   diff_genes_down = setdiff(down_genes[,gene_id], rownames(int_down_genes))
   
+  #create data frame with missing gene information
+  missing_genes = data.frame(genes = as.character(), 
+                             signature = as.character(), 
+                             process = as.character())
+  
+  #append missing genes information to the data frame
+  missing_genes = add_row(missing_genes, 
+                          genes = diff_genes_up, 
+                          signature = variable, 
+                          process = "up")
+  
+  missing_genes = add_row(missing_genes, 
+                          genes = diff_genes_down, 
+                          signature = variable, 
+                          process = "down")
+  
   #notify the user what genes are missing
   if(length(diff_genes_up > 0)){
     message(paste0(length(diff_genes_up), " out of ", length(unique(up_genes[,gene_id]))," genes are missing from the data..."))
@@ -102,5 +118,5 @@ int_ratio_score = function(this_data = NULL,
   r_score = data.frame(Score = median_up_down, 
                        row.names = colnames(this_data))
   
-  return(r_score)
+  return(list(sig_score = r_score, na_genes = missing_genes))
 }

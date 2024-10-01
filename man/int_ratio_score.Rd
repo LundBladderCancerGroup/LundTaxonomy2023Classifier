@@ -24,7 +24,9 @@ Accepted values are; hgnc_symbol (default) or ensembl_gene_id.}
 printed or not. Default is TRUE.}
 }
 \value{
-A data frame with scores for the selected variable.
+A list with two objects. 1, A data frame with scores for the selected variable.
+2, A data frame indicating what genes from the incoming data are missing, based on the expected
+genes for signature calculations.
 }
 \description{
 Calculate proliferation and progression scores.

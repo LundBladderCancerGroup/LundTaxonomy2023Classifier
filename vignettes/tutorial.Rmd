@@ -150,11 +150,11 @@ plot_hm_signatures(these_predictions = sjodahl_predicted,
                    out_format = "png", 
                    out_path = "../man/figures/", 
                    gene_id = "hgnc_symbol", 
-                   title = "Sjodahl 2017 - Classifications")
+                   title = "sjodahl_2017_classifications")
 ```
 
 ```{r figure 1, echo = FALSE, out.width = '100%', dpi = 300}
-knitr::include_graphics("../man/figures/Sjodahl 2017 - Classifications_heatmap_scores.png")
+knitr::include_graphics("../man/figures/sjodahl_2017_classifications_heatmap_scores.png")
 ```
 
 ### Plot Heatmap Signatures
@@ -165,11 +165,11 @@ plot_hm_scores(these_predictions = sjodahl_predicted,
                verbose = FALSE, 
                out_format = "png",
                out_path = "../man/figures/",
-               title = "Sjodahl 2017 - Signature Scores")
+               title = "sjodahl_2017_signature_scores")
 ```
 
 ```{r figure 2, echo = FALSE, out.width = '100%', dpi = 300}
-knitr::include_graphics("../man/figures/Sjodahl 2017 - Signature Scores_heatmap_scores.png")
+knitr::include_graphics("../man/figures/sjodahl_2017_signature_scores_heatmap_scores.png")
 ```
 
 This function can also be run with `return_scores = TRUE` to return the plotting data in a tidy format for the user to either run their own ploting scripts or, aggregating with clinical data, etc. Let's return this version of the data with the function and see what it looks like.
@@ -196,5 +196,5 @@ This function returns a point plot with ranked scores for a set variable. It tak
 plot_ranked_score(these_predictions = sjodahl_predicted, 
                   this_score = "proliferation_score", 
                   subtype_class = "7_class", 
-                  plot_title = "Sjodahl 2017 - Proliferation Score")
+                  plot_title = "sjodahl_2017_proliferation_score")
 ```

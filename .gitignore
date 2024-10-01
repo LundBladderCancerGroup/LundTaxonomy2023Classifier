@@ -34,3 +34,7 @@ rsconnect/
 
 # Exclude DS_Store
 .DS_Store
+
+# html files
+vignettes/*.html
+

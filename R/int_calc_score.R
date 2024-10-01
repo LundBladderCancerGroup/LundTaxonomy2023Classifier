@@ -24,7 +24,9 @@
 #' @param verbose A logical value indicating whether processing messages will be 
 #' printed or not. Default is TRUE.
 #' 
-#' @return A data frame with scores for the selected variable.
+#' @return A list with two objects. 1, A data frame with scores for the selected variable. 
+#' 2, A data frame indicating what genes from the incoming data are missing, based on the expected 
+#' genes for signature calculations.
 #' 
 #' @import dplyr
 #'
@@ -92,8 +94,10 @@ int_calc_score = function(this_data = NULL,
   
   #notify the user what genes are missing
   if(length(diff_genes > 0)){
-    message(paste0(length(diff_genes), " out of ", length(unique(these_signatures[,gene_id]))," genes are missing from the data..."))
-    print(diff_genes)
+    if(verbose){
+      message(paste0(length(diff_genes), " out of ", length(unique(these_signatures[,gene_id]))," genes are missing from the data..."))
+      print(diff_genes) 
+    }
   }
   
   #create results object

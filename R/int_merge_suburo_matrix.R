@@ -14,8 +14,8 @@
 #' GU, BaSq, Mes, ScNE)
 #'
 int_merge_suburo_matrix = function(score_matrix1,
-                               score_matrix2,
-                               row.names = list(NULL, NULL)){
+                                   score_matrix2,
+                                   row.names = list(NULL, NULL)){
   #check inputs
   #matrices
   if(!(class(score_matrix1)[1] %in% c("matrix","data.frame") & class(score_matrix2) %in%  c("matrix","data.frame"))[1]){

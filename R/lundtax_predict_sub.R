@@ -93,7 +93,8 @@ lundtax_predict_sub = function(this_data = NULL,
                          subtype_scores = NULL,
                          predictions_7classes = NULL,
                          predictions_5classes = NULL,
-                         scores = NULL)
+                         scores = NULL,
+                         na_genes = NULL)
   
   #predict 5 class
   prediction = predict_RF(classifier = classifier_lundtax_5c,
@@ -168,6 +169,9 @@ lundtax_predict_sub = function(this_data = NULL,
   #additional scores
   results_suburo$scores = all_scores$merged_scores
   
+  #missing genes information
+  results_suburo$na_genes = all_scores$na_genes
+  
   #score matrices
   results_suburo$subtype_scores = score_matrix
   
@@ -224,7 +228,7 @@ lundtax_predict_sub = function(this_data = NULL,
     predictions_suburo = list(predictions_7classes = results_suburo$predictions_7classes,
                               predictions_5classes = results_suburo$predictions_5classes,
                               scores = results_suburo$scores,
-                              na_genes = all_scores$na_genes)
+                              na_genes = results_suburo$na_genes)
     
     results_suburo_nodata = list(subtype_scores = results_suburo$subtype_scores,
                                  predictions_7classes = results_suburo$predictions_7classes,

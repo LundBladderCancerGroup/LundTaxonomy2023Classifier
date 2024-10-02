@@ -204,7 +204,8 @@ plot_hm_signatures = function(these_predictions = NULL,
                             Mes = bar6,
                             ScNE = bar7,
                             na_col = "gray83", 
-                            gap = unit(2, "mm"),
+                            gap = unit(2, "mm"), 
+                            annotation_name_rot = 0,
                             simple_anno_size = unit(10, "mm"),
                             simple_anno_size_adjust = TRUE,
                             show_legend = show_ann_legend,
@@ -241,6 +242,7 @@ plot_hm_signatures = function(these_predictions = NULL,
                             Mes = bar4,
                             ScNE = bar5,
                             na_col = "gray83",
+                            annotation_name_rot = 0,
                             simple_anno_size = unit(4, "mm"),
                             simple_anno_size_adjust = TRUE,
                             show_legend = show_ann_legend,
@@ -267,7 +269,7 @@ plot_hm_signatures = function(these_predictions = NULL,
     row_split = c(rep("Early", length(genes_early)),
                   rep("Late", length(genes_late)))
     #row title
-    row_title_cc = c("Late Cell Cycle", "Early Cell Cycle")
+    row_title_cc = c("Early Cell Cycle", "Late Cell Cycle")
 
     #late and Early scores
     late_score = apply(this_data[intersect(rownames(this_data),genes_to_plot$Late_CC),], 2, median)

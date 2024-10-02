@@ -13,7 +13,7 @@
 #' hgnc_symbol (default) or ensembl_gene_id.
 #' @param threshold_progression Threshold to flag a sample as high risk of progression, default is 0.58.
 #' @param log_transform Boolean parameter. If TRUE, the function log transforms the incoming expression
-#' values. Default is FALSE.
+#' values. Default is TRUE.
 #' @param adjust Boolean parameter. If TRUE, the function will proceed with adjusting the scores based
 #' on stable genes. If FALSE (default), no adjustment will be made and the original score values will be retained. 
 #' @param adj_factor Only applicable if adjust is set to TRUE. Allows users to apply a proportional 

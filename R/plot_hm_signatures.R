@@ -38,7 +38,7 @@
 #' 
 #' @return Draws heatmap and silently returns the sample order.
 #' 
-#' @import ComplexHeatmap circlize dplyr
+#' @import ComplexHeatmap circlize dplyr grid
 #' @importFrom stats na.omit quantile
 #' @importFrom grDevices dev.off pdf png
 #' 
@@ -52,7 +52,6 @@
 #'                                         include_data = TRUE, 
 #'                                         impute = TRUE)
 #'
-
 #'
 #'
 #' #example 2 - 5 class annotation and Without prediction scores
@@ -73,15 +72,15 @@ plot_hm_signatures = function(these_predictions = NULL,
                               ann_height = 8,
                               title = "My Plot",
                               plot_width = 14,
-                              plot_height = 10,
+                              plot_height = 11,
                               plot_font_size = 10,
-                              plot_font_row_size = 8,
+                              plot_font_row_size = 7,
                               out_path = NULL,
                               out_format = "png"){
   
   #check incoming data and parameter combinations
   if(is.null(these_predictions) | !is.list(these_predictions)){
-    stop("Input should be the result of applying predict_lundtax...")
+    stop("Input should be the result of applying landtax_predict_sub...")
   }else if(is.list(these_predictions) & "data" %in% names(these_predictions)){
     this_data = these_predictions$data
     score_matrix = these_predictions$subtype_scores
@@ -98,6 +97,15 @@ plot_hm_signatures = function(these_predictions = NULL,
       pred_labels5 = these_predictions$predictions_5classes
       pred_labels7 = these_predictions$predictions_7classes
     }
+  }
+  
+  #scale and set this_data as matrix
+  if(norm){
+    this_data = as.matrix(this_data)
+    this_data = scale(t(this_data))
+    this_data = t(this_data)
+  }else{
+    this_data = as.matrix(this_data)
   }
   
   #convert ensembl gene id to hgnc symbols
@@ -122,15 +130,6 @@ plot_hm_signatures = function(these_predictions = NULL,
     
     #convert back to expected name
     this_data = mutated_data
-  }
-
-  #scale and set this_data as matrix
-  if(norm){
-    this_data = as.matrix(this_data)
-    this_data = scale(t(this_data))
-    this_data = t(this_data)
-  }else{
-    this_data = as.matrix(this_data)
   }
   
   #gene signatures for plotting
@@ -160,108 +159,94 @@ plot_hm_signatures = function(these_predictions = NULL,
                       subtype = NULL){
     
     if(plot_scores){
-      this_bar = anno_barplot(as.numeric(score_matrix[,subtype]), ylim = c(0, 1), gp = gpar(fill = lund_colors$lund_colors[subtype], border = NA, col = NA), bar_width = 1, height = unit(6, "mm"))
+      this_bar = anno_barplot(as.numeric(score_matrix[,subtype]), 
+                              axis = FALSE, 
+                              ylim = c(0, 1), 
+                              gp = gpar(fill = lund_colors$lund_colors[subtype], 
+                                        border = NA, 
+                                        col = NA), 
+                              bar_width = 1, 
+                              height = unit(6, "mm"))
     }else{
       this_bar = NULL
     }
     return(this_bar)
   }
-
-  #plotting
-  ##heatmap annotations - subtype predictions with scores
-  #7 classes
+  
+  
+  
+  ##### DRAW HEATMAPS #####
+  #################################### SUBTYPE SCORES ##############################################
+  
+  #get subtype colors
+  col = list(Prediction = lund_colors$lund_colors)
+  
+  #predictions
+  pred_lab = pred_labels5
+  
+  split = factor(pred_lab, levels = c("Uro", "GU", "BaSq", "Mes", "ScNE"))
+  
+  #score plots
+  bar1 = bar_anno(plot_scores = plot_scores, subtype = "Uro")
+  bar2 = bar_anno(plot_scores = plot_scores, subtype = "GU")
+  bar3 = bar_anno(plot_scores = plot_scores, subtype = "BaSq")
+  bar4 = bar_anno(plot_scores = plot_scores, subtype = "Mes")
+  bar5 = bar_anno(plot_scores = plot_scores, subtype = "ScNE")
+  bar6 = bar_anno(plot_scores = FALSE, subtype = "UroA")
+  bar7 = bar_anno(plot_scores = FALSE, subtype = "UroB")
+  bar8 = bar_anno(plot_scores = FALSE, subtype = "UroC")
+  
+  #add Uro subtypes
   if(subtype_annotation == "7_class"){
     
     #predictions
     pred_lab = pred_labels7
     
-    #column split
+    #overwrite predictions
     split = factor(pred_lab ,levels = c("UroA" ,"UroB", "UroC", "GU", "BaSq", "Mes", "ScNE"))
-  
-    #score plots
-    bar0 = bar_anno(plot_scores = plot_scores, subtype = "Uro")
-    bar1 = bar_anno(plot_scores = plot_scores, subtype = "UroA")
-    bar2 = bar_anno(plot_scores = plot_scores, subtype = "UroB")
-    bar3 = bar_anno(plot_scores = plot_scores, subtype = "UroC")
-    bar4 = bar_anno(plot_scores = plot_scores, subtype = "GU")
-    bar5 = bar_anno(plot_scores = plot_scores, subtype = "BaSq")
-    bar6 = bar_anno(plot_scores = plot_scores, subtype = "Mes")
-    bar7 = bar_anno(plot_scores = plot_scores, subtype = "ScNE")
     
-    #colors
-    col = list(Predictions = lund_colors$lund_colors)
+    #add score plots for Uro subtypes
+    bar6 = bar_anno(plot_scores = plot_scores, subtype = "UroA")
+    bar7 = bar_anno(plot_scores = plot_scores, subtype = "UroB")
+    bar8 = bar_anno(plot_scores = plot_scores, subtype = "UroC")
     
-    #heatmap annotations
-    ha1 = HeatmapAnnotation(Predictions = pred_lab,
-                            annotation_name_side = "left",
-                            col = col,
-                            Uro = bar0,
-                            UroA = bar1,
-                            UroB = bar2,
-                            UroC = bar3,
-                            GU = bar4, 
-                            BaSq = bar5, 
-                            Mes = bar6,
-                            ScNE = bar7,
-                            na_col = "gray83", 
-                            gap = unit(2, "mm"), 
-                            annotation_name_rot = 0,
-                            simple_anno_size = unit(10, "mm"),
-                            simple_anno_size_adjust = TRUE,
-                            show_legend = show_ann_legend,
-                            border = TRUE,
-                            height = unit(ann_height, "cm"), 
-                            annotation_name_gp = gpar(fontsize = plot_font_size))
-
-  #5 classes
-  }else if(subtype_annotation == "5_class"){
-  
-    #predictions
-    pred_lab = pred_labels5
-  
-    #column split
-    split = factor(pred_lab, levels = c("Uro", "GU", "BaSq", "Mes", "ScNE"))
-  
-    #score plots
-    bar1 = bar_anno(plot_scores = plot_scores, subtype = "Uro")
-    bar2 = bar_anno(plot_scores = plot_scores, subtype = "GU")
-    bar3 = bar_anno(plot_scores = plot_scores, subtype = "BaSq")
-    bar4 = bar_anno(plot_scores = plot_scores, subtype = "Mes")
-    bar5 = bar_anno(plot_scores = plot_scores, subtype = "ScNE")
-
-    #colors
-    col = list(Predictions = lund_colors$lund_colors)
-
-    #draw heatmap for subtype predictions
-    ha1 = HeatmapAnnotation(Predictions = pred_lab,
-                            annotation_name_side = "left",
-                            col = col,
-                            Uro = bar1, 
-                            GU = bar2,
-                            BaSq = bar3, 
-                            Mes = bar4,
-                            ScNE = bar5,
-                            na_col = "gray83",
-                            annotation_name_rot = 0,
-                            simple_anno_size = unit(4, "mm"),
-                            simple_anno_size_adjust = TRUE,
-                            show_legend = show_ann_legend,
-                            border = TRUE,
-                            height = unit(ann_height, "cm"),
-                            annotation_name_gp = gpar(fontsize = plot_font_size))
-  }else{
+  }else if(!subtype_annotation %in% c("5_class", "7_class")){
     stop("Please provide a valid subtype annotation (5 classes or 7 classes)...")
   }
   
-  ##heatmap 1 - late/early cell cycle
+  #Heatmap annotations, prediction scores
+  hm_a_predictions = HeatmapAnnotation(Prediction = pred_lab,
+                                       annotation_name_side = "left", 
+                                       annotation_name_rot = 0,
+                                       col = col,
+                                       Uro = bar1,
+                                       GU = bar2, 
+                                       BaSq = bar3, 
+                                       Mes = bar4,
+                                       ScNE = bar5,
+                                       UroA = bar6,
+                                       UroB = bar7,
+                                       UroC = bar8,
+                                       na_col = "gray83", 
+                                       gap = unit(2, "mm"),
+                                       simple_anno_size = unit(10, "mm"),
+                                       simple_anno_size_adjust = TRUE,
+                                       show_legend = show_ann_legend,
+                                       border = TRUE,
+                                       height = unit(ann_height, "cm"), 
+                                       annotation_name_gp = gpar(fontsize = plot_font_size + 2))
+  
+  
+  
+  ################################### EARLY / LATE CELL CYCLE ######################################
   #get genes in provided data for downstream filtering steps
   these_genes = row.names(this_data)
   genes_early = intersect(genes_to_plot$Early_CC, these_genes)
   genes_late = intersect(genes_to_plot$Late_CC, these_genes)
-
+  
   #combine genes
   genes_cc = na.omit(c(genes_early, genes_late))
-
+  
   #check if genes from both early and late are present
   if(length(genes_early) != 0 & !all(is.na(genes_late))){
     
@@ -270,40 +255,40 @@ plot_hm_signatures = function(these_predictions = NULL,
                   rep("Late", length(genes_late)))
     #row title
     row_title_cc = c("Early Cell Cycle", "Late Cell Cycle")
-
+    
     #late and Early scores
     late_score = apply(this_data[intersect(rownames(this_data),genes_to_plot$Late_CC),], 2, median)
     early_score = apply(this_data[intersect(rownames(this_data),genes_to_plot$Early_CC),], 2, median)
-
+    
     #ratio
-    late_early = late_score - early_score
-
+    late_early_ratio = late_score - early_score
+    
     #add genes to genes_to_plot object
-    genes_to_plot$Late_Early = late_early
+    genes_to_plot$Late_Early = late_early_ratio
     
     #create color palette for late/early
-    col_fun_cc = circlize::colorRamp2(c(quantile(late_early, 0.05),
-                                        median(late_early),
-                                        quantile(late_early, 0.95)),
+    col_fun_cc = circlize::colorRamp2(c(quantile(late_early_ratio, 0.05),
+                                        median(late_early_ratio),
+                                        quantile(late_early_ratio, 0.95)),
                                       c("blue","white", "red"))
-
+    
     #order samples by late_early cell cycle
-    sample_order = order(late_early)
-
+    sample_order = order(late_early_ratio)
+    
     #heatmap annotation
     col = list(Predictions = lund_colors$lund_colors,
-               late_early = col_fun_cc)
+               late_early_ratio = col_fun_cc)
     
     #draw annotations track, late/early
-    ha1b = HeatmapAnnotation(late_early = genes_to_plot$Late_Early,
-                             annotation_name_side = "left",
-                             simple_anno_size = unit(4, "mm"),
-                             simple_anno_size_adjust = TRUE,
-                             col = col,
-                             show_legend = show_ann_legend,
-                             border = TRUE,
-                             annotation_name_gp = gpar(fontsize = plot_font_row_size))
-
+    hm_a_lateearly = HeatmapAnnotation(late_early_ratio = genes_to_plot$Late_Early,
+                                       annotation_name_side = "left",
+                                       simple_anno_size = unit(4, "mm"),
+                                       simple_anno_size_adjust = TRUE,
+                                       col = col,
+                                       show_legend = FALSE,
+                                       border = TRUE,
+                                       annotation_name_gp = gpar(fontsize = plot_font_row_size))
+    
   }else if(length(genes_early) == 0 & !all(is.na(genes_late))){ #if early cell cycle is missing
     message("All genes from the early cell cycle signature are missing.
             \nSamples will not be ordered by cell cycle...")
@@ -326,244 +311,267 @@ plot_hm_signatures = function(these_predictions = NULL,
     row_split = NULL
     row_title_cc = NULL
   }
-
+  
   #heatmap colors
   col_fun = circlize::colorRamp2(c(-2, 0, 2), c("green", "black", "red"))
-
+  
   #draw heatmap- late/early
-  hm1 = Heatmap(this_data[genes_cc,, drop = FALSE],
-                top_annotation = ha1,
-                bottom_annotation = ha1b,
-                name = "hm1_cc",
-                col = col_fun,
-                column_split = split, 
-                column_title = NULL,
-                row_split = row_split,
-                row_title = row_title_cc,
-                row_title_rot = 0,
-                cluster_row_slices = FALSE,
-                cluster_column_slices = FALSE,
-                cluster_columns = FALSE,
-                column_order = sample_order,
-                row_names_side = "left",
-                show_column_names = FALSE,
-                show_row_names = FALSE,
-                show_row_dend = FALSE,
-                border = TRUE,
-                row_names_gp = gpar(fontsize = plot_font_row_size),
-                row_title_gp = gpar(fontsize = plot_font_size),
-                clustering_distance_rows = "spearman",
-                clustering_method_rows = "ward.D2",
-                height = 8,
-                border_gp = gpar(lwd = 0.3),
-                show_heatmap_legend = FALSE)
-
-  ##heatmap 2 - urodiff
+  hm_pred_lateearly = Heatmap(this_data[genes_cc,, drop = FALSE],
+                              top_annotation = hm_a_predictions,
+                              bottom_annotation = hm_a_lateearly,
+                              name = "hm_early_late",
+                              col = col_fun,
+                              column_split = split, 
+                              column_title = NULL,
+                              row_split = row_split,
+                              row_title = row_title_cc,
+                              row_title_rot = 0,
+                              cluster_row_slices = FALSE,
+                              cluster_column_slices = FALSE,
+                              cluster_columns = FALSE,
+                              column_order = sample_order,
+                              row_names_side = "left",
+                              show_column_names = FALSE,
+                              show_row_names = FALSE,
+                              show_row_dend = FALSE,
+                              border = TRUE,
+                              row_names_gp = gpar(fontsize = plot_font_row_size),
+                              row_title_gp = gpar(fontsize = plot_font_size),
+                              clustering_distance_rows = "spearman",
+                              clustering_method_rows = "ward.D2",
+                              height = 8,
+                              border_gp = gpar(lwd = 1),
+                              show_heatmap_legend = FALSE)
+  
+  
+  
+  ################################## LUMINAL DIFFERENTIATION TFs ###################################
   genes_ud = genes_to_plot$UroDiff
   genes_ud = genes_ud[which(genes_ud %in% rownames(this_data))]
-
-  hm2 = Heatmap(this_data[genes_ud,,drop = FALSE],
-                name = "hm2_ud",
-                col = col_fun,
-                column_split = split,
-                cluster_row_slices = FALSE,
-                cluster_column_slices = FALSE,
-                cluster_columns = FALSE,
-                column_order = sample_order,
-                row_names_side = "left",
-                show_column_names = FALSE,
-                show_row_names = TRUE,
-                show_row_dend = FALSE,
-                border = TRUE,
-                row_names_gp = gpar(fontsize = plot_font_row_size),
-                row_title_gp = gpar(fontsize = plot_font_size),
-                cluster_rows = FALSE,
-                border_gp = gpar(lwd=0.3),
-                show_heatmap_legend = FALSE,
-                row_title_rot = 90)
-
-  ##heatmap 3 - uroplakins
+  
+  hm_luminal_tfs = Heatmap(this_data[genes_ud,,drop = FALSE],
+                           name = "hm_luminal_diff_tfs",
+                           col = col_fun,
+                           column_split = split,
+                           column_title = NULL,
+                           cluster_row_slices = FALSE,
+                           cluster_column_slices = FALSE,
+                           cluster_columns = FALSE,
+                           column_order = sample_order,
+                           row_names_side = "left",
+                           row_title = "Luminal Differentiation TFs",
+                           show_column_names = FALSE,
+                           show_row_names = TRUE,
+                           show_row_dend = FALSE,
+                           border = TRUE,
+                           row_names_gp = gpar(fontsize = plot_font_row_size),
+                           row_title_gp = gpar(fontsize = plot_font_size),
+                           cluster_rows = FALSE,
+                           border_gp = gpar(lwd = 1),
+                           show_heatmap_legend = FALSE,
+                           row_title_rot = 0)
+  
+  
+  
+  ################################# LUMINAL DIFFERENTIATION GENES ##################################
   genes_upk = genes_to_plot$UPKs
   genes_upk = genes_upk[which(genes_upk %in% rownames(this_data))]
-
-  hm3 = Heatmap(this_data[genes_upk,,drop = FALSE],
-                name = "hm3_upk",
-                col = col_fun,
-                column_split = split,
-                cluster_row_slices = FALSE,
-                cluster_column_slices = FALSE,
-                cluster_columns = FALSE,
-                column_order = sample_order,
-                row_names_side = "left",
-                show_column_names = FALSE,
-                show_row_names = TRUE,
-                show_row_dend = FALSE,
-                border = TRUE,
-                row_names_gp = gpar(fontsize = plot_font_row_size),
-                row_title_gp = gpar(fontsize = plot_font_size),
-                cluster_rows = FALSE,
-                border_gp = gpar(lwd = 0.3),
-                show_heatmap_legend = FALSE,
-                row_title_rot = 90)
-
-  ##heatmap 4 - circuit score
+  
+  hm_luminal_gen = Heatmap(this_data[genes_upk,,drop = FALSE],
+                           name = "hm_luminal_diff_genes",
+                           row_title = "Luminal Differentiation Genes",
+                           column_title = NULL,
+                           col = col_fun,
+                           column_split = split,
+                           cluster_row_slices = FALSE,
+                           cluster_column_slices = FALSE,
+                           cluster_columns = FALSE,
+                           column_order = sample_order,
+                           row_names_side = "left",
+                           show_column_names = FALSE,
+                           show_row_names = TRUE,
+                           show_row_dend = TRUE,
+                           border = TRUE,
+                           row_names_gp = gpar(fontsize = plot_font_row_size),
+                           row_title_gp = gpar(fontsize = plot_font_size),
+                           cluster_rows = FALSE,
+                           border_gp = gpar(lwd = 1),
+                           show_heatmap_legend = FALSE,
+                           row_title_rot = 0)
+  
+  
+  
+  ########################################## GU VS. URO ############################################
   genes_circ = genes_to_plot$Circuit
   genes_circ = genes_circ[which(genes_circ %in% rownames(this_data))]
-
+  
   #check if all genes are present
   if(length(genes_circ) == 5){
-
+    
     #calculate circuit sore
     circuit_score = apply(this_data, 2, function(col) sum(col[c("RB1", "FGFR3", "CCND1")]) - sum(col[c("E2F3", "CDKN2A")]))
-  
+    
     #add scores to genes_to_plot object
     genes_to_plot$Circuit_score = circuit_score
-
+    
     #generate color palette
     col_fun_circ = circlize::colorRamp2(c(quantile(circuit_score, 0.10),
                                           median(circuit_score),
                                           quantile(circuit_score, 0.90)),
-                                         c("blue","white", "red"))
-
+                                        c("blue","white", "red"))
+    
     col = list(circuit_score = col_fun_circ)
-
+    
     #create annotation track for heatmap 4
-    ha4 = HeatmapAnnotation(circuit_score = genes_to_plot$Circuit_score,
-                            simple_anno_size = unit(4, "mm"),
-                            simple_anno_size_adjust = TRUE,
-                            annotation_name_side = "left",
-                            col = col,
-                            show_legend = FALSE,
-                            border = TRUE,
-                            annotation_name_gp = gpar(fontsize = plot_font_row_size))
-
+    hm_a_circuitscore = HeatmapAnnotation(circuit_score = genes_to_plot$Circuit_score,
+                                          simple_anno_size = unit(4, "mm"),
+                                          simple_anno_size_adjust = TRUE,
+                                          annotation_name_side = "left",
+                                          col = col,
+                                          show_legend = FALSE,
+                                          border = TRUE,
+                                          annotation_name_gp = gpar(fontsize = plot_font_row_size))
+    
     #draw heatmap 4 - circuit score
-    hm4 = Heatmap(this_data[genes_circ,, drop = FALSE],
-                  name = "hm4_circ",
-                  bottom_annotation = ha4,
-                  col = col_fun,
-                  column_split = split,
-                  cluster_row_slices = FALSE,
-                  cluster_column_slices = FALSE,
-                  cluster_columns = FALSE,
-                  column_order = sample_order,
-                  row_names_side = "left",
-                  show_column_names = FALSE,
-                  show_row_names = TRUE,
-                  show_row_dend = FALSE,
-                  border = TRUE,
-                  row_names_gp = gpar(fontsize = plot_font_row_size),
-                  row_title_gp = gpar(fontsize = plot_font_size),
-                  cluster_rows = FALSE,
-                  border_gp = gpar(lwd = 0.3),
-                  show_heatmap_legend = FALSE,
-                  row_title_rot = 90)
-  
+    hm_circuitscore = Heatmap(this_data[genes_circ,, drop = FALSE],
+                              name = "hm_gu_vs_uro",
+                              row_title = "GU vs. Uro",
+                              column_title = NULL,
+                              bottom_annotation = hm_a_circuitscore,
+                              col = col_fun,
+                              column_split = split,
+                              cluster_row_slices = FALSE,
+                              cluster_column_slices = FALSE,
+                              cluster_columns = FALSE,
+                              column_order = sample_order,
+                              row_names_side = "left",
+                              show_column_names = FALSE,
+                              show_row_names = TRUE,
+                              show_row_dend = FALSE,
+                              border = TRUE,
+                              row_names_gp = gpar(fontsize = plot_font_row_size),
+                              row_title_gp = gpar(fontsize = plot_font_size),
+                              cluster_rows = FALSE,
+                              border_gp = gpar(lwd = 1),
+                              show_heatmap_legend = FALSE,
+                              row_title_rot = 0)
+    
   }else if(length(genes_circ) != 0){
-    ha4 = NULL
+    hm_a_circuitscore = NULL
     message("Genes involved in the circuit score are missing.
             \nCircuit score will not be calculated...")
-
+    
     #draw heatmap 4 - circuit score
-    hm4 = Heatmap(this_data[genes_circ,,drop = FALSE],
-                  name = "hm4_circ",
-                  bottom_annotation = ha4,
-                  col = col_fun,
-                  column_split = split,
-                  cluster_row_slices = FALSE,
-                  cluster_column_slices = FALSE,
-                  cluster_columns = FALSE,
-                  column_order = sample_order,
-                  row_names_side = "left",
-                  show_column_names = FALSE,
-                  show_row_names = TRUE,
-                  show_row_dend = FALSE,
-                  border = TRUE,
-                  row_names_gp = gpar(fontsize = plot_font_row_size),
-                  row_title_gp = gpar(fontsize = plot_font_size),
-                  cluster_rows = FALSE,
-                  border_gp = gpar(lwd = 0.3),
-                  show_heatmap_legend = FALSE,
-                  row_title_rot = 90)
+    hm_circuitscore = Heatmap(this_data[genes_circ,,drop = FALSE],
+                              name = "hm_gu_vs_uro",
+                              row_title = "GU vs. Uro",
+                              column_title = NULL,
+                              bottom_annotation = hm_a_circuitscore,
+                              col = col_fun,
+                              column_split = split,
+                              cluster_row_slices = FALSE,
+                              cluster_column_slices = FALSE,
+                              cluster_columns = FALSE,
+                              column_order = sample_order,
+                              row_names_side = "left",
+                              show_column_names = FALSE,
+                              show_row_names = TRUE,
+                              show_row_dend = FALSE,
+                              border = TRUE,
+                              row_names_gp = gpar(fontsize = plot_font_row_size),
+                              row_title_gp = gpar(fontsize = plot_font_size),
+                              cluster_rows = FALSE,
+                              border_gp = gpar(lwd = 1),
+                              show_heatmap_legend = FALSE,
+                              row_title_rot = 0)
   }else{
     message("No genes involved in the circuit score are found.
             \nCircuit score will not be calculated...")
-    hm4 = NULL
+    hm_circuitscore = NULL
   }
-
-  ##heatmap 4_1 - TP63
-  if("TP63" %in% rownames(this_data)){
-    tp63 = this_data["TP63",, drop = FALSE]
-    rownames(tp63) = c("TP63")
-
-    #draw heatm 4_1 - TP63
-    hm4_1 = Heatmap(tp63,
-                    name = "tp63",
-                    col = col_fun,
-                    column_split = split,
-                    cluster_row_slices = FALSE,
-                    cluster_column_slices = FALSE,
-                    cluster_columns = FALSE,
-                    column_order = sample_order,
-                    row_names_side = "left",
-                    show_column_names = FALSE,
-                    show_row_names = TRUE,
-                    show_row_dend = FALSE,
-                    border = TRUE,
-                    row_names_gp = gpar(fontsize = plot_font_row_size),
-                    row_title_gp = gpar(fontsize = plot_font_size),
-                    border_gp = gpar(lwd = 0.3),
-                    show_heatmap_legend = FALSE,
-                    row_title_rot = 90)
-  }else{
-    message("TP63 was not found in the expresison matrix.
-            \nNo heatmap will be generated for this gene...")
-    hm4_1 = NULL
-  }
-
-  ##heatmap 5 - FGFR3
+  
+  
+  
+  ###################################### FGFR3 SIGNATURE ###########################################
   genes_fgfr3 = genes_to_plot$FGFR3
   genes_fgfr3 = genes_fgfr3[which(genes_fgfr3 %in% rownames(this_data))]
-
+  
   if(length(genes_fgfr3) != 0){
-    hm5 = Heatmap(this_data[genes_fgfr3,, drop = FALSE],
-                  name = "hm5_fgfr3",
-                  col = col_fun,
-                  column_split = split,
-                  cluster_row_slices = FALSE,
-                  cluster_column_slices = FALSE,
-                  cluster_columns = FALSE,
-                  column_order = sample_order,
-                  row_names_side = "left",
-                  show_column_names = FALSE,
-                  show_row_names = FALSE,
-                  show_row_dend = FALSE,
-                  row_title = "FGFR3\nsignature",
-                  row_title_rot = 360,
-                  border = TRUE,
-                  row_names_gp = gpar(fontsize = plot_font_row_size),
-                  row_title_gp = gpar(fontsize = plot_font_size),
-                  clustering_distance_rows= "pearson",
-                  clustering_method_rows = "ward.D2",
-                  height = 4,
-                  border_gp = gpar(lwd = 0.3),
-                  show_heatmap_legend = FALSE)
+    hm_fgfr3 = Heatmap(this_data[genes_fgfr3,, drop = FALSE],
+                       name = "hm_fgfr3_signature",
+                       col = col_fun,
+                       column_split = split,
+                       column_title = NULL,
+                       cluster_row_slices = FALSE,
+                       cluster_column_slices = FALSE,
+                       cluster_columns = FALSE,
+                       column_order = sample_order,
+                       row_names_side = "left",
+                       show_column_names = FALSE,
+                       show_row_names = FALSE,
+                       show_row_dend = FALSE,
+                       row_title = "FGFR3 Signature",
+                       row_title_rot = 0,
+                       border = TRUE,
+                       row_names_gp = gpar(fontsize = plot_font_row_size),
+                       row_title_gp = gpar(fontsize = plot_font_size),
+                       clustering_distance_rows= "pearson",
+                       clustering_method_rows = "ward.D2",
+                       height = 4,
+                       border_gp = gpar(lwd = 1),
+                       show_heatmap_legend = FALSE)
   }else{
     message("FGFR3 signature genes was not found in the expresison matrix.
              \nNo heatmap will be generated for this gene...")
-    hm5 = NULL
+    hm_fgfr3 = NULL
   }
-
-  ##heatmap 6 - Ba/Sq ratio
+  
+  
+  
+  ########################################## TP63 ##################################################
+  if("TP63" %in% rownames(this_data)){
+    tp63 = this_data["TP63",, drop = FALSE]
+    rownames(tp63) = c("TP63")
+    
+    #draw heatm 4_1 - TP63
+    hm_tp63 = Heatmap(tp63,
+                      name = "hm_tp63",
+                      row_title = "TP63",
+                      column_title = NULL,
+                      col = col_fun,
+                      column_split = split,
+                      cluster_row_slices = FALSE,
+                      cluster_column_slices = FALSE,
+                      cluster_columns = FALSE,
+                      column_order = sample_order,
+                      row_names_side = "left",
+                      show_column_names = FALSE,
+                      show_row_names = TRUE,
+                      show_row_dend = FALSE,
+                      border = TRUE,
+                      row_names_gp = gpar(fontsize = plot_font_row_size),
+                      row_title_gp = gpar(fontsize = plot_font_size),
+                      border_gp = gpar(lwd = 1),
+                      show_heatmap_legend = FALSE,
+                      row_title_rot = 0)
+  }else{
+    message("TP63 was not found in the expresison matrix.
+            \nNo heatmap will be generated for this gene...")
+    hm_tp63 = NULL
+  }
+  
+  
+  
+  ##################################### DEFINITION BaSq ############################################
   genes_basq = genes_to_plot$BaSq
   genes_basq = genes_basq[which(genes_basq %in% rownames(this_data))]
-
+  
   #check if all genes are present
   if(length(genes_basq) == 4) {
     
     #calculate BaSq ratio
     basq_ratio = apply(this_data, 2, function(col) sum(col[c("KRT5", "KRT14", "FOXA1")]) - sum(col[c("GATA3")]))
-
+    
     genes_to_plot$BaSq_ratio = basq_ratio
     
     #generate color palette
@@ -571,167 +579,127 @@ plot_hm_signatures = function(these_predictions = NULL,
                                           median(basq_ratio),
                                           quantile(basq_ratio, 0.90)),
                                         c("blue", "white", "red"))
-
+    
     col = list(BaSq_ratio = col_fun_basq)
-
+    
     #draw annotation track for heatmap 6 - BaSq ratio
-    ha6 = HeatmapAnnotation(BaSq_ratio = genes_to_plot$BaSq_ratio,
-                            simple_anno_size = unit(4, "mm"),
-                            simple_anno_size_adjust = TRUE,
-                            annotation_name_side = "left",
-                            col = col,
-                            show_legend = FALSE,
-                            border = TRUE,
-                            annotation_name_gp= gpar(fontsize = plot_font_row_size))
+    hm_a_basq = HeatmapAnnotation(BaSq_ratio = genes_to_plot$BaSq_ratio,
+                                  simple_anno_size = unit(4, "mm"),
+                                  simple_anno_size_adjust = TRUE,
+                                  annotation_name_side = "left",
+                                  col = col,
+                                  show_legend = FALSE,
+                                  border = TRUE,
+                                  annotation_name_gp = gpar(fontsize = plot_font_row_size))
     
     #draw heatmap 6 - BaSq ratio
-    hm6 = Heatmap(this_data[genes_basq,, drop = FALSE],
-                  name = "hm6_basq",
-                  bottom_annotation = ha6,
-                  col = col_fun,
-                  column_split = split,
-                  cluster_row_slices = FALSE,
-                  cluster_column_slices = FALSE,
-                  cluster_columns = FALSE,
-                  column_order = sample_order,
-                  row_names_side = "left",
-                  show_column_names = FALSE,
-                  show_row_names = TRUE,
-                  show_row_dend = FALSE,
-                  border = TRUE,
-                  row_names_gp = gpar(fontsize = plot_font_row_size),
-                  row_title_gp = gpar(fontsize = plot_font_size),
-                  cluster_rows = FALSE,
-                  border_gp = gpar(lwd = 0.3),
-                  show_heatmap_legend = FALSE,
-                  row_title_rot = 90)
-
+    hm_basq = Heatmap(this_data[genes_basq,, drop = FALSE],
+                      name = "hm_basq_definition",
+                      bottom_annotation = hm_a_basq,
+                      col = col_fun,
+                      column_split = split,
+                      column_title = NULL,
+                      row_title = "Definition Ba/Sq",
+                      cluster_row_slices = FALSE,
+                      cluster_column_slices = FALSE,
+                      cluster_columns = FALSE,
+                      column_order = sample_order,
+                      row_names_side = "left",
+                      show_column_names = FALSE,
+                      show_row_names = TRUE,
+                      show_row_dend = FALSE,
+                      border = TRUE,
+                      row_names_gp = gpar(fontsize = plot_font_row_size),
+                      row_title_gp = gpar(fontsize = plot_font_size),
+                      cluster_rows = FALSE,
+                      border_gp = gpar(lwd = 1),
+                      show_heatmap_legend = FALSE,
+                      row_title_rot = 0)
+    
   }else if(length(genes_basq) != 0){
     #draw annotation track for heatmap 6 - BaSq ratio
-    ha6 = NULL
+    hm_a_basq = NULL
     message("Genes involved in the BaSq score are missing.
             \nBaSq ratio will not be calculated...")
     
     #draw heatmap 6 - BaSq ratio
-    hm6 = Heatmap(this_data[genes_basq,,drop = FALSE],
-                  name = "hm6_basq",
-                  bottom_annotation = ha6,
-                  col = col_fun,
-                  column_split = split,
-                  cluster_row_slices = FALSE,
-                  cluster_column_slices = FALSE,
-                  cluster_columns = FALSE,
-                  column_order = sample_order,
-                  row_names_side = "left",
-                  show_column_names = FALSE,
-                  show_row_names = TRUE,
-                  show_row_dend = FALSE,
-                  border = TRUE,
-                  row_names_gp = gpar(fontsize = plot_font_row_size),
-                  row_title_gp = gpar(fontsize = plot_font_size),
-                  cluster_rows = FALSE,
-                  border_gp = gpar(lwd = 0.3),
-                  show_heatmap_legend = FALSE,
-                  row_title_rot = 90)
+    hm_basq = Heatmap(this_data[genes_basq,,drop = FALSE],
+                      name = "hm_basq_definition",
+                      bottom_annotation = ha6,
+                      col = col_fun,
+                      column_split = split,
+                      column_title = NULL,
+                      row_title = "Definition Ba/Sq",
+                      cluster_row_slices = FALSE,
+                      cluster_column_slices = FALSE,
+                      cluster_columns = FALSE,
+                      column_order = sample_order,
+                      row_names_side = "left",
+                      show_column_names = FALSE,
+                      show_row_names = TRUE,
+                      show_row_dend = FALSE,
+                      border = TRUE,
+                      row_names_gp = gpar(fontsize = plot_font_row_size),
+                      row_title_gp = gpar(fontsize = plot_font_size),
+                      cluster_rows = FALSE,
+                      border_gp = gpar(lwd = 1),
+                      show_heatmap_legend = FALSE,
+                      row_title_rot = 0)
   }else{
     message("Genes involved in the BaSq score are missing.
             \nNo heatmap forBaSq ratio will be generated...")
-    hm6 = NULL
+    hm_basq = NULL
     col_fun_basq = NULL
   }
-
-  ##heatmap 7 - keratinization
+  
+  
+  
+  ################################  KERATINIZATION SIGNATURE #######################################
   genes_krt = genes_to_plot$Keratinization
   genes_krt = genes_krt[which(genes_krt %in% rownames(this_data))]
-
+  
   if(length(genes_krt) != 0){
-    hm7 = Heatmap(this_data[genes_krt,,drop = FALSE],
-                  name = "hm7_krt",
-                  col = col_fun,
-                  column_split = split,
-                  cluster_row_slices = FALSE,
-                  cluster_column_slices = FALSE,
-                  cluster_columns = FALSE,
-                  column_order = sample_order,
-                  row_names_side = "left",
-                  show_column_names = FALSE,
-                  show_row_names = FALSE,
-                  show_row_dend = FALSE,
-                  row_title = "Keratinization\nsignature",
-                  row_title_rot = 0,
-                  border = TRUE,
-                  row_names_gp = gpar(fontsize = plot_font_row_size),
-                  row_title_gp = gpar(fontsize = plot_font_size),
-                  clustering_distance_rows= "pearson",
-                  clustering_method_rows = "ward.D2",
-                  height = 4,
-                  border_gp = gpar(lwd = 0.3),
-                  show_heatmap_legend = FALSE)
+    hm_keratinization = Heatmap(this_data[genes_krt,,drop = FALSE],
+                                name = "hm_keratinization_signature",
+                                col = col_fun,
+                                column_split = split,
+                                column_title = NULL,
+                                row_title = "Keratinization Signature",
+                                cluster_row_slices = FALSE,
+                                cluster_column_slices = FALSE,
+                                cluster_columns = FALSE,
+                                column_order = sample_order,
+                                row_names_side = "left",
+                                show_column_names = FALSE,
+                                show_row_names = FALSE,
+                                show_row_dend = FALSE,
+                                row_title_rot = 0,
+                                border = TRUE,
+                                row_names_gp = gpar(fontsize = plot_font_row_size),
+                                row_title_gp = gpar(fontsize = plot_font_size),
+                                clustering_distance_rows = "pearson",
+                                clustering_method_rows = "ward.D2",
+                                height = 4,
+                                border_gp = gpar(lwd = 1),
+                                show_heatmap_legend = FALSE)
   }else{
     message("Genes involved in the Keratinization signatures are missing.
             \nNo heatmap for keratinization signature ratio will be generated...")
-    hm7 = NULL
+    hm_keratinization = NULL
   }
-
-  ##heatmap 8 - adhesion
-  genes_ad = genes_to_plot$Adhesion
-  genes_ad = genes_ad[which(genes_ad %in% rownames(this_data))]
-
-  hm8 = Heatmap(this_data[genes_ad,,drop = FALSE],
-                name = "hm8_ad",
-                col = col_fun,
-                column_split = split,
-                cluster_row_slices = FALSE,
-                cluster_column_slices = FALSE,
-                cluster_columns = FALSE,
-                column_order = sample_order,
-                row_names_side = "left",
-                show_column_names = FALSE,
-                show_row_names = TRUE,
-                show_row_dend = FALSE,
-                border = TRUE,
-                row_names_gp = gpar(fontsize = plot_font_row_size),
-                row_title_gp = gpar(fontsize = plot_font_size),
-                cluster_rows = FALSE,
-                border_gp = gpar(lwd = 0.3),
-                show_heatmap_legend = FALSE,
-                row_title_rot = 90)
-
-  ##heatmap 9 - MYC
-  genes_myc = genes_to_plot$MYC
-  genes_myc = genes_myc[which(genes_myc %in% rownames(this_data))]
-
-  hm9 = Heatmap(this_data[genes_myc,,drop = FALSE],
-                name="hm9_myc",
-                col = col_fun,
-                column_split = split,
-                cluster_rows = FALSE,
-                cluster_row_slices = FALSE,
-                cluster_column_slices = FALSE,
-                cluster_columns = FALSE,
-                column_order = sample_order,
-                row_names_side = "left",
-                show_column_names = FALSE,
-                show_row_names = TRUE,
-                show_row_dend = FALSE,
-                border = TRUE,
-                row_names_gp = gpar(fontsize = plot_font_row_size),
-                row_title_gp = gpar(fontsize = plot_font_size),
-                border_gp = gpar(lwd = 0.3),
-                show_heatmap_legend = FALSE,
-                row_title_rot = 90)
-
-
-  ##heatmap 10 - ERBB score
+  
+  
+  
+  ##################################### ERBB RECEPTORS #############################################
   genes_erbb = genes_to_plot$ERBB
   genes_erbb = genes_erbb[which(genes_erbb %in% rownames(this_data))]
-
+  
   #check if all genes are present
   if(length(genes_erbb) == 3){
     
     #calculate erbb score
     erbb_score = apply(this_data, 2, function(col) sum(col[c("EGFR")]) - sum(col[c("ERBB2", "ERBB3")]))
-
+    
     #add scores back to the genes_to_plot object
     genes_to_plot$ERBB_score = erbb_score
     
@@ -739,60 +707,127 @@ plot_hm_signatures = function(these_predictions = NULL,
     col_fun_erbb = circlize::colorRamp2(c(quantile(erbb_score, 0.10),
                                           median(erbb_score),
                                           quantile(erbb_score, 0.90)),
-                                         c("blue", "white", "red"))
-
+                                        c("blue", "white", "red"))
+    
     col = list(ERBB_score = col_fun_erbb)
-
+    
     #draw annotation track for ERBB score heatmap (heatmap 10)
-    ha10 = HeatmapAnnotation(ERBB_score = genes_to_plot$ERBB_score,
-                             simple_anno_size = unit(4, "mm"),
-                             simple_anno_size_adjust = TRUE,
-                             annotation_name_side = "left",
-                             col=col,
-                             annotation_legend_param = list(title = "Scores"),
-                             show_legend = FALSE,
-                             border = TRUE,
-                             annotation_name_gp = gpar(fontsize = plot_font_row_size))
+    hm_a_erbscore = HeatmapAnnotation(ERBB_score = genes_to_plot$ERBB_score,
+                                      simple_anno_size = unit(4, "mm"),
+                                      simple_anno_size_adjust = TRUE,
+                                      annotation_name_side = "left",
+                                      col = col,
+                                      annotation_legend_param = list(title = "Scores"),
+                                      show_legend = FALSE,
+                                      border = TRUE,
+                                      annotation_name_gp = gpar(fontsize = plot_font_row_size))
     
     #draw heatmap 10, ERBB scores
-    hm10 = Heatmap(this_data[genes_erbb,,drop = FALSE],
-                   name = "hm10_erbb",
-                   bottom_annotation = ha10,
-                   col = col_fun,
-                   column_split = split,
-                   cluster_row_slices = FALSE,
-                   cluster_rows = FALSE,
-                   cluster_column_slices = FALSE,
-                   cluster_columns = FALSE,
-                   column_order = sample_order,
-                   row_names_side = "left",
-                   show_column_names = FALSE,
-                   show_row_names = TRUE,
-                   show_row_dend = FALSE,
-                   border = TRUE,
-                   row_names_gp = gpar(fontsize = plot_font_row_size),
-                   row_title_gp = gpar(fontsize = plot_font_size),
-                   clustering_distance_rows= "pearson",
-                   clustering_method_rows = "ward.D2",
-                   border_gp = gpar(lwd = 0.3),
-                   show_heatmap_legend = FALSE,
-                   row_title_rot = 90)
-
+    hm_erbscore = Heatmap(this_data[genes_erbb,,drop = FALSE],
+                          name = "hm_erbb_receptors",
+                          bottom_annotation = hm_a_erbscore,
+                          col = col_fun,
+                          column_split = split,
+                          column_title = NULL,
+                          row_title = "ERBB Receptors",
+                          cluster_row_slices = FALSE,
+                          cluster_rows = FALSE,
+                          cluster_column_slices = FALSE,
+                          cluster_columns = FALSE,
+                          column_order = sample_order,
+                          row_names_side = "left",
+                          show_column_names = FALSE,
+                          show_row_names = TRUE,
+                          show_row_dend = FALSE,
+                          border = TRUE,
+                          row_names_gp = gpar(fontsize = plot_font_row_size),
+                          row_title_gp = gpar(fontsize = plot_font_size),
+                          clustering_distance_rows= "pearson",
+                          clustering_method_rows = "ward.D2",
+                          border_gp = gpar(lwd = 1),
+                          show_heatmap_legend = FALSE,
+                          row_title_rot = 0)
+    
   }else if(length(genes_erbb) != 0){ 
     message("Some genes involved in the ERBB score are missing.
             \nERBB score will not be calculated.")
     
     #draw annotation track for ERBB score heatmap (heatmap 10)
-    ha10 = NULL
+    hm_a_erbscore = NULL
     
     #draw heatmap 10, ERBB scores
-    hm10 = Heatmap(this_data[genes_erbb,,drop = FALSE],
-                   name = "hm10_erbb",
-                   bottom_annotation = ha10,
+    hm_erbscore = Heatmap(this_data[genes_erbb,,drop = FALSE],
+                          name = "hm_erbb_receptors",
+                          bottom_annotation = ha10,
+                          col = col_fun,
+                          column_title = NULL,
+                          row_title = "ERBB Receptors",
+                          column_split = split,
+                          cluster_row_slices = FALSE,
+                          cluster_rows = FALSE,
+                          cluster_column_slices = FALSE,
+                          cluster_columns = FALSE,
+                          column_order = sample_order,
+                          row_names_side = "left",
+                          show_column_names = FALSE,
+                          show_row_names = TRUE,
+                          show_row_dend = FALSE,
+                          border = TRUE,
+                          row_names_gp = gpar(fontsize = plot_font_row_size),
+                          row_title_gp = gpar(fontsize = plot_font_size),
+                          clustering_distance_rows= "pearson",
+                          clustering_method_rows = "ward.D2",
+                          border_gp = gpar(lwd = 1),
+                          show_heatmap_legend = FALSE,
+                          row_title_rot = 90)
+  }else{
+    message("Genes involved in the ERBB scores are missing.
+            \nNo heatmap associated with ERBB will be generated...")
+    hm_erbscore = NULL
+  }
+  
+  
+  
+  ################################# CELL ADHESION ##################################################
+  genes_ad = genes_to_plot$Adhesion
+  genes_ad = genes_ad[which(genes_ad %in% rownames(this_data))]
+  
+  hm_adhesion = Heatmap(this_data[genes_ad,,drop = FALSE],
+                        name = "hm_cell_adhesion",
+                        col = col_fun,
+                        column_split = split,
+                        column_title = NULL,
+                        row_title = "Cell Adhesion",
+                        cluster_row_slices = FALSE,
+                        cluster_column_slices = FALSE,
+                        cluster_columns = FALSE,
+                        column_order = sample_order,
+                        row_names_side = "left",
+                        show_column_names = FALSE,
+                        show_row_names = TRUE,
+                        show_row_dend = FALSE,
+                        border = TRUE,
+                        row_names_gp = gpar(fontsize = plot_font_row_size),
+                        row_title_gp = gpar(fontsize = plot_font_size),
+                        cluster_rows = FALSE,
+                        border_gp = gpar(lwd = 1),
+                        show_heatmap_legend = FALSE,
+                        row_title_rot = 0)
+  
+  
+  
+  ####################################### MYC TFs ##################################################
+  genes_myc = genes_to_plot$MYC
+  genes_myc = genes_myc[which(genes_myc %in% rownames(this_data))]
+  
+  hm_myc = Heatmap(this_data[genes_myc,,drop = FALSE],
+                   name ="hm_myc_tfs",
                    col = col_fun,
                    column_split = split,
-                   cluster_row_slices = FALSE,
+                   column_title = NULL,
+                   row_title = "MYC TFs",
                    cluster_rows = FALSE,
+                   cluster_row_slices = FALSE,
                    cluster_column_slices = FALSE,
                    cluster_columns = FALSE,
                    column_order = sample_order,
@@ -803,30 +838,26 @@ plot_hm_signatures = function(these_predictions = NULL,
                    border = TRUE,
                    row_names_gp = gpar(fontsize = plot_font_row_size),
                    row_title_gp = gpar(fontsize = plot_font_size),
-                   clustering_distance_rows= "pearson",
-                   clustering_method_rows = "ward.D2",
-                   border_gp = gpar(lwd = 0.3),
+                   border_gp = gpar(lwd = 1),
                    show_heatmap_legend = FALSE,
-                   row_title_rot = 90)
-  }else{
-    message("Genes involved in the ERBB scores are missing.
-            \nNo heatmap associated with ERBB will be generated...")
-    hm10 = NULL
-  }
-
-  ##heatmap 11 - ScNE, scores for Stromal & immune infiltration
+                   row_title_rot = 0)
+  
+  
+  
+  
+  ################################ NEURONAL CELL MARKERS ###########################################
   genes_immune = intersect(rownames(this_data),genes_to_plot$Immune141_UP)
   genes_stroma = intersect(rownames(this_data),genes_to_plot$Stromal141_UP)
-
+  
   #immune
   if(length(genes_immune) != 0){
     
     #calculate immune score
     immune_score = apply(this_data[genes_immune,],2,median)
-
+    
     #add immune scores back to genes_to_plot object
     genes_to_plot$Immune141_UP_score = immune_score
-
+    
     #generate color palette
     col_fun_immune = circlize::colorRamp2(c(quantile(immune_score, 0.10),
                                             median(immune_score),
@@ -838,10 +869,10 @@ plot_hm_signatures = function(these_predictions = NULL,
     immune_score = NULL
     col_fun_immune = NULL
   }
-
+  
   #stroma
   if(length(genes_stroma) != 0){
-
+    
     #calculate stromal score
     stromal_score <- apply(this_data[genes_stroma,],2,median)
     
@@ -859,46 +890,50 @@ plot_hm_signatures = function(these_predictions = NULL,
     stromal_score = NULL
     col_fun_stromal = NULL
   }
-
+  
   col = list(Immune141_UP = col_fun_immune,
              Stromal141_UP = col_fun_stromal)
-
+  
   #draw annotation track for heatmap 11 - SnNE and immune/stromal scores
-  ha11 = HeatmapAnnotation(Immune141_UP = genes_to_plot$Immune141_UP_score,
-                           Stromal141_UP = genes_to_plot$Stromal141_UP_score,
-                           simple_anno_size = unit(4, "mm"),
-                           simple_anno_size_adjust = TRUE,
-                           annotation_name_side = "left",
-                           col = col,
-                           show_legend = FALSE,
-                           border = TRUE,
-                           annotation_name_gp = gpar(fontsize = plot_font_row_size))
+  hm_a_immune_stroma = HeatmapAnnotation(Immune141_UP = genes_to_plot$Immune141_UP_score,
+                                         Stromal141_UP = genes_to_plot$Stromal141_UP_score,
+                                         simple_anno_size = unit(4, "mm"),
+                                         simple_anno_size_adjust = TRUE,
+                                         gap = unit(2, "mm"),
+                                         annotation_name_side = "left",
+                                         col = col,
+                                         show_legend = FALSE,
+                                         border = TRUE,
+                                         annotation_name_gp = gpar(fontsize = plot_font_row_size))
   
   #ScNE genes
   genes_ne = genes_to_plot$ScNE
   genes_ne = genes_ne[which(genes_ne %in% rownames(this_data))]
-
+  
   #draw heatmap 11 - ScNE, immune scores and stromal scores
-  hm11 = Heatmap(this_data[genes_ne,,drop = FALSE],
-                 name = "hm11",
-                 col = col_fun,
-                 column_split = split,
-                 bottom_annotation = ha11,
-                 cluster_row_slices = FALSE,
-                 cluster_column_slices = FALSE,
-                 cluster_columns = FALSE,
-                 column_order = sample_order,
-                 row_names_side = "left",
-                 show_column_names = FALSE,
-                 show_row_names = TRUE,
-                 show_row_dend = FALSE,
-                 border = TRUE,
-                 row_names_gp = gpar(fontsize = plot_font_row_size),
-                 row_title_gp = gpar(fontsize = plot_font_size),
-                 cluster_rows = FALSE,
-                 border_gp = gpar(lwd = 0.3),
-                 show_heatmap_legend = show_hm_legend,
-                 row_title_rot = 90)
+  hm_neuronal = Heatmap(this_data[genes_ne,,drop = FALSE],
+                        name = "hm_neuronal_cell_markers",
+                        col = col_fun,
+                        column_split = split,
+                        column_title = NULL,
+                        row_title = "Neuronal Cell Markers",
+                        bottom_annotation = hm_a_immune_stroma,
+                        cluster_row_slices = FALSE,
+                        cluster_column_slices = FALSE,
+                        cluster_columns = FALSE,
+                        column_order = sample_order, 
+                        row_names_side = "left",
+                        show_column_names = FALSE,
+                        show_row_names = TRUE,
+                        show_row_dend = FALSE,
+                        border = TRUE,
+                        gap = unit(10, "mm"),
+                        row_names_gp = gpar(fontsize = plot_font_row_size),
+                        row_title_gp = gpar(fontsize = plot_font_size),
+                        cluster_rows = FALSE,
+                        border_gp = gpar(lwd = 1),
+                        show_heatmap_legend = show_hm_legend,
+                        row_title_rot = 0)
   
   if(!is.null(out_path)){
     #set PDF outputs
@@ -921,11 +956,24 @@ plot_hm_signatures = function(these_predictions = NULL,
   }else{
     message("No out_path provided, the function will return the heatmap within your R session...")
   }
-
-  #combine all heatmaps to the final object
-  final_hm = draw(hm1 %v% hm6 %v% hm7 %v% hm4 %v% hm4_1 %v% hm2 %v% hm3 %v% hm5 %v% hm8 %v% hm9 %v% hm10 %v% hm11, 
+  
+  
+  
+  ################################ COMBINE ALL HEATMAP OBJECTS #####################################
+  final_hm = draw(hm_pred_lateearly %v%
+                    hm_luminal_tfs %v%
+                    hm_luminal_gen %v%
+                    hm_circuitscore %v%
+                    hm_fgfr3 %v%
+                    hm_tp63 %v% 
+                    hm_basq %v%
+                    hm_keratinization %v%
+                    hm_erbscore %v%
+                    hm_adhesion %v% 
+                    hm_myc %v%
+                    hm_neuronal,
                   column_title_gp = gpar("fontface", fontsize = 24),
-                  column_title = title); hm_sample_order <- column_order(final_hm@ht_list$hm1_cc)
+                  column_title = title); hm_sample_order <- column_order(final_hm@ht_list$hm_early_late)
   invisible(hm_sample_order)
   dev.off()
 }

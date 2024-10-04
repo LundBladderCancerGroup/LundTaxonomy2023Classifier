@@ -29,7 +29,7 @@ hgnc_symbol (default) or ensembl_gene_id.}
 \item{threshold_progression}{Threshold to flag a sample as high risk of progression, default is 0.58.}
 
 \item{log_transform}{Boolean parameter. If TRUE, the function log transforms the incoming expression
-values. Default is FALSE.}
+values. Default is TRUE.}
 
 \item{adjust}{Boolean parameter. If TRUE, the function will proceed with adjusting the scores based
 on stable genes. If FALSE (default), no adjustment will be made and the original score values will be retained.}

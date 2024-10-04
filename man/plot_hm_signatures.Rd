@@ -16,9 +16,9 @@ plot_hm_signatures(
   ann_height = 8,
   title = "My Plot",
   plot_width = 14,
-  plot_height = 10,
+  plot_height = 11,
   plot_font_size = 10,
-  plot_font_row_size = 8,
+  plot_font_row_size = 7,
   out_path = NULL,
   out_format = "png"
 )

@@ -41,7 +41,7 @@
 #' @return Data frame with prediction score for each sample and class, if return_scores = TRUE.
 #' Otherwise, nothing.
 #'
-#' @import ComplexHeatmap ggplot2 circlize
+#' @import ComplexHeatmap ggplot2 circlize grid
 #' @importFrom stats median quantile
 #' @importFrom grDevices dev.off pdf png
 #' @importFrom openxlsx write.xlsx

@@ -166,7 +166,7 @@ plot_hm_signatures = function(these_predictions = NULL,
                                         border = NA, 
                                         col = NA), 
                               bar_width = 1, 
-                              height = unit(6, "mm"))
+                              height = unit(5, "mm"))
     }else{
       this_bar = NULL
     }
@@ -234,7 +234,7 @@ plot_hm_signatures = function(these_predictions = NULL,
                                        show_legend = show_ann_legend,
                                        border = TRUE,
                                        height = unit(ann_height, "cm"), 
-                                       annotation_name_gp = gpar(fontsize = plot_font_size + 2))
+                                       annotation_name_gp = gpar(fontsize = plot_font_size))
   
   
   
@@ -313,7 +313,7 @@ plot_hm_signatures = function(these_predictions = NULL,
   }
   
   #heatmap colors
-  col_fun = circlize::colorRamp2(c(-2, 0, 2), c("green", "black", "red"))
+  col_fun = circlize::colorRamp2(c(-1.5, 0, 1.5), c("green", "black", "red"))
   
   #draw heatmap- late/early
   hm_pred_lateearly = Heatmap(this_data[genes_cc,, drop = FALSE],
@@ -963,8 +963,8 @@ plot_hm_signatures = function(these_predictions = NULL,
   final_hm = draw(hm_pred_lateearly %v%
                     hm_luminal_tfs %v%
                     hm_luminal_gen %v%
-                    hm_circuitscore %v%
                     hm_fgfr3 %v%
+                    hm_circuitscore %v%
                     hm_tp63 %v% 
                     hm_basq %v%
                     hm_keratinization %v%

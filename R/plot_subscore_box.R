@@ -11,10 +11,21 @@
 #' [LundTax2023Classifier::lundtax_predict_sub()].
 #' @param this_subtype Required parameter. Should be one of the set subtype classes from the
 #'  LundTax nomenclature.
+#' @param plot_title Required parameter, if `out_path` is specified. plot title, will also be pasted to 
+#' the exported file.
+#' @param out_path Optional, set path to export plot.
+#' @param out_format Required parameter if `out_path` is specified. Can be "png" (default) or "pdf".
+#' The user can further specify the dimensions of the returned plot with `plot_width` and `plot_height`.
+#' @param plot_width This parameter controls the width in inches. 
+#' Default is 4 (1200 pixels at 300 PPI).
+#' @param plot_height This parameter controls the height in inches. 
+#' Default is 4 (1200 pixels at 300 PPI).
+#' @param return_data Set to TRUE to return tidy data used by the plotting function. Default is FALSE.
 #'
 #' @return Nothing.
 #' 
-#' @import ggplot2 dplyr reshape2 gridExtra
+#' @import ggplot2 dplyr reshape2
+#' @rawNamespace import(gridExtra, except = combine)
 #'
 #' @export
 #'
@@ -28,7 +39,13 @@
 #'                                this_subtype = "Uro")
 #'
 plot_subscore_box = function(these_predictions, 
-                             this_subtype){
+                             this_subtype,
+                             plot_title = NULL,
+                             out_path = NULL,
+                             out_format = "png",
+                             plot_width = 4,
+                             plot_height = 4,
+                             return_data = FALSE){
   
   #subset scores
   these_scores = data.frame(these_predictions$subtype_scores)
@@ -111,6 +128,11 @@ plot_subscore_box = function(these_predictions,
   
   #get colour for the subtype to be plotted
   subtype_col = lund_colors$lund_colors[this_subtype]
+  
+  if(return_data){
+    message("No plot generated, returning tidy data instead...")
+    return(sorted_df)
+  }
 
   #plot the sorted data frame with stacked bar plots
   my_plot = ggplot(sorted_df, aes(x = sample_id, y = value, fill = subtype)) +
@@ -134,5 +156,28 @@ plot_subscore_box = function(these_predictions,
           axis.line.x = element_blank(), 
           axis.title.y = element_text(angle = 90, colour = "black", size = 10, vjust = 2))
   
-  return(my_plot)
+  if(!is.null(out_path)){
+    #set PDF outputs
+    if(out_format == "pdf"){
+      pdf(paste0(out_path, plot_title, "_subscore_box.pdf"),
+          width = plot_width,
+          height = plot_height)
+      #set PNG outputs
+    }else if(out_format == "png"){
+      png(paste0(out_path, plot_title, "_subscore_box.png"),
+          width = plot_width,
+          height = plot_height,
+          units = "in",
+          res = 300,
+          pointsize = 10,
+          bg = "white")
+    }else{
+      stop("Enter a valid output format (pdf or png)...")
+    }
+    print(my_plot)
+    dev.off()
+    message(paste0("Plot exported to ", out_path, plot_title, "_subscore_box.", out_format))
+  }else{
+    return(my_plot) 
+  }
 }

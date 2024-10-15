@@ -11,7 +11,7 @@
 #' @param these_predictions Required parameter, if no data provided with `this_data`.
 #' Predictions returned with [LundTax2023Classifier::lundtax_predict_sub()].
 #' @param this_data Optional parameter, makes it possible for the user to give the plotting function 
-#' their own data, preferably retrieved with this function with return_plot_data = TRUE. If provided, 
+#' their own data, preferably retrieved with this function with return_data = TRUE. If provided, 
 #' the plotting function will disregard any other parameters and only draw the plot using the data 
 #' provided.
 #' @param this_score Required parameter, should be one of the numeric columns in the scores data 
@@ -20,9 +20,16 @@
 #' If nopt provided, all subtypes within the selected class will be returned.
 #' @param subtype_class Required, one of the following; 5_class or 7_class. Needed for coloring the 
 #' points based on subtype classification.
-#' @param plot_title Optional parameter, the name of the returned plot. If NULL (default), no title 
-#' will be printed to the generated figure.
-#' @param return_plot_data Boolean parameter, set to TRUE and return the formatted data used for 
+#' @param plot_title Required parameter, if `out_path` is specified. plot title, will also be pasted to 
+#' the exported file.
+#' @param out_path Optional, set path to export plot.
+#' @param out_format Required parameter if `out_path` is specified. Can be "png" (default) or "pdf".
+#' The user can further specify the dimensions of the returned plot with `plot_width` and `plot_height`.
+#' @param plot_width This parameter controls the width in inches. 
+#' Default is 4 (1200 pixels at 300 PPI).
+#' @param plot_height This parameter controls the height in inches. 
+#' Default is 4 (1200 pixels at 300 PPI).
+#' @param return_data Boolean parameter, set to TRUE and return the formatted data used for 
 #' plotting. Default is FALSE
 #'
 #' @return Nothing.
@@ -47,8 +54,13 @@ plot_ranked_score = function(these_predictions = NULL,
                              this_score = NULL, 
                              this_subtype = NULL,
                              subtype_class = NULL, 
+                             title = NULL,
+                             out_path = NULL,
+                             out_format = "png",
+                             plot_width = 4,
+                             plot_height = 4,
                              plot_title = NULL,
-                             return_plot_data = FALSE){
+                             return_data = FALSE){
   
   if(is.null(this_data)){
     #checks
@@ -104,7 +116,7 @@ plot_ranked_score = function(these_predictions = NULL,
       dplyr::mutate_at(vars(subtype), factor) %>%
       mutate(rank = as.numeric(as.factor(score)))
     
-    if(return_plot_data){
+    if(return_data){
       message("No plot generated, returning plot data instead...")
       return(this_data)
     }
@@ -130,9 +142,28 @@ plot_ranked_score = function(these_predictions = NULL,
     ylab(this_score) +
     theme_classic()
   
-  #print plot
-  print(my_plot)
-  
-  #return
-  return()
+  if(!is.null(out_path)){
+    #set PDF outputs
+    if(out_format == "pdf"){
+      pdf(paste0(out_path, title, "_ranked_score.pdf"),
+          width = plot_width,
+          height = plot_height)
+      #set PNG outputs
+    }else if(out_format == "png"){
+      png(paste0(out_path, title, "_ranked_score.png"),
+          width = plot_width,
+          height = plot_height,
+          units = "in",
+          res = 300,
+          pointsize = 10,
+          bg = "white")
+    }else{
+      stop("Enter a valid output format (pdf or png)...")
+    }
+    print(my_plot)
+    dev.off()
+    message(paste0("Plot exported to ", out_path, title, "_ranked_score.", out_format))
+  }else{
+    return(my_plot) 
+  }
 }

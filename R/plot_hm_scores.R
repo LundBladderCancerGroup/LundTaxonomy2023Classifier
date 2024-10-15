@@ -14,8 +14,7 @@
 #' @param out_path Optional, set path to export plot. If not provided, tidy version of incoming
 #' scores in data frame format will be returned (`return_scores` will be auto-defaulted to TRUE).
 #' @param out_format Required parameter if `out_path` is specified. Can be "png" (default) or "pdf".
-#' if pdf, the returned pdf will be in A4 (horizontal) format, if png is specified the user can
-#' control the dimensions, see `plot_width` and `plot_height`.
+#' The user can further specify the dimensions of the returned plot with `plot_width` and `plot_height`.
 #' @param return_scores Set to TRUE to return prediction scores in a tidy format. Default is FALSE.
 #' @param to_xlsx Boolean parameter, set to TRUE to export score data frame in xlsx format. Default 
 #' is FALSE.

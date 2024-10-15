@@ -13,17 +13,27 @@
 #' [LundTax2023Classifier::lundtax_predict_sub()].
 #' @param this_subtype Required parameter. Should be one of the set subtype classes from the
 #'  LundTax nomenclature.
+#' @param plot_title Required parameter, if `out_path` is specified. plot title, will also be pasted to 
+#' the exported file.
+#' @param out_path Optional, set path to export plot.
+#' @param out_format Required parameter if `out_path` is specified. Can be "png" (default) or "pdf".
+#' The user can further specify the dimensions of the returned plot with `plot_width` and `plot_height`.
+#' @param plot_width This parameter controls the width in inches. 
+#' Default is 4 (1200 pixels at 300 PPI).
+#' @param plot_height This parameter controls the height in inches. 
+#' Default is 4 (1200 pixels at 300 PPI).
 #' @param plot_adjust A multiplicate bandwidth adjustment. This makes it possible to adjust the 
 #' bandwidth while still using the a bandwidth estimator. For example, adjust = 1/2 means use half 
 #' of the default bandwidth.
 #' @param plot_scale if "area" (default), all violins have the same area (before trimming the tails). 
 #' If "count", areas are scaled proportionally to the number of observations. If "width", all 
 #' violins have the same maximum width.
-#' @param return_plot Set to TRUE to return tidy data used by the plotting function. Default is FALSE.
+#' @param return_data Set to TRUE to return tidy data used by the plotting function. Default is FALSE.
 #'
 #' @return Nothing.
 #' 
-#' @import ggplot2 dplyr reshape2 gridExtra
+#' @import ggplot2 dplyr reshape2
+#' @rawNamespace import(gridExtra, except = combine)
 #'
 #' @export
 #'
@@ -37,10 +47,15 @@
 #'                                   this_subtype = "Uro")
 #'                                   
 plot_subscore_violin = function(these_predictions, 
-                                this_subtype, 
+                                this_subtype,
+                                plot_title = NULL,
+                                out_path = NULL,
+                                out_format = "png",
+                                plot_width = 4,
+                                plot_height = 4,
                                 plot_adjust = 2,
                                 plot_scale = "area",
-                                return_scores = FALSE){
+                                return_data = FALSE){
   
   #subset scores
   these_scores = data.frame(these_predictions$subtype_scores)
@@ -93,8 +108,8 @@ plot_subscore_violin = function(these_predictions,
   #get colour for the subtype to be plotted
   subtype_col = lund_colors$lund_colors[this_subtype]
   
-  if(return_scores){
-    message("Returning melted data frame with scores...")
+  if(return_data){
+    message("No plot generated, returning tidy data instead...")
     return(this_melted)
   }
 
@@ -123,5 +138,28 @@ plot_subscore_violin = function(these_predictions,
           axis.line.x = element_blank(), 
           axis.title.y = element_text(angle = 90, colour = "black", size = 10, vjust = 2))
   
-  return(my_plot)
+  if(!is.null(out_path)){
+    #set PDF outputs
+    if(out_format == "pdf"){
+      pdf(paste0(out_path, plot_title, "_subscore_viol.pdf"),
+          width = plot_width,
+          height = plot_height)
+      #set PNG outputs
+    }else if(out_format == "png"){
+      png(paste0(out_path, plot_title, "_subscore_viol.png"),
+          width = plot_width,
+          height = plot_height,
+          units = "in",
+          res = 300,
+          pointsize = 10,
+          bg = "white")
+    }else{
+      stop("Enter a valid output format (pdf or png)...")
+    }
+    print(my_plot)
+    dev.off()
+    message(paste0("Plot exported to ", out_path, plot_title, "_subscore_viol.", out_format))
+  }else{
+    return(my_plot) 
+  }
 }

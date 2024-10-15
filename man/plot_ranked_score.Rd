@@ -10,8 +10,13 @@ plot_ranked_score(
   this_score = NULL,
   this_subtype = NULL,
   subtype_class = NULL,
+  title = NULL,
+  out_path = NULL,
+  out_format = "png",
+  plot_width = 4,
+  plot_height = 4,
   plot_title = NULL,
-  return_plot_data = FALSE
+  return_data = FALSE
 )
 }
 \arguments{
@@ -19,7 +24,7 @@ plot_ranked_score(
 Predictions returned with \code{\link[=lundtax_predict_sub]{lundtax_predict_sub()}}.}
 
 \item{this_data}{Optional parameter, makes it possible for the user to give the plotting function
-their own data, preferably retrieved with this function with return_plot_data = TRUE. If provided,
+their own data, preferably retrieved with this function with return_data = TRUE. If provided,
 the plotting function will disregard any other parameters and only draw the plot using the data
 provided.}
 
@@ -32,10 +37,21 @@ If nopt provided, all subtypes within the selected class will be returned.}
 \item{subtype_class}{Required, one of the following; 5_class or 7_class. Needed for coloring the
 points based on subtype classification.}
 
-\item{plot_title}{Optional parameter, the name of the returned plot. If NULL (default), no title
-will be printed to the generated figure.}
+\item{out_path}{Optional, set path to export plot.}
 
-\item{return_plot_data}{Boolean parameter, set to TRUE and return the formatted data used for
+\item{out_format}{Required parameter if \code{out_path} is specified. Can be "png" (default) or "pdf".
+The user can further specify the dimensions of the returned plot with \code{plot_width} and \code{plot_height}.}
+
+\item{plot_width}{This parameter controls the width in inches.
+Default is 4 (1200 pixels at 300 PPI).}
+
+\item{plot_height}{This parameter controls the height in inches.
+Default is 4 (1200 pixels at 300 PPI).}
+
+\item{plot_title}{Required parameter, if \code{out_path} is specified. plot title, will also be pasted to
+the exported file.}
+
+\item{return_data}{Boolean parameter, set to TRUE and return the formatted data used for
 plotting. Default is FALSE}
 }
 \value{

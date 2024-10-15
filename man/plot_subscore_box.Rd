@@ -4,7 +4,16 @@
 \alias{plot_subscore_box}
 \title{Plot Stacked Barplot Subtype Score}
 \usage{
-plot_subscore_box(these_predictions, this_subtype)
+plot_subscore_box(
+  these_predictions,
+  this_subtype,
+  plot_title = NULL,
+  out_path = NULL,
+  out_format = "png",
+  plot_width = 4,
+  plot_height = 4,
+  return_data = FALSE
+)
 }
 \arguments{
 \item{these_predictions}{Required parameter, should be the output from
@@ -12,6 +21,22 @@ plot_subscore_box(these_predictions, this_subtype)
 
 \item{this_subtype}{Required parameter. Should be one of the set subtype classes from the
 LundTax nomenclature.}
+
+\item{plot_title}{Required parameter, if \code{out_path} is specified. plot title, will also be pasted to
+the exported file.}
+
+\item{out_path}{Optional, set path to export plot.}
+
+\item{out_format}{Required parameter if \code{out_path} is specified. Can be "png" (default) or "pdf".
+The user can further specify the dimensions of the returned plot with \code{plot_width} and \code{plot_height}.}
+
+\item{plot_width}{This parameter controls the width in inches.
+Default is 4 (1200 pixels at 300 PPI).}
+
+\item{plot_height}{This parameter controls the height in inches.
+Default is 4 (1200 pixels at 300 PPI).}
+
+\item{return_data}{Set to TRUE to return tidy data used by the plotting function. Default is FALSE.}
 }
 \value{
 Nothing.

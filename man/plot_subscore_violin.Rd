@@ -7,9 +7,14 @@
 plot_subscore_violin(
   these_predictions,
   this_subtype,
+  plot_title = NULL,
+  out_path = NULL,
+  out_format = "png",
+  plot_width = 4,
+  plot_height = 4,
   plot_adjust = 2,
   plot_scale = "area",
-  return_scores = FALSE
+  return_data = FALSE
 )
 }
 \arguments{
@@ -19,6 +24,20 @@ plot_subscore_violin(
 \item{this_subtype}{Required parameter. Should be one of the set subtype classes from the
 LundTax nomenclature.}
 
+\item{plot_title}{Required parameter, if \code{out_path} is specified. plot title, will also be pasted to
+the exported file.}
+
+\item{out_path}{Optional, set path to export plot.}
+
+\item{out_format}{Required parameter if \code{out_path} is specified. Can be "png" (default) or "pdf".
+The user can further specify the dimensions of the returned plot with \code{plot_width} and \code{plot_height}.}
+
+\item{plot_width}{This parameter controls the width in inches.
+Default is 4 (1200 pixels at 300 PPI).}
+
+\item{plot_height}{This parameter controls the height in inches.
+Default is 4 (1200 pixels at 300 PPI).}
+
 \item{plot_adjust}{A multiplicate bandwidth adjustment. This makes it possible to adjust the
 bandwidth while still using the a bandwidth estimator. For example, adjust = 1/2 means use half
 of the default bandwidth.}
@@ -27,7 +46,7 @@ of the default bandwidth.}
 If "count", areas are scaled proportionally to the number of observations. If "width", all
 violins have the same maximum width.}
 
-\item{return_plot}{Set to TRUE to return tidy data used by the plotting function. Default is FALSE.}
+\item{return_data}{Set to TRUE to return tidy data used by the plotting function. Default is FALSE.}
 }
 \value{
 Nothing.

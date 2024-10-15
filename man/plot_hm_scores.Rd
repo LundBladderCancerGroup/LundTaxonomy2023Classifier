@@ -30,8 +30,7 @@ plot_hm_scores(
 scores in data frame format will be returned (\code{return_scores} will be auto-defaulted to TRUE).}
 
 \item{out_format}{Required parameter if \code{out_path} is specified. Can be "png" (default) or "pdf".
-if pdf, the returned pdf will be in A4 (horizontal) format, if png is specified the user can
-control the dimensions, see \code{plot_width} and \code{plot_height}.}
+The user can further specify the dimensions of the returned plot with \code{plot_width} and \code{plot_height}.}
 
 \item{return_scores}{Set to TRUE to return prediction scores in a tidy format. Default is FALSE.}
 

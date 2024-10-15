@@ -1,7 +1,6 @@
-#' @title Get Metadata
+#' @title Get Data
 #'
-#' @description Return filtered metadata, or sample IDs from a provided metadata data frame 
-#' based on a set of criteria.
+#' @description subset and filter incoming data based on a set of criteria. 
 #'
 #' @details Takes a metadata data frame as the main input and allows easy subset for various variables.
 #' For more information, see parameter descriptions and examples.
@@ -9,8 +8,11 @@
 #' @param this_metadata Required parameter, should be a data frame with metadata information
 #' @param these_sample_ids Optional parameter. If provided, the incoming metadata will be restricted 
 #' to the sample IDs provided here. Should be a vector of sample IDs of interest.
-#' @param return_type Should be on of the following; metadata (default) or sample_id. If sample IDs 
-#' are selected, a vector with selected sample IDs will be returned, nothing else.
+#' @param return_type Should be on of the following; metadata (default), sample_id or expression_data. If sample IDs 
+#' are selected, a vector with selected sample IDs will be returned, nothing else. If expression_data 
+#' is selected, the user needs to specify the incoming expression data with `this_data`.
+#' @param this_data Required parameter if return_type is set to `expression_data`. Should be a data 
+#' frame with sample IDs as column names.
 #' @param rows_to_column Boolean parameter. Set to TRUE to convert row names to a new column called 
 #' sample_id. Default is FALSE.
 #' @param sample_column Optional, lets the user define a specific column in the data frame with sample IDs.
@@ -42,17 +44,18 @@
 #'              third_variable = "adj_chemo", 
 #'              third_value = 0)
 #'
-get_metadata = function(this_metadata = NULL,
-                        these_sample_ids = NULL,
-                        return_type = "metadata",
-                        rows_to_column = FALSE,
-                        sample_column = NULL,
-                        first_variable = NULL,
-                        first_value = NULL,
-                        second_variable = NULL,
-                        second_value = NULL,
-                        third_variable = NULL,
-                        third_value = NULL){
+get_data = function(this_metadata = NULL,
+                    these_sample_ids = NULL,
+                    this_data = NULL,
+                    return_type = "metadata",
+                    rows_to_column = FALSE,
+                    sample_column = NULL,
+                    first_variable = NULL,
+                    first_value = NULL,
+                    second_variable = NULL,
+                    second_value = NULL,
+                    third_variable = NULL,
+                    third_value = NULL){
   
   #check parameters
   if(is.null(this_metadata)){
@@ -65,7 +68,7 @@ get_metadata = function(this_metadata = NULL,
       rename(sample_column = "sample_id")
   }
   
-  #convert rownames to sample ID column
+  #convert row names to sample ID column
   if(rows_to_column){
     this_metadata = tibble::rownames_to_column(this_metadata, "sample_id")
   }
@@ -124,6 +127,26 @@ get_metadata = function(this_metadata = NULL,
     return(this_metadata)
   }else if(return_type == "sample_id"){
     return(this_metadata$sample_id)
+  }else if(return_type == "expression_data"){
+    if(is.null(this_data)){
+      stop("User must provide expression data if the function should subset it to samples of interest...")
+    }else{
+      this_data = this_data %>% 
+        dplyr::select(this_metadata$sample_id)
+      
+      #check if the requested sample IDs are actually in the expression data
+      samples = this_metadata$sample_id
+      expression_samples = colnames(this_data)
+      
+      not_in_data = setdiff(samples, expression_samples)
+      
+      if(length(not_in_data) > 0){
+        message("WARNING! The following sample IDs were not found in the expression data:")
+        print(not_in_data)
+      }
+      return(this_data)
+    }
+    
   }else{
     stop("Valid vlaues are 'metadata' and 'sample_id'...")
   }

@@ -20,6 +20,7 @@
 #' If nopt provided, all subtypes within the selected class will be returned.
 #' @param subtype_class Required, one of the following; 5_class or 7_class. Needed for coloring the 
 #' points based on subtype classification.
+#' @param add_stat Boolean parameter, set to TRUE to add regression lines, p value for each regression. Default is FALSE.
 #' @param plot_title Required parameter, if `out_path` is specified. plot title, will also be pasted to 
 #' the exported file.
 #' @param out_path Optional, set path to export plot.
@@ -54,6 +55,7 @@ plot_ranked_score = function(these_predictions = NULL,
                              this_score = NULL, 
                              this_subtype = NULL,
                              subtype_class = NULL, 
+                             add_stat = FALSE,
                              title = NULL,
                              out_path = NULL,
                              out_format = "png",
@@ -134,13 +136,22 @@ plot_ranked_score = function(these_predictions = NULL,
   #draw plot
   my_plot = ggplot(data = this_data, aes(x = rank, y = score, color = subtype)) +
     geom_point(size = 2, shape = 16) +
-    geom_smooth(method = lm, se = FALSE) +
-    stat_cor(method = "pearson", label.x = 20) +
+    {if(add_stat) geom_smooth(method = lm, se = FALSE)} +
+    {if(add_stat) stat_cor(method = "pearson", label.x = 20)} +
     scale_color_manual(values = lund_colors$lund_colors) + 
-    labs(title = plot_title, subtitle = paste0("All samples (n = ", nrow(this_data), ")")) +
     xlab("Index") + 
     ylab(this_score) +
-    theme_classic()
+    theme(legend.position = "none", 
+          axis.text.y = element_text(color = "black", size = 7),
+          axis.ticks.x = element_line(linewidth = 0.4),
+          axis.ticks.y = element_line(linewidth = 0.4),
+          panel.background = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          plot.background = element_blank(), 
+          panel.border = element_rect(colour = "black", fill = NA, linewidth = 0.4),
+          axis.line.x = element_blank(), 
+          axis.title.y = element_text(angle = 90, colour = "black", size = 10, vjust = 2))
   
   if(!is.null(out_path)){
     #set PDF outputs

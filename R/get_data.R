@@ -34,17 +34,17 @@
 #' @examples
 #' #example 1
 #' #return all sample IDs from bundled metadata
-#' get_metadata(this_metadata = sjodahl_2017_meta, 
-#'              return_type = "sample_id")
+#' get_data(this_metadata = sjodahl_2017_meta, 
+#'          return_type = "sample_id")
 #' 
 #' #use more filter options and return metadata data frame
-#' get_metadata(this_metadata = sjodahl_2017_meta, 
-#'              first_variable = "gender", 
-#'              first_value = "Female", 
-#'              second_variable = "turb_stage", 
-#'              second_value = 1, 
-#'              third_variable = "adj_chemo", 
-#'              third_value = 0)
+#' get_data(this_metadata = sjodahl_2017_meta, 
+#'          first_variable = "gender", 
+#'          first_value = "Female", 
+#'          second_variable = "turb_stage", 
+#'          second_value = 1, 
+#'          third_variable = "adj_chemo", 
+#'          third_value = 0)
 #'
 get_data = function(this_metadata = NULL,
                     these_sample_ids = NULL,

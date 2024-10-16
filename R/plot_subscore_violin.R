@@ -28,6 +28,8 @@
 #' @param plot_scale if "area" (default), all violins have the same area (before trimming the tails). 
 #' If "count", areas are scaled proportionally to the number of observations. If "width", all 
 #' violins have the same maximum width.
+#' @param plot_trim If TRUE (default), trim the tails of the violins to the range of the data. If
+#' FALSE, don't trim the tails.
 #' @param return_data Set to TRUE to return tidy data used by the plotting function. Default is FALSE.
 #'
 #' @return Nothing.
@@ -55,6 +57,7 @@ plot_subscore_violin = function(these_predictions,
                                 plot_height = 4,
                                 plot_adjust = 2,
                                 plot_scale = "area",
+                                plot_trim = TRUE,
                                 return_data = FALSE){
   
   #subset scores
@@ -118,7 +121,7 @@ plot_subscore_violin = function(these_predictions,
     arrange(value) %>%    
     mutate(subtype = factor(subtype, levels = c("Uro", "GU", "BaSq", "Mes", "ScNE", "UroA", "UroB", "UroC"))) %>% 
     ggplot(aes(x = subtype, y = value, fill = subtype), show.legend = TRUE) + 
-    geom_violin(scale = plot_scale, trim = TRUE, color = NA, adjust = plot_adjust) +
+    geom_violin(scale = plot_scale, trim = plot_trim, color = NA, adjust = plot_adjust) +
     scale_fill_manual(values = lund_colors$lund_colors, drop = FALSE) +
     theme_bw() +
     coord_cartesian(clip = "off") +

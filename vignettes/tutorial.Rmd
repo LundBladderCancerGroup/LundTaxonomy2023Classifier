@@ -76,12 +76,52 @@ knitr::kable(table(signatures$immune$signature),
              col.names = c("Signature", "Genes (n)"))
 ```
 
+## Get Data
+To get started, if the user wants to separate and subset the incoming data based on various metadata criteria, `get_data` is available. This function can return data in a few different formats. First, in metadata format (default). This requires the user to provide the function with an incoming metadata object. This should be a data frame with unique samples in rows. The column title with sample information should be called 'sample_id'. If not, the function can in a couple of ways accommodate for this. For example, the user can run the function with `rows_to_column = TRUE` to create a new column named sample_id from row names. Alternatively, the function can also look for sample IDs in a different column (if it's named anything other than sample_id). To do this, set `sample_column` to the name of the corresponding sample column in the incoming metadata. If metadata is provided for the function, the user can easily subset the data based on three filtering options. See `first,variable`, `second_variable`, and `third_variable` and the corresponding `first_value`, `second_value`, and `third_value` parameter descriptions for more information. The user can set the `return_type` to `sample_id`, this will return a vector of characters with sample IDs. lastly, the function can also subset an incoming expression matrix. To do so, set `return_type == "expression_data"` and provide the expression data with `this_data`.
+
+### Example 1 - Metadata Subset
+In this first example we will provide the function with metadata and restrict it to a set number of samples. To do so, we will call the funciton with `this_metadata` and `these_sample_ids`. The return type will reain in tidy metadata format.
+
+```{r metadata_sub1}
+#define some samples
+my_samples = c("1.CEL", "2.CEL", "3.CEL", "4.CEL", "5.CEL")
+
+#subset metadata to samples of interest
+sjodahl_sub1 = get_data(this_metadata = sjodahl_2017_meta, 
+                       these_sample_ids = my_samples, 
+                       return_type = "metadata")
+
+#print sample IDs in the return
+sjodahl_sub1$sample_id
+```
+
+### Example 2 - Metadata Subset
+We can also provide more extensive filtering options. In this example we are selecting females, turb_stage = 1 and adj_chemo = 0. We are also excluding a few samples, demonstrating the usage of `exclude_id` parameter. lastly, we will also subset the bundled expression matrix to the retained sample IDs.
+
+```{r metadata_sub2}
+#run funciton
+sjodahl_sub2 = get_data(this_metadata = sjodahl_2017_meta,
+                        return_type = "expression_data", 
+                        this_data = sjodahl_2017,
+                        exclude_id = c("5.CEL", "9.CEL", "15.CEL"),
+                        first_variable = "gender", 
+                        first_value = "Female", 
+                        second_variable = "turb_stage", 
+                        second_value = 1, 
+                        third_variable = "adj_chemo", 
+                        third_value = 0)
+
+#print the dimensions
+dim(sjodahl_sub2)
+```
+
 ## Subtype Prediction
 The main function in this package is `lundtax_predict_sub`. This function
 makes prediction calls based on gene expression data. It also internally calls `lundtax_calc_sigscore` to calculate signature scores for a variety of,for the subtype, relevant signature scores. The main input for this function is a data object with expression values, given to the `this_data` parameter. This should be a data frame or matrix with expression values, gene identifiers in as row names and samples in columns. The function supports gene identifiers in one of the following formats; **HGNC symbols** (default) or **Ensembl Gene IDs**. The format for the provided gene identifiers should be given to the `gene_id` parameter. This function also depends on the `predict_RF` function from `multiclassPairs`. Thus, the function can also take arguments from this function. For example, if required genes are missing from the input data, the user can run the prediction function with `impute = TRUE`.
 
 ### Example 1 - Predict Subtype
 In this first example we will call this function on the bundled expression data to determine a subtype for each of the included samples. Note, that we run this example with `impute = TRUE` to compensate for missing genes in the demo data set. For transparency, all other parameters are called with default parameters for demonstrating purposes.
+
 ```{r sjodahl predicted, results = 'hide', message = FALSE}
 sjodahl_predicted = lundtax_predict_sub(this_data = sjodahl_2017, 
                                         gene_id = "hgnc_symbol",
@@ -98,7 +138,7 @@ sjodahl_predicted = lundtax_predict_sub(this_data = sjodahl_2017,
                                         verbose = FALSE)
 ```
 
-Let's explore what the returned object looks like. The return is a lsit of 4, with the following information in it:
+Let's explore what the returned object looks like. The return is a list of 4, with the following information in it:
 
 ```{r predicted lsit}
 knitr::kable(summary(sjodahl_predicted), 
@@ -138,7 +178,7 @@ knitr::kable(sjodahl_predicted$scores[1:5, 1:3],
 
 ## Visualization
 This part of the vignette will demonstrate how to integrate the plotting functions to the return of the main functions in this package. Currently, there are three alternatives for visualize the results;
-`plot_hm_signatures`, `plot_hm_score`, `plot_ranked_score`. 
+`plot_hm_signatures`, `plot_hm_score`, `plot_ranked_score`, `plot_ranked_score`, `plot_subscore_box`, and `plot_subscore_violin`. 
 
 ### Plot Heatmap Signatures
 Constructs a heatmap, including genes and signatures of interest, with prediction results and scores on top. Here, we are using the prediction dataset generated in the previous example as input for the plotting function. Tip, it's possible to run the plotting function on just one object (i.e no need to provide `this_data` separately), to do so, run the prediction function with `include_data = TRUE`.
@@ -153,7 +193,7 @@ plot_hm_signatures(these_predictions = sjodahl_predicted,
                    title = "sjodahl_2017_classifications")
 ```
 
-```{r figure 1, echo = FALSE, out.width = '100%', dpi = 300}
+```{r figure 1, echo = FALSE, out.width = '100%', dpi = 300, fig.cap = "Figure 1, Heatmap Classification Signatures"}
 knitr::include_graphics("../man/figures/sjodahl_2017_classifications_heatmap_scores.png")
 ```
 
@@ -168,7 +208,7 @@ plot_hm_scores(these_predictions = sjodahl_predicted,
                title = "sjodahl_2017_signature_scores")
 ```
 
-```{r figure 2, echo = FALSE, out.width = '100%', dpi = 300}
+```{r figure 2, echo = FALSE, out.width = '100%', dpi = 300, fig.cap = "Figure 2, Heatmap Signature Scores"}
 knitr::include_graphics("../man/figures/sjodahl_2017_signature_scores_heatmap_scores.png")
 ```
 
@@ -192,9 +232,32 @@ The function can also return the data from in xlsx format. To do so, run the fun
 ### Plot Ranked Score
 This function returns a point plot with ranked scores for a set variable. It takes a predictions data set together with a score variable, subtype class and returns a point plot (grob) with ranked scores along the x axis and scores along the y axis. The returned plot will also color fill the points based on subtype classification. In this example, we are plotting proliferation score for all subtypes in the 7 class group.
 
-```{r figure 3, message = FALSE, echo = FALSE, out.width = '100%', dpi = 300}
+```{r figure 3, message = FALSE, echo = FALSE, out.width = '100%', dpi = 300, fig.cap = "Figure 3, Ranked Score"}
 plot_ranked_score(these_predictions = sjodahl_predicted, 
                   this_score = "proliferation_score", 
                   subtype_class = "7_class", 
                   plot_title = "sjodahl_2017_proliferation_score")
 ```
+
+### Plot Subtype Score (Box)
+This functions takes the output from `lundtax_predict_sub` and return a stacked barplot plot representing 
+the distribution of the, for that class, subtype prediction score. Set the subtype of 
+desire with `this_subtype`. The subtype can be one of the subtypes included in the LundTax subtype 
+classification nomenclature.
+
+```{r figure 4, message = FALSE, echo = FALSE, out.width = '100%', dpi = 300, fig.cap = "Figure 4, Subtype Score Box"}
+plot_subscore_box(these_predictions = sjodahl_predicted, 
+                  this_subtype = "Uro")
+```
+
+### Plot Subtype Score (Violin)
+Similarly, `plot_subscore_violin` take the output from `lundtax_predict_sub` and return a violin plot where each violin represent the distribution of the, for that class, subtype prediction score. Set the subtype of desire with `this_subtype`. The subtype can be one of the subtypes included in the LundTax subtype classification nomenclature. Parameters starting with the plot prefix are available for the user to gain more control of the returned plot. The user can also return the wrangled data used in the plot by setting `return_data = TRUE`.
+
+```{r figure 5, message = FALSE, echo = FALSE, out.width = '100%', dpi = 300, fig.cap = "Figure 4, Subtype Score Violin"}
+plot_subscore_violin(these_predictions = sjodahl_predicted, 
+                     this_subtype = "GU", 
+                     plot_adjust = 2, 
+                     plot_scale = "width", 
+                     plot_trim = FALSE)
+```
+

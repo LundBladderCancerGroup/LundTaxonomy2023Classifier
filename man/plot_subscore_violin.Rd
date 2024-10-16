@@ -14,6 +14,7 @@ plot_subscore_violin(
   plot_height = 4,
   plot_adjust = 2,
   plot_scale = "area",
+  plot_trim = TRUE,
   return_data = FALSE
 )
 }
@@ -45,6 +46,9 @@ of the default bandwidth.}
 \item{plot_scale}{if "area" (default), all violins have the same area (before trimming the tails).
 If "count", areas are scaled proportionally to the number of observations. If "width", all
 violins have the same maximum width.}
+
+\item{plot_trim}{If TRUE (default), trim the tails of the violins to the range of the data. If
+FALSE, don't trim the tails.}
 
 \item{return_data}{Set to TRUE to return tidy data used by the plotting function. Default is FALSE.}
 }

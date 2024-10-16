@@ -10,6 +10,7 @@ plot_ranked_score(
   this_score = NULL,
   this_subtype = NULL,
   subtype_class = NULL,
+  add_stat = FALSE,
   title = NULL,
   out_path = NULL,
   out_format = "png",
@@ -36,6 +37,8 @@ If nopt provided, all subtypes within the selected class will be returned.}
 
 \item{subtype_class}{Required, one of the following; 5_class or 7_class. Needed for coloring the
 points based on subtype classification.}
+
+\item{add_stat}{Boolean parameter, set to TRUE to add regression lines, p value for each regression. Default is FALSE.}
 
 \item{out_path}{Optional, set path to export plot.}
 

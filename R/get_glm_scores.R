@@ -50,7 +50,7 @@
 #'
 get_glm_scores = function(these_predictions = NULL,
                           these_samples_metadata = NULL,
-                          subtype_class = "5class",
+                          subtype_class = "5_class",
                           this_subtype = NULL,
                           cat_variable = NULL,
                           row_to_col = FALSE,

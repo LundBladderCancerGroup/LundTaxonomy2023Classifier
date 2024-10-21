@@ -101,7 +101,7 @@ plot_glm_forest = function(these_predictions = NULL,
       if(subtype_class == "5_class"){
         uro_glms = get_glm_scores(these_predictions = these_predictions,
                                   these_samples_metadata = these_samples_metadata,
-                                  subtype_class = "5class",
+                                  subtype_class = "5_class",
                                   cat_variable = cat_variable,
                                   this_subtype = "Uro",
                                   sample_id_col = sample_id_col, 

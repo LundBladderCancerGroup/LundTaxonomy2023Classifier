@@ -10,6 +10,8 @@ plot_ranked_score(
   this_score = NULL,
   this_subtype = NULL,
   subtype_class = NULL,
+  seg_plot = FALSE,
+  seg_width = 0.1,
   add_stat = FALSE,
   title = NULL,
   out_path = NULL,
@@ -38,6 +40,9 @@ If nopt provided, all subtypes within the selected class will be returned.}
 \item{subtype_class}{Required, one of the following; 5_class or 7_class. Needed for coloring the
 points based on subtype classification.}
 
+\item{seg_plot}{Boolean parameter, set to TRUE to return a segment plot with ranked scores for the
+selected subtype class. Default is FALSE.}
+
 \item{add_stat}{Boolean parameter, set to TRUE to add regression lines, p value for each regression. Default is FALSE.}
 
 \item{out_path}{Optional, set path to export plot.}
@@ -45,11 +50,9 @@ points based on subtype classification.}
 \item{out_format}{Required parameter if \code{out_path} is specified. Can be "png" (default) or "pdf".
 The user can further specify the dimensions of the returned plot with \code{plot_width} and \code{plot_height}.}
 
-\item{plot_width}{This parameter controls the width in inches.
-Default is 4 (1200 pixels at 300 PPI).}
+\item{plot_width}{This parameter controls the width in inches. Default is 4 (1200 pixels at 300 PPI).}
 
-\item{plot_height}{This parameter controls the height in inches.
-Default is 4 (1200 pixels at 300 PPI).}
+\item{plot_height}{This parameter controls the height in inches. Default is 4 (1200 pixels at 300 PPI).}
 
 \item{plot_title}{Required parameter, if \code{out_path} is specified. plot title, will also be pasted to
 the exported file.}
@@ -64,11 +67,10 @@ Nothing.
 Return a point plot with ranked scores for a set variable.
 }
 \details{
-This function takes predictions returned with
-\code{\link[=lundtax_predict_sub]{lundtax_predict_sub()}}, together with a score variable,
-subtype class and returns a point plot (grob) with ranked scores along the x axis and
-scores along the y axis. The returned plot will also color fill the points based on subtype
-classification.
+This function takes predictions returned with \code{\link[=lundtax_predict_sub]{lundtax_predict_sub()}},
+together with a score variable, subtype class and returns a point plot (grob) with ranked scores
+along the x axis and scores along the y axis. The returned plot will also color fill the points
+based on subtype classification.
 }
 \examples{
 sjodahl_2017_predicted = lundtax_predict_sub(this_data = sjodahl_2017, 

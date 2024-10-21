@@ -2,11 +2,10 @@
 #'
 #' @description Return a point plot with ranked scores for a set variable.
 #'
-#' @details This function takes predictions returned with 
-#' [LundTax2023Classifier::lundtax_predict_sub()], together with a score variable,
-#' subtype class and returns a point plot (grob) with ranked scores along the x axis and 
-#' scores along the y axis. The returned plot will also color fill the points based on subtype 
-#' classification.
+#' @details This function takes predictions returned with [LundTax2023Classifier::lundtax_predict_sub()],
+#' together with a score variable, subtype class and returns a point plot (grob) with ranked scores 
+#' along the x axis and scores along the y axis. The returned plot will also color fill the points 
+#' based on subtype classification.
 #'
 #' @param these_predictions Required parameter, if no data provided with `this_data`.
 #' Predictions returned with [LundTax2023Classifier::lundtax_predict_sub()].
@@ -20,16 +19,16 @@
 #' If nopt provided, all subtypes within the selected class will be returned.
 #' @param subtype_class Required, one of the following; 5_class or 7_class. Needed for coloring the 
 #' points based on subtype classification.
+#' @param seg_plot Boolean parameter, set to TRUE to return a segment plot with ranked scores for the 
+#' selected subtype class. Default is FALSE.
 #' @param add_stat Boolean parameter, set to TRUE to add regression lines, p value for each regression. Default is FALSE.
 #' @param plot_title Required parameter, if `out_path` is specified. plot title, will also be pasted to 
 #' the exported file.
 #' @param out_path Optional, set path to export plot.
 #' @param out_format Required parameter if `out_path` is specified. Can be "png" (default) or "pdf".
 #' The user can further specify the dimensions of the returned plot with `plot_width` and `plot_height`.
-#' @param plot_width This parameter controls the width in inches. 
-#' Default is 4 (1200 pixels at 300 PPI).
-#' @param plot_height This parameter controls the height in inches. 
-#' Default is 4 (1200 pixels at 300 PPI).
+#' @param plot_width This parameter controls the width in inches. Default is 4 (1200 pixels at 300 PPI).
+#' @param plot_height This parameter controls the height in inches. Default is 4 (1200 pixels at 300 PPI).
 #' @param return_data Boolean parameter, set to TRUE and return the formatted data used for 
 #' plotting. Default is FALSE
 #'
@@ -54,7 +53,9 @@ plot_ranked_score = function(these_predictions = NULL,
                              this_data = NULL,
                              this_score = NULL, 
                              this_subtype = NULL,
-                             subtype_class = NULL, 
+                             subtype_class = NULL,
+                             seg_plot = FALSE, 
+                             seg_width = 0.1,
                              add_stat = FALSE,
                              title = NULL,
                              out_path = NULL,
@@ -133,25 +134,132 @@ plot_ranked_score = function(these_predictions = NULL,
     }
   }
   
-  #draw plot
-  my_plot = ggplot(data = this_data, aes(x = rank, y = score, color = subtype)) +
-    geom_point(size = 2, shape = 16) +
-    {if(add_stat) geom_smooth(method = lm, se = FALSE)} +
-    {if(add_stat) stat_cor(method = "pearson", label.x = 20)} +
-    scale_color_manual(values = lund_colors$lund_colors) + 
-    xlab("Index") + 
-    ylab(this_score) +
-    theme(legend.position = "none", 
-          axis.text.y = element_text(color = "black", size = 7),
-          axis.ticks.x = element_line(linewidth = 0.4),
-          axis.ticks.y = element_line(linewidth = 0.4),
-          panel.background = element_blank(),
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          plot.background = element_blank(), 
-          panel.border = element_rect(colour = "black", fill = NA, linewidth = 0.4),
-          axis.line.x = element_blank(), 
-          axis.title.y = element_text(angle = 90, colour = "black", size = 10, vjust = 2))
+  if(seg_plot){
+    #get segment data for each subtype
+    gu_lines = this_data %>% filter(subtype == "GU") %>% 
+      select(rank) %>% 
+      arrange(rank) %>% 
+      rename(x_start = rank) %>% 
+      mutate(x_end = x_start) %>% 
+      mutate(subtype = factor("GU")) 
+    
+    basq_lines = this_data %>% filter(subtype == "BaSq") %>% 
+      select(rank) %>% 
+      arrange(rank) %>% 
+      rename(x_start = rank) %>% 
+      mutate(x_end = x_start) %>% 
+      mutate(subtype = factor("BaSq")) 
+    
+    mes_lines = this_data %>% filter(subtype == "Mes") %>% 
+      select(rank) %>% 
+      arrange(rank) %>% 
+      rename(x_start = rank) %>% 
+      mutate(x_end = x_start) %>% 
+      mutate(subtype = factor("Mes")) 
+    
+    scne_lines = this_data %>% filter(subtype == "ScNE") %>% 
+      select(rank) %>% 
+      arrange(rank) %>% 
+      rename(x_start = rank) %>% 
+      mutate(x_end = x_start) %>% 
+      mutate(subtype = factor("ScNE"))
+    
+    if(subtype_class == "5_class"){
+      uro_lines = this_data %>% filter(subtype == "Uro") %>% 
+        select(rank) %>% 
+        arrange(rank) %>% 
+        rename(x_start = rank) %>% 
+        mutate(x_end = x_start) %>% 
+        mutate(subtype = factor("Uro")) 
+      
+      #set factor levels
+      this_data$subtype = factor(this_data$subtype, levels = c("Uro", "GU", "BaSq", "Mes", "ScNE"))
+      
+    }else if(subtype_class == "7_class"){
+      uroa_lines = this_data %>% filter(subtype == "UroA") %>% 
+        select(rank) %>% 
+        arrange(rank) %>% 
+        rename(x_start = rank) %>% 
+        mutate(x_end = x_start) %>% 
+        mutate(subtype = factor("UroA")) 
+      
+      urob_lines = this_data %>% filter(subtype == "UroB") %>% 
+        select(rank) %>% 
+        arrange(rank) %>% 
+        rename(x_start = rank) %>% 
+        mutate(x_end = x_start) %>% 
+        mutate(subtype = factor("UroB")) 
+      
+      uroc_lines = this_data %>% filter(subtype == "UroC") %>% 
+        select(rank) %>% 
+        arrange(rank) %>% 
+        rename(x_start = rank) %>% 
+        mutate(x_end = x_start) %>% 
+        mutate(subtype = factor("UroC")) 
+      
+      #set factor levels
+      this_data$subtype = factor(this_data$subtype, levels = c("UroA", "UroB", "UroC", "GU", "BaSq", "Mes", "ScNE"))
+    }
+    
+    #segment plot
+    my_plot = ggplot() +
+      {if(subtype_class == "5_class") geom_segment(data = uro_lines, aes(x = x_start, xend = x_end, y = 1, yend = 1.98, color = subtype), linewidth = seg_width, lineend = "butt")} +
+      {if(subtype_class == "5_class") geom_segment(data = gu_lines, aes(x = x_start, xend = x_end, y = 2, yend = 2.98, color = subtype), linewidth = seg_width, lineend = "butt")} +
+      {if(subtype_class == "5_class") geom_segment(data = basq_lines, aes(x = x_start, xend = x_end, y = 3, yend = 3.98, color = subtype), linewidth = seg_width, lineend = "butt")} +
+      {if(subtype_class == "5_class") geom_segment(data = mes_lines, aes(x = x_start, xend = x_end, y = 4, yend = 4.98, color = subtype), linewidth = seg_width, lineend = "butt")} +
+      {if(subtype_class == "5_class") geom_segment(data = scne_lines, aes(x = x_start, xend = x_end, y = 5, yend = 5.98, color = subtype), linewidth = seg_width, lineend = "butt")} +
+      {if(subtype_class == "7_class") geom_segment(data = uroa_lines, aes(x = x_start, xend = x_end, y = 1, yend = 1.98, color = subtype), linewidth = seg_width, lineend = "butt")} +
+      {if(subtype_class == "7_class") geom_segment(data = urob_lines, aes(x = x_start, xend = x_end, y = 2., yend = 2.98, color = subtype), linewidth = seg_width, lineend = "butt")} +
+      {if(subtype_class == "7_class") geom_segment(data = uroc_lines, aes(x = x_start, xend = x_end, y = 3, yend = 3.98, color = subtype), linewidth = seg_width, lineend = "butt")} +
+      {if(subtype_class == "7_class") geom_segment(data = gu_lines, aes(x = x_start, xend = x_end, y = 4, yend = 4.98, color = subtype), linewidth = seg_width, lineend = "butt")} +
+      {if(subtype_class == "7_class") geom_segment(data = basq_lines, aes(x = x_start, xend = x_end, y = 5, yend = 5.98, color = subtype), linewidth = seg_width, lineend = "butt")} +
+      {if(subtype_class == "7_class") geom_segment(data = mes_lines, aes(x = x_start, xend = x_end, y = 6, yend = 6.98, color = subtype), linewidth = seg_width, lineend = "butt")} +
+      {if(subtype_class == "7_class") geom_segment(data = scne_lines, aes(x = x_start, xend = x_end, y = 7, yend = 7.98, color = subtype), linewidth = seg_width, lineend = "butt")} +
+      scale_color_manual(values = lund_colors$lund_colors) + 
+      xlab("Index") + 
+      ggtitle(label = plot_title, subtitle = this_score) +
+      guides(colour = guide_legend(nrow = 1)) +
+      coord_cartesian(expand = FALSE) +
+      scale_x_continuous(limits = c(1, max(this_data$rank))) +
+      {if(subtype_class == "5_class") scale_y_continuous(limits = c(1, 6))} +
+      {if(subtype_class == "7_class") scale_y_continuous(limits = c(1, 8))} +
+      theme(legend.position = "none", 
+            legend.title = element_blank(),
+            panel.grid.major.x = element_blank(),
+            panel.grid.minor.x = element_blank(),
+            panel.grid.major.y = element_line( size = 0.1, color = "black"),
+            panel.grid.minor.y = element_line( size = 0.1, color = "black"),
+            plot.background = element_blank(), 
+            panel.border = element_blank(),
+            axis.text.x = element_text(size = 10), 
+            plot.title = element_text(hjust = 0.5),
+            plot.subtitle = element_text(hjust = 0.5),
+            axis.ticks.y = element_blank(), 
+            axis.line.x = element_line(),
+            axis.text.y = element_blank(),
+            axis.title.y = element_blank(),
+            axis.title.x = element_text(angle = 0, colour = "black", size = 10))
+  }else{
+    #draw default plot
+    my_plot = ggplot(data = this_data, aes(x = rank, y = score, color = subtype)) +
+      geom_point(size = 2, shape = 16) +
+      {if(add_stat) geom_smooth(method = lm, se = FALSE)} +
+      {if(add_stat) stat_cor(method = "pearson", label.x = 20)} +
+      scale_color_manual(values = lund_colors$lund_colors) + 
+      xlab("Index") + 
+      ylab(this_score) +
+      theme(legend.position = "none", 
+            axis.text.y = element_text(color = "black", size = 7),
+            axis.ticks.x = element_line(linewidth = 0.4),
+            axis.ticks.y = element_line(linewidth = 0.4),
+            panel.background = element_blank(),
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            plot.background = element_blank(), 
+            panel.border = element_rect(colour = "black", fill = NA, linewidth = 0.4),
+            axis.line.x = element_blank(), 
+            axis.title.y = element_text(angle = 90, colour = "black", size = 10, vjust = 2))
+  }
   
   if(!is.null(out_path)){
     #set PDF outputs

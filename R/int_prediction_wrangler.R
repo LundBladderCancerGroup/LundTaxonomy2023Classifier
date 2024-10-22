@@ -16,7 +16,7 @@
 #' column.
 #' @param row_to_col Boolean parameter. Set to TRUE to transform row names of the metadata to a new 
 #' column called sample_id. Default is FALSE.
-#' @param cat_variable Required parameter. This should be the categorical variable that is intended 
+#' @param categorical_factor Required parameter. This should be the categorical variable that is intended 
 #' for testing. In addition, this should also be a variable of type factor, with exactly 2 levels.
 #' @param subtype_class Can be one of the following; 5_class or 7_class. Default is 5_class.
 #' @param this_subtype Optional parameter. Allows the user to subset the return to a specific subtype
@@ -26,8 +26,6 @@
 #' @return A data frame ready for `get_glm_scores`.
 #'
 #' @import dplyr
-#'
-#' @export
 #'
 #' @examples
 #' #load packages
@@ -42,14 +40,16 @@
 #'                                  these_samples_metadata = sjodahl_2017_meta, 
 #'                                  subtype_class = "5_class", 
 #'                                  this_subtype = "Uro", 
-#'                                  cat_variable = "adj_chemo")
+#'                                  categorical_factor = "adj_chemo")
 #'                           
 int_prediction_wrangler = function(these_predictions = NULL,
                                    these_samples_metadata = NULL,
                                    sample_id_col = NULL,
                                    row_to_col = FALSE,
-                                   cat_variable = NULL,
                                    subtype_class = "5_class",
+                                   categorical_factor = NULL,
+                                   surv_time = NULL,
+                                   surv_event = NULL,
                                    this_subtype = NULL){
     
     #check predictions
@@ -91,12 +91,12 @@ int_prediction_wrangler = function(these_predictions = NULL,
       }
       
       #check the categorical variable
-      if(!cat_variable %in% colnames(these_samples_metadata)){
-        stop(paste0(cat_variable, " is not a valid column in the incoming metadata..."))
-        if(!is.factor(these_samples_metadata[,cat_variable])){
-          stop("cat_variable must be a factor...")
-          if(length(levels(these_samples_metadata[,cat_variable])) != 2){
-            stop("Levels of cat_variable must be exactly 2...")
+      if(!categorical_factor %in% colnames(these_samples_metadata)){
+        stop(paste0(categorical_factor, " is not a valid column in the incoming metadata..."))
+        if(!is.factor(these_samples_metadata[,categorical_factor])){
+          stop("categorical_factor must be a factor...")
+          if(length(levels(these_samples_metadata[,categorical_factor])) != 2){
+            stop("Levels of categorical_factor must be exactly 2...")
           }
         }
       }
@@ -110,8 +110,14 @@ int_prediction_wrangler = function(these_predictions = NULL,
         }
       }
       
-      my_metadata = these_samples_metadata %>%
-        dplyr::select(sample_id, cat_variable)
+      if(is.null(surv_time) && is.null(surv_event)){
+        my_metadata = these_samples_metadata %>%
+          dplyr::select(sample_id, categorical_factor)
+      }else{
+        message("Adding survival data to metadata")
+        my_metadata = these_samples_metadata %>%
+          dplyr::select(sample_id, categorical_factor, surv_time, surv_event)
+      }
     }
 
     #combine data
@@ -127,15 +133,15 @@ int_prediction_wrangler = function(these_predictions = NULL,
     }
     
     #reinstate factor type in categorical column
-    my_object[,cat_variable] = as.factor(my_object[,cat_variable])
+    my_object[,categorical_factor] = as.factor(my_object[,categorical_factor])
     
-    #check that levels of subset data and remove subtypes that does not have two factors in the cat_variable
-    if(length(levels(my_object[,cat_variable])) != 2){
-      message("The resulting subset filter does not have 2 levels in the selected cat_variable...")
+    #check that levels of subset data and remove subtypes that does not have two factors in the categorical_factor
+    if(length(levels(my_object[,categorical_factor])) != 2){
+      message("The resulting subset filter does not have 2 levels in the selected categorical_factor...")
     }
     
     #check if there are actually two levels present of the selected variable
-    if(length(unique(my_object[,cat_variable])) != 2){
+    if(length(unique(my_object[,categorical_factor])) != 2){
       message("There are not two levels present in the selected column after filtering steps..")
       message("Returning empty data frame...")
       my_object[,] = matrix(ncol = ncol(my_object), rep(NA, prod(dim(my_object))))

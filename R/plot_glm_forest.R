@@ -23,12 +23,13 @@
 #' @param all_subs Boolean, default is FALSE. Set to TRUE to return a forest plot for all subtypes 
 #' within the specified class (`subtype_class`).
 #' @param subtype_class Can be one of the following; 5_class or 7_class. Default is 5_class.
-#' @param cat_variable Required parameter if `this_glm`is not provided. This should be the categorical
+#' @param categorical_factor Required parameter if `this_glm`is not provided. This should be the categorical
 #' variable that is intended for testing. In addition, this should also be a variable of type factor, 
 #' with exactly 2 levels.
-#' @param this_subtype Required parameter if `this_glm` is not provided, see `get_glm_scores`.
-#' @param sample_id_col Required parameter if `this_glm` is not provided, see `get_glm_scores`.
-#' @param row_to_col Required parameter if `this_glm` is not provided, see `get_glm_scores`.
+#' @param this_subtype Optional Specify subtype of interest. Leave as NULL to not separate statistics on subtype.
+#' @param sample_id_col Optional parameter. Allows the suer to manually specify the name of a column with sample ID.
+#' @param row_to_col Optional parameter, set to TRUE to convert rownames in metadata to a new column 
+#' called sample_id. Default is FALSE.
 #' @param out_path Optional, set path to export plot.
 #' @param out_format Required parameter if `out_path` is specified. Can be "png" (default) or "pdf".
 #' The user can further specify the dimensions of the returned plot with `plot_width` and `plot_height`.
@@ -58,7 +59,7 @@
 #'                 all_subs = FALSE,
 #'                 subtype_class = "5_class", 
 #'                 this_subtype = "Uro",
-#'                 cat_variable = "adj_chemo")
+#'                 categorical_factor = "adj_chemo")
 #' 
 plot_glm_forest = function(these_predictions = NULL,
                            these_samples_metadata = NULL,
@@ -66,7 +67,7 @@ plot_glm_forest = function(these_predictions = NULL,
                            plot_title = "My Plot",
                            all_subs = FALSE,
                            subtype_class = "5_class",
-                           cat_variable = NULL,
+                           categorical_factor = NULL,
                            this_subtype = NULL,
                            sample_id_col = NULL, 
                            row_to_col = FALSE,
@@ -93,7 +94,7 @@ plot_glm_forest = function(these_predictions = NULL,
       this_glm = get_glm_scores(these_predictions = these_predictions,
                                 these_samples_metadata = these_samples_metadata,
                                 subtype_class = subtype_class,
-                                cat_variable = cat_variable,
+                                categorical_factor = categorical_factor,
                                 this_subtype = this_subtype,
                                 sample_id_col = sample_id_col, 
                                 row_to_col = row_to_col)
@@ -102,7 +103,7 @@ plot_glm_forest = function(these_predictions = NULL,
         uro_glms = get_glm_scores(these_predictions = these_predictions,
                                   these_samples_metadata = these_samples_metadata,
                                   subtype_class = "5_class",
-                                  cat_variable = cat_variable,
+                                  categorical_factor = categorical_factor,
                                   this_subtype = "Uro",
                                   sample_id_col = sample_id_col, 
                                   row_to_col = row_to_col)
@@ -111,7 +112,7 @@ plot_glm_forest = function(these_predictions = NULL,
         uroa_glms = get_glm_scores(these_predictions = these_predictions,
                                    these_samples_metadata = these_samples_metadata,
                                    subtype_class = subtype_class,
-                                   cat_variable = cat_variable,
+                                   categorical_factor = categorical_factor,
                                    this_subtype = "UroA",
                                    sample_id_col = sample_id_col, 
                                    row_to_col = row_to_col)
@@ -119,7 +120,7 @@ plot_glm_forest = function(these_predictions = NULL,
         urob_glms = get_glm_scores(these_predictions = these_predictions,
                                    these_samples_metadata = these_samples_metadata,
                                    subtype_class = subtype_class,
-                                   cat_variable = cat_variable,
+                                   categorical_factor = categorical_factor,
                                    this_subtype = "UroB",
                                    sample_id_col = sample_id_col, 
                                    row_to_col = row_to_col)
@@ -127,7 +128,7 @@ plot_glm_forest = function(these_predictions = NULL,
         uroc_glms = get_glm_scores(these_predictions = these_predictions,
                                    these_samples_metadata = these_samples_metadata,
                                    subtype_class = subtype_class,
-                                   cat_variable = cat_variable,
+                                   categorical_factor = categorical_factor,
                                    this_subtype = "UroC",
                                    sample_id_col = sample_id_col, 
                                    row_to_col = row_to_col)
@@ -136,7 +137,7 @@ plot_glm_forest = function(these_predictions = NULL,
       gu_glms = get_glm_scores(these_predictions = these_predictions,
                                these_samples_metadata = these_samples_metadata,
                                subtype_class = subtype_class,
-                               cat_variable = cat_variable,
+                               categorical_factor = categorical_factor,
                                this_subtype = "GU",
                                sample_id_col = sample_id_col, 
                                row_to_col = row_to_col)
@@ -144,7 +145,7 @@ plot_glm_forest = function(these_predictions = NULL,
       basq_glms = get_glm_scores(these_predictions = these_predictions,
                                  these_samples_metadata = these_samples_metadata,
                                  subtype_class = subtype_class,
-                                 cat_variable = cat_variable,
+                                 categorical_factor = categorical_factor,
                                  this_subtype = "BaSq",
                                  sample_id_col = sample_id_col, 
                                  row_to_col = row_to_col)
@@ -152,7 +153,7 @@ plot_glm_forest = function(these_predictions = NULL,
       scne_glms = get_glm_scores(these_predictions = these_predictions,
                                  these_samples_metadata = these_samples_metadata,
                                  subtype_class = subtype_class,
-                                 cat_variable = cat_variable,
+                                 categorical_factor = categorical_factor,
                                  this_subtype = "ScNE",
                                  sample_id_col = sample_id_col, 
                                  row_to_col = row_to_col)
@@ -160,7 +161,7 @@ plot_glm_forest = function(these_predictions = NULL,
       mes_glms = get_glm_scores(these_predictions = these_predictions,
                                 these_samples_metadata = these_samples_metadata,
                                 subtype_class = subtype_class,
-                                cat_variable = cat_variable,
+                                categorical_factor = categorical_factor,
                                 this_subtype = "Mes",
                                 sample_id_col = sample_id_col, 
                                 row_to_col = row_to_col)
@@ -183,24 +184,34 @@ plot_glm_forest = function(these_predictions = NULL,
   #build plot
   my_plot = ggplot(data = this_glm, aes(x = score, y = odds_ratio, ymin = conf_2.5, ymax = conf_97.5, color = subtype)) +
     geom_hline(yintercept = 1, lty = 2) +
-    geom_pointrange(position = position_dodge(width = 0.5)) +
+    geom_pointrange(position = position_dodge(width = 0.5), size = 0.8, shape = 18, linewidth = 0.8) +
     coord_flip() +
-    xlab("Signature") +
-    ylab("Hazard Ratio (97.5 CI)") +
-    theme_bw() +
+    xlab("") +
+    ylab("Odds Ratio (97.5 CI)") +
     scale_color_manual(values = lund_colors$lund_colors) +
     labs(title = plot_title) +
-    theme(legend.title = element_blank())
+    theme(legend.position = "none",
+          axis.text.y = element_text(color = "black", size = 10),
+          axis.text.x = element_text(color = "black", size = 10),
+          axis.ticks.x = element_line(linewidth = 0.4),
+          axis.ticks.y = element_line(linewidth = 0.4),
+          plot.title = element_text(hjust = 0.5),
+          panel.background = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          plot.background = element_blank(), 
+          panel.border = element_rect(colour = "black", fill = NA, linewidth = 0.4),
+          axis.line.x = element_blank())
 
   if(!is.null(out_path)){
     #set PDF outputs
     if(out_format == "pdf"){
-      pdf(paste0(out_path, plot_title, "_forest_plot.pdf"),
+      pdf(paste0(out_path, plot_title, "_glm_forest.pdf"),
           width = plot_width,
           height = plot_height)
       #set PNG outputs
     }else if(out_format == "png"){
-      png(paste0(out_path, plot_title, "_forest_plot.png"),
+      png(paste0(out_path, plot_title, "_glm_forest.png"),
           width = plot_width,
           height = plot_height,
           units = "in",
@@ -212,7 +223,7 @@ plot_glm_forest = function(these_predictions = NULL,
     }
     print(my_plot)
     dev.off()
-    message(paste0("Plot exported to ", out_path, plot_title, "_ranked_score.", out_format))
+    message(paste0("Plot exported to ", out_path, plot_title, "_glm_forest.", out_format))
   }else{
     return(my_plot) 
   }

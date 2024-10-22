@@ -9,8 +9,10 @@ int_prediction_wrangler(
   these_samples_metadata = NULL,
   sample_id_col = NULL,
   row_to_col = FALSE,
-  cat_variable = NULL,
   subtype_class = "5_class",
+  categorical_factor = NULL,
+  surv_time = NULL,
+  surv_event = NULL,
   this_subtype = NULL
 )
 }
@@ -28,10 +30,10 @@ column.}
 \item{row_to_col}{Boolean parameter. Set to TRUE to transform row names of the metadata to a new
 column called sample_id. Default is FALSE.}
 
-\item{cat_variable}{Required parameter. This should be the categorical variable that is intended
-for testing. In addition, this should also be a variable of type factor, with exactly 2 levels.}
-
 \item{subtype_class}{Can be one of the following; 5_class or 7_class. Default is 5_class.}
+
+\item{categorical_factor}{Required parameter. This should be the categorical variable that is intended
+for testing. In addition, this should also be a variable of type factor, with exactly 2 levels.}
 
 \item{this_subtype}{Optional parameter. Allows the user to subset the return to a specific subtype
 within the selected class. If not specified, the function will return a data frame based on all
@@ -62,6 +64,6 @@ my_out = int_prediction_wrangler(these_predictions = sjodahl_predicted,
                                  these_samples_metadata = sjodahl_2017_meta, 
                                  subtype_class = "5_class", 
                                  this_subtype = "Uro", 
-                                 cat_variable = "adj_chemo")
+                                 categorical_factor = "adj_chemo")
                           
 }

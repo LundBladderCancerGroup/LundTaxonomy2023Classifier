@@ -24,6 +24,7 @@ Imports:
     multiclassPairs,
     openxlsx,
     reshape2,
+    survival,
     tibble
 License: GPL (>= 2) + file LICENSE
 Encoding: UTF-8

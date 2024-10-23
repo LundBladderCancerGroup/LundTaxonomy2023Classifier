@@ -13,7 +13,8 @@ int_prediction_wrangler(
   categorical_factor = NULL,
   surv_time = NULL,
   surv_event = NULL,
-  this_subtype = NULL
+  this_subtype = NULL,
+  return_all = FALSE
 )
 }
 \arguments{
@@ -35,12 +36,18 @@ column called sample_id. Default is FALSE.}
 \item{categorical_factor}{Required parameter. This should be the categorical variable that is intended
 for testing. In addition, this should also be a variable of type factor, with exactly 2 levels.}
 
+\item{surv_time}{Optional, should be the column name for the survival time (numeric) in the metadata.}
+
+\item{surv_event}{Optional, should be the column name for survival event (factor) in the metadata.}
+
 \item{this_subtype}{Optional parameter. Allows the user to subset the return to a specific subtype
 within the selected class. If not specified, the function will return a data frame based on all
 subtypes in the spcified class.}
+
+\item{return_all}{Boolean parameter, set to TRUE to return all metadata columns. Default is FALSE.}
 }
 \value{
-A data frame ready for \code{get_glm_scores}.
+A data frame ready for \code{get_glm_scores}, or \code{get_survival}.
 }
 \description{
 Internal function called by \code{get_glm_scores}.

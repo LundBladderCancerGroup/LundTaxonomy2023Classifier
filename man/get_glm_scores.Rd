@@ -10,6 +10,7 @@ get_glm_scores(
   subtype_class = "5_class",
   this_subtype = NULL,
   categorical_factor = NULL,
+  predictor_columns = NULL,
   row_to_col = FALSE,
   sample_id_col = NULL
 )
@@ -28,6 +29,10 @@ within the selected class. If not specified, the function will return a data fra
 information for all the subtypes within the specified class.}
 
 \item{categorical_factor}{Required parameter. Specify the two level categorical variable you want to test for.}
+
+\item{predictor_columns}{Optional, should be a vector with column names, either from the provided
+metadata or signature score object, to be tested for. If not provided, the function will subset
+data to the signature scores returned with \code{lundtax_predict_sub}.}
 
 \item{row_to_col}{Boolean parameter. Set to TRUE to transform row names of the metadata to a new
 column called sample_id. Default is FALSE.}

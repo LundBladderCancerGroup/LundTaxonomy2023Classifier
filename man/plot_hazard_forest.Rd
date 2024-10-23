@@ -8,10 +8,10 @@ plot_hazard_forest(
   these_predictions = NULL,
   these_samples_metadata = NULL,
   this_surv = NULL,
+  predictor_columns = NULL,
   plot_title = "My Plot",
   all_subs = FALSE,
   subtype_class = "5_class",
-  categorical_factor = NULL,
   surv_time = NULL,
   surv_event = NULL,
   this_subtype = NULL,
@@ -35,15 +35,16 @@ of interest, the return will be restricted to the samples within the specified g
 \item{this_surv}{Required parameter if \code{these_predictions} and \code{these_samples_metadata} is not
 provided (The output from \code{get_survival}).}
 
+\item{predictor_columns}{Optional, should be a vector with column names, either from the provided
+metadata or signature score object, to be tested for. If not provided, the function will subset
+data to the signature scores returned with \code{lundtax_predict_sub}.}
+
 \item{plot_title}{Title for plot.}
 
 \item{all_subs}{Boolean, default is FALSE. Set to TRUE to return a forest plot for all subtypes
 within the specified class (\code{subtype_class}).}
 
 \item{subtype_class}{Can be one of the following; 5_class or 7_class. Default is 5_class.}
-
-\item{categorical_factor}{Required parameter. This should be the categorical variable that is
-intended for testing. In addition, this should also be a variable of type factor, with exactly 2 levels.}
 
 \item{surv_time}{Required parameter, should be the name of the column in the metadata with survival
 time. Should be of value numeric.}

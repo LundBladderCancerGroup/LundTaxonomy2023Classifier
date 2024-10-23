@@ -12,6 +12,7 @@ plot_glm_forest(
   all_subs = FALSE,
   subtype_class = "5_class",
   categorical_factor = NULL,
+  predictor_columns = NULL,
   this_subtype = NULL,
   sample_id_col = NULL,
   row_to_col = FALSE,
@@ -43,6 +44,10 @@ within the specified class (\code{subtype_class}).}
 \item{categorical_factor}{Required parameter if \code{this_glm}is not provided. This should be the categorical
 variable that is intended for testing. In addition, this should also be a variable of type factor,
 with exactly 2 levels.}
+
+\item{predictor_columns}{Optional, should be a vector with column names, either from the provided
+metadata or signature score object, to be tested for. If not provided, the function will subset
+data to the signature scores returned with \code{lundtax_predict_sub}.}
 
 \item{this_subtype}{Optional Specify subtype of interest. Leave as NULL to not separate statistics on subtype.}
 

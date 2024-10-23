@@ -9,7 +9,7 @@ get_survival(
   these_samples_metadata = NULL,
   subtype_class = "5_class",
   this_subtype = NULL,
-  categorical_factor = NULL,
+  predictor_columns = NULL,
   surv_time = NULL,
   surv_event = NULL,
   row_to_col = FALSE,
@@ -29,7 +29,9 @@ calls, Note, the function will subset the return to samples are included in this
 within the selected class. If not specified, the function will return a data frame with subtype
 information for all the subtypes within the specified class.}
 
-\item{categorical_factor}{Required parameter. Specify the two-level-categorical variable you want to test for.}
+\item{predictor_columns}{Optional, should be a vector with column names, either from the provided
+metadata or signature score object, to be tested for. If not provided, the function will subset
+data to the signature scores returned with \code{lundtax_predict_sub}.}
 
 \item{surv_time}{Required parameter, should be the name of the column in the metadata with survival
 time. Should be of value numeric.}
@@ -51,11 +53,11 @@ Run a Cox model to calculate hazard ratio with confidence intervalls.
 }
 \details{
 This function takes a data frame with prediction data \code{these_predictions} and executes
-a cox model to retreive hazard ratio with confidence intervalls based on a categorical variable (i.e response,
-tumour grade, etc.) from a provided metadata table. The function expects the incoming
+a cox model to retrieve hazard ratio with confidence intervals based on a categorical variable (i.e response,
+tumor grade, etc.) from a provided metadata table. The function expects the incoming
 data to be the output from \code{\link[=lundtax_predict_sub]{lundtax_predict_sub()}}, together with metadata
 information of interest (e.g two level categorical) and subtype classification information. The user
-have the option to point the function to the categorical variable with \code{categorical_factor}. The return
+have the option to point the function to the categorical variables with \code{predictor_columns}. The return
 can be further subset by subtype by using the \code{this_subtype} variable, should be one of the valid
 subtypes within the specified class. The user is required to provide the funciton with correct
 column names in the metadata for survival time and survival event (see \code{surv_time} and \code{surv_event}).
@@ -73,7 +75,6 @@ sjodahl_surv = get_survival(these_predictions = sjodahl_predicted,
                            these_samples_metadata = sjodahl_2017_meta,
                            subtype_class = "5_class",
                            this_subtype = "Uro",
-                           categorical_factor = "adj_chemo",
                            surv_time = "surv_css_time",
                            surv_event = "surv_css_event")
 

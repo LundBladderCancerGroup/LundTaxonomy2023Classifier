@@ -18,12 +18,15 @@
 #' column called sample_id. Default is FALSE.
 #' @param categorical_factor Required parameter. This should be the categorical variable that is intended 
 #' for testing. In addition, this should also be a variable of type factor, with exactly 2 levels.
+#' @param surv_time Optional, should be the column name for the survival time (numeric) in the metadata.
+#' @param surv_event Optional, should be the column name for survival event (factor) in the metadata.
 #' @param subtype_class Can be one of the following; 5_class or 7_class. Default is 5_class.
 #' @param this_subtype Optional parameter. Allows the user to subset the return to a specific subtype
 #' within the selected class. If not specified, the function will return a data frame based on all 
 #' subtypes in the spcified class.
+#' @param return_all Boolean parameter, set to TRUE to return all metadata columns. Default is FALSE.
 #'
-#' @return A data frame ready for `get_glm_scores`.
+#' @return A data frame ready for `get_glm_scores`, or `get_survival`.
 #'
 #' @import dplyr
 #'
@@ -50,7 +53,8 @@ int_prediction_wrangler = function(these_predictions = NULL,
                                    categorical_factor = NULL,
                                    surv_time = NULL,
                                    surv_event = NULL,
-                                   this_subtype = NULL){
+                                   this_subtype = NULL, 
+                                   return_all = FALSE){
     
     #check predictions
     if(is.null(these_predictions)){
@@ -90,15 +94,17 @@ int_prediction_wrangler = function(these_predictions = NULL,
           tibble::rownames_to_column("sample_id")
       }
       
-      #check the categorical variable
-      if(!categorical_factor %in% colnames(these_samples_metadata)){
-        stop(paste0(categorical_factor, " is not a valid column in the incoming metadata..."))
-        if(!is.factor(these_samples_metadata[,categorical_factor])){
-          stop("categorical_factor must be a factor...")
-          if(length(levels(these_samples_metadata[,categorical_factor])) != 2){
-            stop("Levels of categorical_factor must be exactly 2...")
+      if(is.null(surv_time) && is.null(surv_event)){
+        #check the categorical variable
+        if(!categorical_factor %in% colnames(these_samples_metadata)){
+          stop(paste0(categorical_factor, " is not a valid column in the incoming metadata..."))
+          if(!is.factor(these_samples_metadata[,categorical_factor])){
+            stop("categorical_factor must be a factor...")
+            if(length(levels(these_samples_metadata[,categorical_factor])) != 2){
+              stop("Levels of categorical_factor must be exactly 2...")
+            }
           }
-        }
+        } 
       }
       
       #check smaple ID in metadata
@@ -110,13 +116,17 @@ int_prediction_wrangler = function(these_predictions = NULL,
         }
       }
       
-      if(is.null(surv_time) && is.null(surv_event)){
-        my_metadata = these_samples_metadata %>%
-          dplyr::select(sample_id, categorical_factor)
+      if(!return_all){
+        if(is.null(surv_time) && is.null(surv_event)){
+          my_metadata = these_samples_metadata %>%
+            dplyr::select(sample_id, categorical_factor)
+        }else{
+          message("Adding survival data to metadata")
+          my_metadata = these_samples_metadata %>%
+            dplyr::select(sample_id, categorical_factor, surv_time, surv_event)
+        }
       }else{
-        message("Adding survival data to metadata")
-        my_metadata = these_samples_metadata %>%
-          dplyr::select(sample_id, categorical_factor, surv_time, surv_event)
+        my_metadata = these_samples_metadata
       }
     }
 
@@ -132,22 +142,23 @@ int_prediction_wrangler = function(these_predictions = NULL,
       message(paste0("Warning, ", length(no_scores), " samples are removed from the metadata, since they have no scores reported..."))
     }
     
-    #reinstate factor type in categorical column
-    my_object[,categorical_factor] = as.factor(my_object[,categorical_factor])
-    
-    #check that levels of subset data and remove subtypes that does not have two factors in the categorical_factor
-    if(length(levels(my_object[,categorical_factor])) != 2){
-      message("The resulting subset filter does not have 2 levels in the selected categorical_factor...")
+    if(is.null(surv_time) && is.null(surv_event)){
+      #reinstate factor type in categorical column
+      my_object[,categorical_factor] = as.factor(my_object[,categorical_factor])
+      
+      #check that levels of subset data and remove subtypes that does not have two factors in the categorical_factor
+      if(length(levels(my_object[,categorical_factor])) != 2){
+        message("The resulting subset filter does not have 2 levels in the selected categorical_factor...")
+      }
+      
+      #check if there are actually two levels present of the selected variable
+      if(length(unique(my_object[,categorical_factor])) != 2){
+        message("There are not two levels present in the selected column after filtering steps..")
+        message("Returning empty data frame...")
+        my_object[,] = matrix(ncol = ncol(my_object), rep(NA, prod(dim(my_object))))
+        empty_object = my_object[complete.cases(my_object), ]
+        return(empty_object)
+      }
     }
-    
-    #check if there are actually two levels present of the selected variable
-    if(length(unique(my_object[,categorical_factor])) != 2){
-      message("There are not two levels present in the selected column after filtering steps..")
-      message("Returning empty data frame...")
-      my_object[,] = matrix(ncol = ncol(my_object), rep(NA, prod(dim(my_object))))
-      empty_object = my_object[complete.cases(my_object), ]
-      return(empty_object)
-    }
-    
     return(my_object)
 }

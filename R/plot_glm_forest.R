@@ -26,6 +26,9 @@
 #' @param categorical_factor Required parameter if `this_glm`is not provided. This should be the categorical
 #' variable that is intended for testing. In addition, this should also be a variable of type factor, 
 #' with exactly 2 levels.
+#' @param predictor_columns Optional, should be a vector with column names, either from the provided 
+#' metadata or signature score object, to be tested for. If not provided, the function will subset 
+#' data to the signature scores returned with `lundtax_predict_sub`.
 #' @param this_subtype Optional Specify subtype of interest. Leave as NULL to not separate statistics on subtype.
 #' @param sample_id_col Optional parameter. Allows the suer to manually specify the name of a column with sample ID.
 #' @param row_to_col Optional parameter, set to TRUE to convert rownames in metadata to a new column 
@@ -68,6 +71,7 @@ plot_glm_forest = function(these_predictions = NULL,
                            all_subs = FALSE,
                            subtype_class = "5_class",
                            categorical_factor = NULL,
+                           predictor_columns = NULL,
                            this_subtype = NULL,
                            sample_id_col = NULL, 
                            row_to_col = FALSE,
@@ -95,6 +99,7 @@ plot_glm_forest = function(these_predictions = NULL,
                                 these_samples_metadata = these_samples_metadata,
                                 subtype_class = subtype_class,
                                 categorical_factor = categorical_factor,
+                                predictor_columns = predictor_columns,
                                 this_subtype = this_subtype,
                                 sample_id_col = sample_id_col, 
                                 row_to_col = row_to_col)
@@ -104,6 +109,7 @@ plot_glm_forest = function(these_predictions = NULL,
                                   these_samples_metadata = these_samples_metadata,
                                   subtype_class = "5_class",
                                   categorical_factor = categorical_factor,
+                                  predictor_columns = predictor_columns,
                                   this_subtype = "Uro",
                                   sample_id_col = sample_id_col, 
                                   row_to_col = row_to_col)
@@ -113,6 +119,7 @@ plot_glm_forest = function(these_predictions = NULL,
                                    these_samples_metadata = these_samples_metadata,
                                    subtype_class = subtype_class,
                                    categorical_factor = categorical_factor,
+                                   predictor_columns = predictor_columns,
                                    this_subtype = "UroA",
                                    sample_id_col = sample_id_col, 
                                    row_to_col = row_to_col)
@@ -121,6 +128,7 @@ plot_glm_forest = function(these_predictions = NULL,
                                    these_samples_metadata = these_samples_metadata,
                                    subtype_class = subtype_class,
                                    categorical_factor = categorical_factor,
+                                   predictor_columns = predictor_columns,
                                    this_subtype = "UroB",
                                    sample_id_col = sample_id_col, 
                                    row_to_col = row_to_col)
@@ -129,6 +137,7 @@ plot_glm_forest = function(these_predictions = NULL,
                                    these_samples_metadata = these_samples_metadata,
                                    subtype_class = subtype_class,
                                    categorical_factor = categorical_factor,
+                                   predictor_columns = predictor_columns,
                                    this_subtype = "UroC",
                                    sample_id_col = sample_id_col, 
                                    row_to_col = row_to_col)
@@ -138,6 +147,7 @@ plot_glm_forest = function(these_predictions = NULL,
                                these_samples_metadata = these_samples_metadata,
                                subtype_class = subtype_class,
                                categorical_factor = categorical_factor,
+                               predictor_columns = predictor_columns,
                                this_subtype = "GU",
                                sample_id_col = sample_id_col, 
                                row_to_col = row_to_col)
@@ -146,6 +156,7 @@ plot_glm_forest = function(these_predictions = NULL,
                                  these_samples_metadata = these_samples_metadata,
                                  subtype_class = subtype_class,
                                  categorical_factor = categorical_factor,
+                                 predictor_columns = predictor_columns,
                                  this_subtype = "BaSq",
                                  sample_id_col = sample_id_col, 
                                  row_to_col = row_to_col)
@@ -154,6 +165,7 @@ plot_glm_forest = function(these_predictions = NULL,
                                  these_samples_metadata = these_samples_metadata,
                                  subtype_class = subtype_class,
                                  categorical_factor = categorical_factor,
+                                 predictor_columns = predictor_columns,
                                  this_subtype = "ScNE",
                                  sample_id_col = sample_id_col, 
                                  row_to_col = row_to_col)
@@ -162,6 +174,7 @@ plot_glm_forest = function(these_predictions = NULL,
                                 these_samples_metadata = these_samples_metadata,
                                 subtype_class = subtype_class,
                                 categorical_factor = categorical_factor,
+                                predictor_columns = predictor_columns,
                                 this_subtype = "Mes",
                                 sample_id_col = sample_id_col, 
                                 row_to_col = row_to_col)
@@ -181,15 +194,18 @@ plot_glm_forest = function(these_predictions = NULL,
     return(this_glm)
   }
 
+  #annotate significance of p value
+  this_glm$significant = ifelse(this_glm$p_value < 0.05, "significant", "not significant")
+  
   #build plot
-  my_plot = ggplot(data = this_glm, aes(x = score, y = odds_ratio, ymin = conf_2.5, ymax = conf_97.5, color = subtype)) +
-    geom_hline(yintercept = 1, lty = 2) +
-    geom_pointrange(position = position_dodge(width = 0.5), size = 0.8, shape = 18, linewidth = 0.8) +
-    coord_flip() +
-    xlab("") +
-    ylab("Odds Ratio (97.5 CI)") +
-    scale_color_manual(values = lund_colors$lund_colors) +
-    labs(title = plot_title) +
+  my_plot = ggplot(this_glm, aes(x = odds_ratio, y = score)) +
+    geom_point(aes(color = significant), size = 3) +
+    geom_errorbarh(aes(xmin = conf_2.5, xmax = conf_97.5, color = significant), height = 0.2) +
+    geom_vline(xintercept = 1, linetype = "dashed", color = "red") +
+    scale_x_log10() +
+    labs(title = plot_title, x = "Odds Ratio", y = "") +
+    #geom_text(aes(label = paste0("p = ", format(p_value, digits = 2)), color = significant), x = this_surv$hazard_ratio, hjust = 0, vjust = 0.5) +
+    scale_color_manual(values = c("significant" = "red", "not significant" = "black")) +
     theme(legend.position = "none",
           axis.text.y = element_text(color = "black", size = 10),
           axis.text.x = element_text(color = "black", size = 10),

@@ -21,6 +21,9 @@
 #' within the selected class. If not specified, the function will return a data frame with subtype 
 #' information for all the subtypes within the specified class.
 #' @param categorical_factor Required parameter. Specify the two level categorical variable you want to test for.
+#' @param predictor_columns Optional, should be a vector with column names, either from the provided 
+#' metadata or signature score object, to be tested for. If not provided, the function will subset 
+#' data to the signature scores returned with `lundtax_predict_sub`.
 #' @param row_to_col Boolean parameter. Set to TRUE to transform row names of the metadata to a new 
 #' column called sample_id. Default is FALSE.
 #' @param sample_id_col Parameter dictating the column name with sample IDs, the function expects this
@@ -53,13 +56,14 @@ get_glm_scores = function(these_predictions = NULL,
                           subtype_class = "5_class",
                           this_subtype = NULL,
                           categorical_factor = NULL,
+                          predictor_columns = NULL,
                           row_to_col = FALSE,
                           sample_id_col = NULL){
   
   if(length(this_subtype) > 1){
     stop("Currently, only one subtype at the time is supported. For now, consider running this function multiple times for each subtype...")
   }
-
+  
   #run helper
   this_object = int_prediction_wrangler(these_predictions = these_predictions,
                                         these_samples_metadata = these_samples_metadata,
@@ -69,13 +73,18 @@ get_glm_scores = function(these_predictions = NULL,
                                         row_to_col = row_to_col,
                                         surv_time = NULL, 
                                         surv_event = NULL,
-                                        sample_id_col = sample_id_col)
-
-  #get the columns to test
-  these_columns = colnames(dplyr::select_if(this_object, is.numeric))
+                                        sample_id_col = sample_id_col, 
+                                        return_all = TRUE)
   
-  #remove all proportion columns
-  these_columns = these_columns[!grepl(x = these_columns, pattern = "_proportion")]
+  if(is.null(predictor_columns)){
+    #get the columns to test
+    these_columns = c("proliferation_score", "progression_score", "stromal141_up", "immune141_up", 
+                      "b_cells", "t_cells", "t_cells_cd8", "nk_cells", "cytotoxicity_score", 
+                      "neutrophils", "monocytic_lineage", "macrophages", "m2_macrophage", 
+                      "myeloid_dendritic_cells", "endothelial_cells", "fibroblasts", "smooth_muscle")
+  }else{
+    these_columns = predictor_columns
+  }
   
   #check if data frame is empty and return it
   if(nrow(this_object) == 0){
@@ -88,13 +97,39 @@ get_glm_scores = function(these_predictions = NULL,
     return(empty_df)
   }
   
-  #mann whitney u-test
-  message("Running Mann-Whitney U-test...")
-  wilcox = lapply(this_object[,these_columns], function(x) wilcox.test(x ~ this_object[,categorical_factor]))
-
-  #generalized linear model
-  message("Running Generalized Linear Model...")
-  glm = lapply(this_object[,these_columns], function(x) glm(x ~ this_object[,categorical_factor]))
+  
+  #internal function to run mann-whitney for multiple numeric columns
+  fit_models = function(my_data,
+                        cat_column,
+                        pred_columns,
+                        model = NULL){
+    
+    #check if the necessary columns exist in the data frame
+    if (!all(c(cat_column, pred_columns) %in% colnames(my_data))) {
+      stop("One or more specified columns do not exist in the data frame.")
+    }
+    
+    if(model == "mw"){
+      this_model = lapply(pred_columns, function(col){wilcox.test(my_data[[col]] ~ my_data[,cat_column])}) 
+    }else if(model == "glm"){
+      this_model = lapply(pred_columns, function(col){glm(my_data[[cat_column]] ~ my_data[[col]], family = binomial)}) 
+    }
+    
+    #name the list elements with the predictor column names
+    names(this_model) = pred_columns
+    
+    return(this_model)
+  }
+  
+  wilcox_models = fit_models(my_data = this_object, 
+                             cat_column = categorical_factor, 
+                             pred_columns = these_columns, 
+                             model = "mw")
+  
+  glm_models = fit_models(my_data = this_object, 
+                          cat_column = categorical_factor, 
+                          pred_columns = these_columns, 
+                          model = "glm")
   
   #helper function for running the stats on all scores
   extract_stats = function(wilcox, 
@@ -119,18 +154,18 @@ get_glm_scores = function(these_predictions = NULL,
     }
     return(my_stats)
   }
-
+  
   #run helper
-  stat_results = extract_stats(wilcox = wilcox,
-                                glm = glm) 
-
-
+  stat_results = extract_stats(wilcox = wilcox_models,
+                               glm = glm_models) 
+  
+  
   if(!is.null(this_subtype)){
     stat_results$subtype = as.factor(this_subtype)
   }else{
     stat_results$subtype = as.factor("all")
   }
-
+  
   #return results
   return(stat_results)
 }

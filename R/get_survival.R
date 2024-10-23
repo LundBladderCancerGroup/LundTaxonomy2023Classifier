@@ -3,11 +3,11 @@
 #' @description Run a Cox model to calculate hazard ratio with confidence intervalls.
 #'
 #' @details This function takes a data frame with prediction data `these_predictions` and executes 
-#' a cox model to retreive hazard ratio with confidence intervalls based on a categorical variable (i.e response,
-#' tumour grade, etc.) from a provided metadata table. The function expects the incoming 
+#' a cox model to retrieve hazard ratio with confidence intervals based on a categorical variable (i.e response,
+#' tumor grade, etc.) from a provided metadata table. The function expects the incoming 
 #' data to be the output from [LundTax2023Classifier::lundtax_predict_sub()], together with metadata
 #' information of interest (e.g two level categorical) and subtype classification information. The user
-#' have the option to point the function to the categorical variable with `categorical_factor`. The return
+#' have the option to point the function to the categorical variables with `predictor_columns`. The return
 #' can be further subset by subtype by using the `this_subtype` variable, should be one of the valid
 #' subtypes within the specified class. The user is required to provide the funciton with correct 
 #' column names in the metadata for survival time and survival event (see `surv_time` and `surv_event`).
@@ -20,7 +20,9 @@
 #' @param this_subtype Optional parameter. Allows the user to subset the return to a specific subtype
 #' within the selected class. If not specified, the function will return a data frame with subtype 
 #' information for all the subtypes within the specified class.
-#' @param categorical_factor Required parameter. Specify the two-level-categorical variable you want to test for.
+#' @param predictor_columns Optional, should be a vector with column names, either from the provided 
+#' metadata or signature score object, to be tested for. If not provided, the function will subset 
+#' data to the signature scores returned with `lundtax_predict_sub`.
 #' @param surv_time Required parameter, should be the name of the column in the metadata with survival 
 #' time. Should be of value numeric.
 #' @param surv_event Required parameter, should be the name of the column in the metadata with survival 
@@ -50,7 +52,6 @@
 #'                            these_samples_metadata = sjodahl_2017_meta,
 #'                            subtype_class = "5_class",
 #'                            this_subtype = "Uro",
-#'                            categorical_factor = "adj_chemo",
 #'                            surv_time = "surv_css_time",
 #'                            surv_event = "surv_css_event")
 #'
@@ -58,7 +59,7 @@ get_survival = function(these_predictions = NULL,
                         these_samples_metadata = NULL,
                         subtype_class = "5_class",
                         this_subtype = NULL,
-                        categorical_factor = NULL,
+                        predictor_columns = NULL,
                         surv_time = NULL,
                         surv_event = NULL,
                         row_to_col = FALSE,
@@ -66,7 +67,9 @@ get_survival = function(these_predictions = NULL,
   
   #checks
   if(length(this_subtype) > 1){
-    stop("Currently, only one subtype at the time is supported. For now, consider running this function multiple times for each subtype...")
+    stop("Currently, only one subtype at the time is supported. For now, consider running this 
+         function multiple times for each subtype. Or set this_subtype to NULL to return all subtypes 
+         in the specified class...")
   }
   
   if(is.null(surv_time)){
@@ -103,16 +106,20 @@ get_survival = function(these_predictions = NULL,
                                         row_to_col = row_to_col,
                                         surv_time = surv_time, 
                                         surv_event = surv_event,
-                                        sample_id_col = sample_id_col)
+                                        sample_id_col = sample_id_col, 
+                                        return_all = TRUE)
   
-  #get the columns to test
-  these_columns = colnames(dplyr::select_if(this_object, is.numeric))
-  
-  #remove all proportion columns
-  these_columns = these_columns[!grepl(x = these_columns, pattern = "_proportion")]
-  
-  #remove survival time column
-  these_columns = these_columns[2:20]
+  if(is.null(predictor_columns)){
+    #get the columns to test
+    these_columns = c("proliferation_score", "progression_score", "progression_risk", 
+                      "stromal141_up", "immune141_up", "b_cells", "t_cells", "t_cells_cd8", 
+                      "nk_cells", "cytotoxicity_score", "neutrophils", "monocytic_lineage", 
+                      "macrophages", "m2_macrophage", "myeloid_dendritic_cells", "endothelial_cells", 
+                      "fibroblasts", "smooth_muscle")
+  }else{
+    these_columns = predictor_columns
+  }
+
   
   #check if data frame is empty and return it
   if(nrow(this_object) == 0){
@@ -127,11 +134,34 @@ get_survival = function(these_predictions = NULL,
   
   #convert column with survival event to numeric
   this_object[[surv_event]] = as.numeric(levels(this_object[[surv_event]])[this_object[[surv_event]]])
+  
+  #function to fit Cox models for multiple predictors
+  fit_cox_models = function(my_data,
+                            time_column,
+                            event_column,
+                            pred_columns){
     
-  #cox model
-  cox = lapply(this_object[, these_columns], function(x) {
-    coxph(Surv(time = this_object[, surv_time], event = this_object[, surv_event]) ~ x + this_object[, categorical_factor])
+    #check if the necessary columns exist in the data frame
+    if (!all(c(time_column, event_column, pred_columns) %in% colnames(my_data))) {
+      stop("One or more specified columns do not exist in the data frame.")
+    }
+    
+    #fit Cox proportional hazards models using lapply
+    cox_models = lapply(pred_columns, function(col){
+      formula = as.formula(paste("Surv(", time_column, ", ", event_column, ") ~", col))
+      coxph(formula, data = my_data)
     })
+    
+    #name the list elements with the predictor column names
+    names(cox_models) = pred_columns
+    
+    return(cox_models)
+  }
+  
+  cox_models = fit_cox_models(my_data = this_object, 
+                              time_column = surv_time, 
+                              event_column = surv_event, 
+                              pred_columns = these_columns)
   
   #helper function for running the stats on all scores
   extract_surv_stats = function(cox){
@@ -143,14 +173,15 @@ get_survival = function(these_predictions = NULL,
     for(name in names(cox)){
       #create a new data frame for the current statistic
       stats = data.frame(score = name)
-
+      
       #extract hazard ratio and confidence intervals from Cox model
       cox_model = cox[[name]]
-      stats$hazard_ratio = exp(coef(cox_model))[2]
-      cox_conf_int = exp(confint(cox_model))
-      stats$hazard_conf_2.5 = cox_conf_int[2, 1]
-      stats$hazard_conf_97.5 = cox_conf_int[2, 2] 
-
+      stats$p_value = summary(cox_model)$coefficients[5]
+      stats$hazard_ratio = exp(coef(cox_model))
+      conf_int = exp(confint(cox_model))
+      stats$hazard_conf_2.5 <- conf_int[1]
+      stats$hazard_conf_97.5 <- conf_int[2]
+      
       #bind the current results to the overall statistics data frame
       my_stats = rbind(my_stats, stats)
     }
@@ -158,7 +189,7 @@ get_survival = function(these_predictions = NULL,
   }
   
   #run helper
-  stat_results = extract_surv_stats(cox = cox)
+  stat_results = extract_surv_stats(cox = cox_models)
   
   if(!is.null(this_subtype)){
     stat_results$subtype = as.factor(this_subtype)
@@ -169,4 +200,3 @@ get_survival = function(these_predictions = NULL,
   #return results
   return(stat_results)
 }
-

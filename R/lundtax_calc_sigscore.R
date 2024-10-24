@@ -31,7 +31,7 @@
 #' printed or not. Default is TRUE.
 #' 
 #' @return A list of 2, a data frame with scores for the selected variable and a data frame with 
-#' infomration on missing genes.
+#' information on missing genes.
 #' 
 #' @import dplyr
 #' @importFrom multiclassPairs predict_RF

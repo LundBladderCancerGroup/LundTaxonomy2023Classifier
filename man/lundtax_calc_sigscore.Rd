@@ -54,7 +54,7 @@ printed or not. Default is TRUE.}
 }
 \value{
 A list of 2, a data frame with scores for the selected variable and a data frame with
-infomration on missing genes.
+information on missing genes.
 }
 \description{
 Wrapper function for calculating Lund Taxonomy scores.

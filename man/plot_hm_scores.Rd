@@ -10,7 +10,7 @@ plot_hm_scores(
   out_format = "png",
   return_scores = FALSE,
   to_xlsx = FALSE,
-  title = NULL,
+  plot_title = NULL,
   hm_split = NULL,
   subtype_annotation = "5_class",
   hm_cluster = FALSE,
@@ -38,7 +38,7 @@ The user can further specify the dimensions of the returned plot with \code{plot
 is FALSE.
 If set to TRUE, the spreadsheet will be saved to the same path as the heatmap.}
 
-\item{title}{Required parameter. Heatmap title, will also be pasted to the exported file(s) as
+\item{plot_title}{Required parameter. Heatmap title, will also be pasted to the exported file(s) as
 well as a new column in the scores data frame under cohort.}
 
 \item{hm_split}{Optional parameter for controlling how the data is split into different groups.
@@ -90,7 +90,7 @@ my_predictions = lundtax_predict_sub(these_predictions = sjodahl_2017,
 plot_hm_scores(these_predictions = my_predictions,
                out_path = "../",
                out_format = "pdf",
-               title = "Lund2017")
+               plot_title = "Lund2017")
 }
 
 }

@@ -14,7 +14,7 @@ plot_hm_signatures(
   show_ann_legend = FALSE,
   show_hm_legend = FALSE,
   ann_height = 8,
-  title = "My Plot",
+  plot_title = "My Plot",
   plot_width = 14,
   plot_height = 11,
   plot_font_size = 10,
@@ -49,7 +49,7 @@ Default is FALSE.}
 
 \item{ann_height}{Plotting parameter, optional. Annotation height in cm. Default = 8.}
 
-\item{title}{Plotting parameter. The title for the generated heatmap. Deafult is "My Plot".}
+\item{plot_title}{Plotting parameter. The title for the generated heatmap. Deafult is "My Plot".}
 
 \item{plot_width}{This parameter controls the width in inches. Default is 14 (4200 pixels at 300
 PPI).}

@@ -19,7 +19,7 @@
 #' @param to_xlsx Boolean parameter, set to TRUE to export score data frame in xlsx format. Default 
 #' is FALSE.
 #' If set to TRUE, the spreadsheet will be saved to the same path as the heatmap.
-#' @param title Required parameter. Heatmap title, will also be pasted to the exported file(s) as 
+#' @param plot_title Required parameter. Heatmap title, will also be pasted to the exported file(s) as 
 #' well as a new column in the scores data frame under cohort.
 #' @param hm_split Optional parameter for controlling how the data is split into different groups.
 #' If not provided, the function will split on what is specified within `subtype_annotation`.
@@ -58,7 +58,7 @@
 #' plot_hm_scores(these_predictions = my_predictions,
 #'                out_path = "../",
 #'                out_format = "pdf",
-#'                title = "Lund2017")
+#'                plot_title = "Lund2017")
 #'}
 #'
 plot_hm_scores = function(these_predictions = NULL,
@@ -66,7 +66,7 @@ plot_hm_scores = function(these_predictions = NULL,
                           out_format = "png",
                           return_scores = FALSE,
                           to_xlsx = FALSE,
-                          title = NULL,
+                          plot_title = NULL,
                           hm_split = NULL,
                           subtype_annotation = "5_class",
                           hm_cluster = FALSE,
@@ -82,11 +82,11 @@ plot_hm_scores = function(these_predictions = NULL,
     return_scores = TRUE
   }
 
-  if(is.null(title)){
+  if(is.null(plot_title)){
     if(!return_scores){
-      stop("Please specify a title for your plot with `title`...")
+      stop("Please specify a title for your plot with `plot_title`...")
     }else{
-      stop("Please provide a title for your data with `title`...")
+      stop("Please provide a title for your data with `plot_title`...")
     }
   } 
 
@@ -105,12 +105,12 @@ plot_hm_scores = function(these_predictions = NULL,
   if(!is.null(out_path)){
     #set PDF outputs
     if(out_format == "pdf"){
-      pdf(paste0(out_path, title, "_heatmap_scores.pdf"),
+      pdf(paste0(out_path, plot_title, "_heatmap_scores.pdf"),
           width = plot_width,
           height = plot_height)
     #set PNG outputs
     }else if(out_format == "png"){
-        png(paste0(out_path, title, "_heatmap_scores.png"),
+        png(paste0(out_path, plot_title, "_heatmap_scores.png"),
             width = plot_width,
             height = plot_height,
             units = "in",
@@ -178,7 +178,8 @@ plot_hm_scores = function(these_predictions = NULL,
     #plotting
     #build heatmap annotation (top)
     hm <- HeatmapAnnotation(lund_subtype = split,
-                            proliferation_score = these_predictions$scores$proliferation_score,lund_subtype = split,
+                            proliferation_score = these_predictions$scores$proliferation_score,
+                            lund_subtype = split,
                             molecular_grade_who_1999 = these_predictions$scores$molecular_grade_who_1999,
                             molecular_grade_who_2016 = these_predictions$scores$molecular_grade_who_2016,
                             progression_score = these_predictions$scores$progression_score,
@@ -226,7 +227,7 @@ plot_hm_scores = function(these_predictions = NULL,
 
     #combine heatmaps
     hm_combined = draw(hm_immune_scores %v% hm_stroma_scores,
-                       column_title = title,
+                       column_title = plot_title,
                        column_title_gp = gpar("fontface", fontsize = (plot_font_size*2)));
 
     hm_sample_order <- column_order(hm_combined@ht_list$`Stroma Scores`)
@@ -234,7 +235,7 @@ plot_hm_scores = function(these_predictions = NULL,
     dev.off()
 
     if(verbose){
-      message(paste0("Heatmap exported to ", out_path, title, "_heatmap_scores.", out_format))
+      message(paste0("Heatmap exported to ", out_path, plot_title, "_heatmap_scores.", out_format))
       }
 
   }else{
@@ -249,7 +250,7 @@ plot_hm_scores = function(these_predictions = NULL,
     my_scores = as.data.frame(my_scores)
 
     #add new column with cohort information
-    my_scores$cohort = title
+    my_scores$cohort = plot_title
 
     #convert correct columns to factors
     factor_cols <- c('molecular_grade_who_1999' ,'molecular_grade_who_2016',
@@ -259,9 +260,9 @@ plot_hm_scores = function(these_predictions = NULL,
 
     if(to_xlsx){
       my_scores <- tibble::rownames_to_column(my_scores, "SampleID")
-      write.xlsx(my_scores, paste0(out_path, title, "_scores.xlsx"))
+      write.xlsx(my_scores, paste0(out_path, plot_title, "_scores.xlsx"))
       if(verbose){
-        message(paste0("Prediction scores exported as xlsx to ", out_path, title, "_scores.xlsx"))
+        message(paste0("Prediction scores exported as xlsx to ", out_path, plot_title, "_scores.xlsx"))
       }
       dev.off()
     }

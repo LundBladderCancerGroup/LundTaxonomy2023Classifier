@@ -21,7 +21,7 @@
 #' Default is FALSE.
 #' @param show_hm_legend Boolean parameter, set to TRUE to show heatmap legend, default is FALSE.
 #' @param ann_height Plotting parameter, optional. Annotation height in cm. Default = 8.
-#' @param title Plotting parameter. The title for the generated heatmap. Deafult is "My Plot".
+#' @param plot_title Plotting parameter. The title for the generated heatmap. Deafult is "My Plot".
 #' @param plot_width This parameter controls the width in inches. Default is 14 (4200 pixels at 300 
 #' PPI).
 #' @param plot_height This parameter controls the height in pixels. Default is 10 (3000 pixels at 
@@ -70,7 +70,7 @@ plot_hm_signatures = function(these_predictions = NULL,
                               show_ann_legend = FALSE,
                               show_hm_legend = FALSE,
                               ann_height = 8,
-                              title = "My Plot",
+                              plot_title = "My Plot",
                               plot_width = 14,
                               plot_height = 11,
                               plot_font_size = 10,
@@ -282,6 +282,7 @@ plot_hm_signatures = function(these_predictions = NULL,
     #draw annotations track, late/early
     hm_a_lateearly = HeatmapAnnotation(late_early_ratio = genes_to_plot$Late_Early,
                                        annotation_name_side = "left",
+                                       gap = unit(1, "mm"),
                                        simple_anno_size = unit(4, "mm"),
                                        simple_anno_size_adjust = TRUE,
                                        col = col,
@@ -938,12 +939,12 @@ plot_hm_signatures = function(these_predictions = NULL,
   if(!is.null(out_path)){
     #set PDF outputs
     if(out_format == "pdf"){
-      pdf(paste0(out_path, title, "_heatmap_scores.pdf"),
+      pdf(paste0(out_path, plot_title, "_heatmap_scores.pdf"),
           width = plot_width,
           height = plot_height)
       #set PNG outputs
     }else if(out_format == "png"){
-      png(paste0(out_path, title, "_heatmap_scores.png"),
+      png(paste0(out_path, plot_title, "_heatmap_scores.png"),
           width = plot_width,
           height = plot_height,
           units = "in",
@@ -973,7 +974,7 @@ plot_hm_signatures = function(these_predictions = NULL,
                     hm_myc %v%
                     hm_neuronal,
                   column_title_gp = gpar("fontface", fontsize = 24),
-                  column_title = title); hm_sample_order <- column_order(final_hm@ht_list$hm_early_late)
+                  column_title = plot_title); hm_sample_order <- column_order(final_hm@ht_list$hm_early_late)
   invisible(hm_sample_order)
   dev.off()
 }

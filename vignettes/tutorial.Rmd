@@ -198,7 +198,7 @@ plot_hm_signatures(these_predictions = sjodahl_predicted,
                    out_format = "png", 
                    out_path = "../man/figures/", 
                    gene_id = "hgnc_symbol", 
-                   title = "sjodahl_2017_classifications")
+                   plot_title = "sjodahl_2017_classifications")
 ```
 
 ```{r figure 1, echo = FALSE, out.width = '100%', dpi = 300, fig.cap = "Figure 1, Heatmap Classification Signatures"}
@@ -213,7 +213,7 @@ plot_hm_scores(these_predictions = sjodahl_predicted,
                verbose = FALSE, 
                out_format = "png",
                out_path = "../man/figures/",
-               title = "sjodahl_2017_signature_scores")
+               plot_title = "sjodahl_2017_signature_scores")
 ```
 
 ```{r figure 2, echo = FALSE, out.width = '100%', dpi = 300, fig.cap = "Figure 2, Heatmap Signature Scores"}

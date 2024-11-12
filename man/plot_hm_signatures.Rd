@@ -9,6 +9,7 @@ plot_hm_signatures(
   this_data = NULL,
   gene_id = "hgnc_symbols",
   subtype_annotation = "5_class",
+  this_sample_order = NULL,
   norm = TRUE,
   plot_scores = TRUE,
   show_ann_legend = FALSE,
@@ -36,6 +37,9 @@ hgnc_symbol (default) or ensembl_gene_id.}
 
 \item{subtype_annotation}{Can be one of the following; "5 _class" (default) or "7_class"
 annotation.}
+
+\item{this_sample_order}{Optional, set sample order. Default, samples are split by subtype, and order within
+each subtype. By default, samples are order by late/early cell cycle ratio (low to high).}
 
 \item{norm}{Boolean parameter. Set to TRUE (default) to normalize the data into Z-scaled values.}
 

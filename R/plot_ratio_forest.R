@@ -83,7 +83,7 @@
 #'                   these_samples_metadata = sjodahl_2017_meta,
 #'                   stat_plot = "odds_ratio",
 #'                   plot_title = "Uro Samples - Adjuvant Chemo",
-#'                   plot_subtitle = "n Samples: 121"
+#'                   plot_subtitle = "n Samples: 121",
 #'                   subtype_class = "5_class", 
 #'                   this_subtype = "Uro",
 #'                   predictor_columns = c("progression_score", 

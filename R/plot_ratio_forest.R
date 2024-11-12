@@ -180,7 +180,6 @@ plot_ratio_forest = function(these_predictions = NULL,
     geom_point(aes(color = significant), size = 3) +
     geom_errorbarh(aes(xmin = conf_2.5, xmax = conf_97.5, color = significant), height = 0.2) +
     geom_vline(xintercept = 1, linetype = "dashed", color = "red") +
-    scale_x_log10() +
     labs(title = plot_title, caption = plot_subtitle, x = stat_plot, y = "") +
     scale_color_manual(values = c("significant" = "red", "not significant" = "black")) +
     theme(legend.position = "none",

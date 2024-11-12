@@ -63,7 +63,8 @@ int_prediction_wrangler = function(these_predictions = NULL,
 
     #subset to the score columns of interest
     my_scores = these_predictions$scores %>% 
-      tibble::rownames_to_column("sample_id")
+      tibble::rownames_to_column("sample_id") %>% 
+      mutate(across(where(is.numeric), ~ . * 10))
 
     #get the subtype information
     if(subtype_class == "5_class"){

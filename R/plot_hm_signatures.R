@@ -14,6 +14,8 @@
 #' hgnc_symbol (default) or ensembl_gene_id.
 #' @param subtype_annotation Can be one of the following; "5 _class" (default) or "7_class" 
 #' annotation.
+#' @param this_sample_order Optional, set sample order. Default, samples are split by subtype, and order within 
+#' each subtype. By default, samples are order by late/early cell cycle ratio (low to high).
 #' @param norm Boolean parameter. Set to TRUE (default) to normalize the data into Z-scaled values.
 #' @param plot_scores Boolean parameter. Set to TRUE (default) to plot prediction scores for each 
 #' class.
@@ -65,6 +67,7 @@ plot_hm_signatures = function(these_predictions = NULL,
                               this_data = NULL,
                               gene_id = "hgnc_symbols",
                               subtype_annotation = "5_class",
+                              this_sample_order = NULL,
                               norm = TRUE,
                               plot_scores = TRUE,
                               show_ann_legend = FALSE,
@@ -272,8 +275,13 @@ plot_hm_signatures = function(these_predictions = NULL,
                                         quantile(late_early_ratio, 0.95)),
                                       c("blue","white", "red"))
     
-    #order samples by late_early cell cycle
-    sample_order = order(late_early_ratio)
+    if(is.null(this_sample_order)){
+      #order samples by late_early cell cycle
+      sample_order = order(late_early_ratio) 
+    }else{
+      message("Custom sample order will be used...")
+      sample_order = this_sample_order
+    }
     
     #heatmap annotation
     col = list(Predictions = lund_colors$lund_colors,
@@ -314,7 +322,7 @@ plot_hm_signatures = function(these_predictions = NULL,
   }
   
   #heatmap colors
-  col_fun = circlize::colorRamp2(c(-1.5, 0, 1.5), c("green", "black", "red"))
+  col_fun = circlize::colorRamp2(c(-2, 0, 2), c("green", "black", "red"))
   
   #draw heatmap- late/early
   hm_pred_lateearly = Heatmap(this_data[genes_cc,, drop = FALSE],
@@ -333,6 +341,7 @@ plot_hm_signatures = function(these_predictions = NULL,
                               column_order = sample_order,
                               row_names_side = "left",
                               show_column_names = FALSE,
+                              
                               show_row_names = FALSE,
                               show_row_dend = FALSE,
                               border = TRUE,
@@ -362,6 +371,7 @@ plot_hm_signatures = function(these_predictions = NULL,
                            row_names_side = "left",
                            row_title = "Luminal Differentiation TFs",
                            show_column_names = FALSE,
+                           
                            show_row_names = TRUE,
                            show_row_dend = FALSE,
                            border = TRUE,
@@ -390,6 +400,7 @@ plot_hm_signatures = function(these_predictions = NULL,
                            column_order = sample_order,
                            row_names_side = "left",
                            show_column_names = FALSE,
+                           
                            show_row_names = TRUE,
                            show_row_dend = TRUE,
                            border = TRUE,
@@ -446,7 +457,8 @@ plot_hm_signatures = function(these_predictions = NULL,
                               cluster_columns = FALSE,
                               column_order = sample_order,
                               row_names_side = "left",
-                              show_column_names = FALSE,
+                              show_column_names = FALSE, 
+                              
                               show_row_names = TRUE,
                               show_row_dend = FALSE,
                               border = TRUE,
@@ -476,6 +488,7 @@ plot_hm_signatures = function(these_predictions = NULL,
                               column_order = sample_order,
                               row_names_side = "left",
                               show_column_names = FALSE,
+                              
                               show_row_names = TRUE,
                               show_row_dend = FALSE,
                               border = TRUE,
@@ -509,6 +522,7 @@ plot_hm_signatures = function(these_predictions = NULL,
                        column_order = sample_order,
                        row_names_side = "left",
                        show_column_names = FALSE,
+                       
                        show_row_names = FALSE,
                        show_row_dend = FALSE,
                        row_title = "FGFR3 Signature",
@@ -547,6 +561,7 @@ plot_hm_signatures = function(these_predictions = NULL,
                       column_order = sample_order,
                       row_names_side = "left",
                       show_column_names = FALSE,
+                      
                       show_row_names = TRUE,
                       show_row_dend = FALSE,
                       border = TRUE,
@@ -607,6 +622,7 @@ plot_hm_signatures = function(these_predictions = NULL,
                       column_order = sample_order,
                       row_names_side = "left",
                       show_column_names = FALSE,
+                      
                       show_row_names = TRUE,
                       show_row_dend = FALSE,
                       border = TRUE,
@@ -637,6 +653,7 @@ plot_hm_signatures = function(these_predictions = NULL,
                       column_order = sample_order,
                       row_names_side = "left",
                       show_column_names = FALSE,
+                      
                       show_row_names = TRUE,
                       show_row_dend = FALSE,
                       border = TRUE,
@@ -672,6 +689,7 @@ plot_hm_signatures = function(these_predictions = NULL,
                                 column_order = sample_order,
                                 row_names_side = "left",
                                 show_column_names = FALSE,
+                                
                                 show_row_names = FALSE,
                                 show_row_dend = FALSE,
                                 row_title_rot = 0,
@@ -738,6 +756,7 @@ plot_hm_signatures = function(these_predictions = NULL,
                           column_order = sample_order,
                           row_names_side = "left",
                           show_column_names = FALSE,
+                          
                           show_row_names = TRUE,
                           show_row_dend = FALSE,
                           border = TRUE,
@@ -771,6 +790,7 @@ plot_hm_signatures = function(these_predictions = NULL,
                           column_order = sample_order,
                           row_names_side = "left",
                           show_column_names = FALSE,
+                          
                           show_row_names = TRUE,
                           show_row_dend = FALSE,
                           border = TRUE,
@@ -805,6 +825,7 @@ plot_hm_signatures = function(these_predictions = NULL,
                         column_order = sample_order,
                         row_names_side = "left",
                         show_column_names = FALSE,
+                        
                         show_row_names = TRUE,
                         show_row_dend = FALSE,
                         border = TRUE,
@@ -834,6 +855,7 @@ plot_hm_signatures = function(these_predictions = NULL,
                    column_order = sample_order,
                    row_names_side = "left",
                    show_column_names = FALSE,
+                   
                    show_row_names = TRUE,
                    show_row_dend = FALSE,
                    border = TRUE,
@@ -925,6 +947,7 @@ plot_hm_signatures = function(these_predictions = NULL,
                         column_order = sample_order, 
                         row_names_side = "left",
                         show_column_names = FALSE,
+                        
                         show_row_names = TRUE,
                         show_row_dend = FALSE,
                         border = TRUE,

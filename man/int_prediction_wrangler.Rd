@@ -11,6 +11,9 @@ int_prediction_wrangler(
   row_to_col = FALSE,
   subtype_class = "5_class",
   categorical_factor = NULL,
+  scale = NULL,
+  bin_scores = FALSE,
+  n_bins = 10,
   surv_time = NULL,
   surv_event = NULL,
   this_subtype = NULL,
@@ -35,6 +38,13 @@ column called sample_id. Default is FALSE.}
 
 \item{categorical_factor}{Required parameter. This should be the categorical variable that is intended
 for testing. In addition, this should also be a variable of type factor, with exactly 2 levels.}
+
+\item{scale}{Optional parameter. A numeric value to scale the numeric scores. If provided, all
+numeric scores will be multiplied by this value.}
+
+\item{bin_scores}{Boolean parameter. Set to TRUE to bin the numeric scores into discrete bins. Default is FALSE.}
+
+\item{n_bins}{Optional parameter. The number of bins to use when binning numeric scores. Default is 10.}
 
 \item{surv_time}{Optional, should be the column name for the survival time (numeric) in the metadata.}
 

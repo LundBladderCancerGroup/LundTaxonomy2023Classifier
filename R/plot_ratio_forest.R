@@ -29,6 +29,10 @@
 #' For odds ratio, set to `odds_ratio`.
 #' @param this_subtype Optional Specify subtype of interest. Leave as NULL to not separate statistics on subtype.
 #' @param subtype_class Can be one of the following; 5_class or 7_class. Default is 5_class.
+#' @param scale Optional parameter. A numeric value to scale the numeric scores. If provided, all 
+#' numeric scores will be multiplied by this value.
+#' @param bin_scores Boolean parameter. Set to TRUE to bin the numeric scores into discrete bins. Default is FALSE.
+#' @param n_bins Optional parameter. The number of bins to use when binning numeric scores. Default is 10.
 #' @param surv_time Required parameter if `stat_plot` is set to `hazard_ratio`, should be the name 
 #' of the column in the metadata with survival time. Should be of value numeric.
 #' @param surv_event Required parameter if `stat_plot` is set to `hazard_ratio`, should be the name 
@@ -98,6 +102,9 @@ plot_ratio_forest = function(these_predictions = NULL,
                              all_subs = FALSE,
                              this_subtype = NULL,
                              subtype_class = "5_class",
+                             scale = NULL,
+                             bin_scores = FALSE,
+                             n_bins = 10,
                              surv_time = NULL,
                              surv_event = NULL,
                              categorical_factor = NULL,
@@ -139,6 +146,9 @@ plot_ratio_forest = function(these_predictions = NULL,
                                surv_time = surv_time, 
                                surv_event = surv_event,
                                this_subtype = this_subtype,
+                               scale = scale, 
+                               bin_scores = bin_scores, 
+                               n_bins = n_bins,
                                sample_id_col = sample_id_col, 
                                row_to_col = row_to_col)
       
@@ -150,6 +160,9 @@ plot_ratio_forest = function(these_predictions = NULL,
                           categorical_factor = categorical_factor,
                           predictor_columns = predictor_columns,
                           this_subtype = this_subtype,
+                          scale = scale, 
+                          bin_scores = bin_scores, 
+                          n_bins = n_bins,
                           sample_id_col = sample_id_col, 
                           row_to_col = row_to_col)
       

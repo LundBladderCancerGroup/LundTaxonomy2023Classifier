@@ -20,6 +20,10 @@
 #' @param this_subtype Optional parameter. Allows the user to subset the return to a specific subtype
 #' within the selected class. If not specified, the function will return a data frame with subtype 
 #' information for all the subtypes within the specified class.
+#' @param scale Optional parameter. A numeric value to scale the numeric scores. If provided, all 
+#' numeric scores will be multiplied by this value.
+#' @param bin_scores Boolean parameter. Set to TRUE to bin the numeric scores into discrete bins. Default is FALSE.
+#' @param n_bins Optional parameter. The number of bins to use when binning numeric scores. Default is 10.
 #' @param predictor_columns Optional, should be a vector with column names, either from the provided 
 #' metadata or signature score object, to be tested for. If not provided, the function will subset 
 #' data to the signature scores returned with `lundtax_predict_sub`.
@@ -58,6 +62,9 @@
 get_survival = function(these_predictions = NULL,
                         these_samples_metadata = NULL,
                         subtype_class = "5_class",
+                        scale = NULL,
+                        bin_scores = FALSE,
+                        n_bins = 10,
                         this_subtype = NULL,
                         predictor_columns = NULL,
                         surv_time = NULL,
@@ -102,6 +109,9 @@ get_survival = function(these_predictions = NULL,
                                         these_samples_metadata = these_samples_metadata,
                                         subtype_class = subtype_class,
                                         this_subtype = this_subtype,
+                                        scale = scale, 
+                                        bin_scores = bin_scores, 
+                                        n_bins = n_bins,
                                         categorical_factor = categorical_factor,
                                         row_to_col = row_to_col,
                                         surv_time = surv_time, 

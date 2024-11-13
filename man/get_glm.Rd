@@ -8,6 +8,9 @@ get_glm(
   these_predictions = NULL,
   these_samples_metadata = NULL,
   subtype_class = "5_class",
+  scale = NULL,
+  bin_scores = FALSE,
+  n_bins = 10,
   this_subtype = NULL,
   categorical_factor = NULL,
   predictor_columns = NULL,
@@ -23,6 +26,13 @@ metadata information.}
 calls, Note, the function will subset the return to samples are included in this object.}
 
 \item{subtype_class}{Can be one of the following; 5_class or 7_class. Default is 5_class.}
+
+\item{scale}{Optional parameter. A numeric value to scale the numeric scores. If provided, all
+numeric scores will be multiplied by this value.}
+
+\item{bin_scores}{Boolean parameter. Set to TRUE to bin the numeric scores into discrete bins. Default is FALSE.}
+
+\item{n_bins}{Optional parameter. The number of bins to use when binning numeric scores. Default is 10.}
 
 \item{this_subtype}{Optional parameter. Allows the user to subset the return to a specific subtype
 within the selected class. If not specified, the function will return a data frame with subtype

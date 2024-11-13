@@ -12,6 +12,9 @@ plot_ratio_forest(
   all_subs = FALSE,
   this_subtype = NULL,
   subtype_class = "5_class",
+  scale = NULL,
+  bin_scores = FALSE,
+  n_bins = 10,
   surv_time = NULL,
   surv_event = NULL,
   categorical_factor = NULL,
@@ -45,6 +48,13 @@ For odds ratio, set to \code{odds_ratio}.}
 \item{this_subtype}{Optional Specify subtype of interest. Leave as NULL to not separate statistics on subtype.}
 
 \item{subtype_class}{Can be one of the following; 5_class or 7_class. Default is 5_class.}
+
+\item{scale}{Optional parameter. A numeric value to scale the numeric scores. If provided, all
+numeric scores will be multiplied by this value.}
+
+\item{bin_scores}{Boolean parameter. Set to TRUE to bin the numeric scores into discrete bins. Default is FALSE.}
+
+\item{n_bins}{Optional parameter. The number of bins to use when binning numeric scores. Default is 10.}
 
 \item{surv_time}{Required parameter if \code{stat_plot} is set to \code{hazard_ratio}, should be the name
 of the column in the metadata with survival time. Should be of value numeric.}

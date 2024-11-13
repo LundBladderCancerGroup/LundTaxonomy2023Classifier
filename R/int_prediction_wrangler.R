@@ -18,6 +18,10 @@
 #' column called sample_id. Default is FALSE.
 #' @param categorical_factor Required parameter. This should be the categorical variable that is intended 
 #' for testing. In addition, this should also be a variable of type factor, with exactly 2 levels.
+#' @param scale Optional parameter. A numeric value to scale the numeric scores. If provided, all 
+#' numeric scores will be multiplied by this value.
+#' @param bin_scores Boolean parameter. Set to TRUE to bin the numeric scores into discrete bins. Default is FALSE.
+#' @param n_bins Optional parameter. The number of bins to use when binning numeric scores. Default is 10.
 #' @param surv_time Optional, should be the column name for the survival time (numeric) in the metadata.
 #' @param surv_event Optional, should be the column name for survival event (factor) in the metadata.
 #' @param subtype_class Can be one of the following; 5_class or 7_class. Default is 5_class.
@@ -51,6 +55,9 @@ int_prediction_wrangler = function(these_predictions = NULL,
                                    row_to_col = FALSE,
                                    subtype_class = "5_class",
                                    categorical_factor = NULL,
+                                   scale = NULL,
+                                   bin_scores = FALSE,
+                                   n_bins = 10,
                                    surv_time = NULL,
                                    surv_event = NULL,
                                    this_subtype = NULL, 
@@ -63,8 +70,43 @@ int_prediction_wrangler = function(these_predictions = NULL,
 
     #subset to the score columns of interest
     my_scores = these_predictions$scores %>% 
-      tibble::rownames_to_column("sample_id") %>% 
-      mutate(across(where(is.numeric), ~ . * 10))
+      tibble::rownames_to_column("sample_id")
+    
+    if(!is.null(scale)){
+      my_scores = my_scores %>% 
+        mutate(across(where(is.numeric), ~ . * scale))
+    }
+    
+    if(bin_scores){
+      bin_numeric_variables = function(data = NULL, 
+                                       num_bins = NULL){
+        
+        #identify all numeric columns in the data frame
+        numeric_columns = sapply(data, is.numeric)
+        
+        #define the binning function
+        bin_column = function(column, num_bins){
+          
+          #get the range of the column
+          range_min = min(column, na.rm = TRUE)
+          range_max = max(column, na.rm = TRUE)
+          
+          #create the bins
+          binned_column = cut(column, 
+                               breaks = seq(range_min, range_max, length.out = num_bins + 1), 
+                               labels = FALSE, 
+                               include.lowest = TRUE)
+          return(binned_column)
+        }
+        
+        #apply the binning function to each numeric column
+        data[numeric_columns] <- lapply(data[numeric_columns], bin_column, num_bins = num_bins)
+        
+        return(data)
+      }
+      
+      my_scores = bin_numeric_variables(data = my_scores, num_bins = n_bins)
+    }
 
     #get the subtype information
     if(subtype_class == "5_class"){

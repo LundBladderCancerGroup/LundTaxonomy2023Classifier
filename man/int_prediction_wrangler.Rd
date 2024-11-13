@@ -57,7 +57,7 @@ subtypes in the spcified class.}
 \item{return_all}{Boolean parameter, set to TRUE to return all metadata columns. Default is FALSE.}
 }
 \value{
-A data frame ready for \code{get_glm_scores}, or \code{get_survival}.
+A data frame ready for \code{get_glm}, or \code{get_survival}.
 }
 \description{
 Internal function called by \code{get_glm_scores}.

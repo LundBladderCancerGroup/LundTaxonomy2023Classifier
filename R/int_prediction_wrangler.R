@@ -30,7 +30,7 @@
 #' subtypes in the spcified class.
 #' @param return_all Boolean parameter, set to TRUE to return all metadata columns. Default is FALSE.
 #'
-#' @return A data frame ready for `get_glm_scores`, or `get_survival`.
+#' @return A data frame ready for `get_glm`, or `get_survival`.
 #'
 #' @import dplyr
 #'
@@ -78,34 +78,8 @@ int_prediction_wrangler = function(these_predictions = NULL,
     }
     
     if(bin_scores){
-      bin_numeric_variables = function(data = NULL, 
-                                       num_bins = NULL){
-        
-        #identify all numeric columns in the data frame
-        numeric_columns = sapply(data, is.numeric)
-        
-        #define the binning function
-        bin_column = function(column, num_bins){
-          
-          #get the range of the column
-          range_min = min(column, na.rm = TRUE)
-          range_max = max(column, na.rm = TRUE)
-          
-          #create the bins
-          binned_column = cut(column, 
-                               breaks = seq(range_min, range_max, length.out = num_bins + 1), 
-                               labels = FALSE, 
-                               include.lowest = TRUE)
-          return(binned_column)
-        }
-        
-        #apply the binning function to each numeric column
-        data[numeric_columns] <- lapply(data[numeric_columns], bin_column, num_bins = num_bins)
-        
-        return(data)
-      }
-      
-      my_scores = bin_numeric_variables(data = my_scores, num_bins = n_bins)
+      my_scores = int_bin_numeric_variables(this_data = my_scores, 
+                                            num_bins = n_bins)
     }
 
     #get the subtype information

@@ -50,8 +50,10 @@
 #' @param out_path Optional, set path to export plot.
 #' @param out_format Required parameter if `out_path` is specified. Can be "png" (default) or "pdf".
 #' The user can further specify the dimensions of the returned plot with `plot_width` and `plot_height`.
+#' @param file_name Optional, if plot is being saved to disk, specify the file name for the file. 
 #' @param plot_title Title for plot.
 #' @param plot_subtitle Subtitle for plot.
+#' @param plot_subtitle Caption for plot.
 #' @param plot_width This parameter controls the width in inches.  Default is 8 (2400 pixels at 300 PPI).
 #' @param plot_height This parameter controls the height in inches. Default is 8 (2400 pixels at 300 PPI).
 #' @param return_data Boolean parameter, set to TRUE and return the formatted data used for plotting. 
@@ -114,8 +116,10 @@ plot_ratio_forest = function(these_predictions = NULL,
                              row_to_col = FALSE,
                              out_path = NULL,
                              out_format = "png",
+                             file_name = "my_plot",
                              plot_title = "My Plot",
                              plot_subtitle = "",
+                             plot_caption = "",
                              plot_width = 8,
                              plot_height = 8,
                              return_data = FALSE){
@@ -193,14 +197,14 @@ plot_ratio_forest = function(these_predictions = NULL,
     geom_point(aes(color = significant), size = 3) +
     geom_errorbarh(aes(xmin = conf_2.5, xmax = conf_97.5, color = significant), height = 0.2) +
     geom_vline(xintercept = 1, linetype = "dashed", color = "red") +
-    labs(title = plot_title, caption = plot_subtitle, x = stat_plot, y = "") +
+    labs(title = plot_title, subtitle = plot_subtitle,  caption = plot_caption, x = stat_plot, y = "") +
     scale_color_manual(values = c("significant" = "red", "not significant" = "black")) +
     theme(legend.position = "none",
           axis.text.y = element_text(color = "black", size = 10),
           axis.text.x = element_text(color = "black", size = 10),
           axis.ticks.x = element_line(linewidth = 0.4),
           axis.ticks.y = element_line(linewidth = 0.4),
-          plot.title = element_text(hjust = 0.5),
+          plot.title = element_text(),
           plot.caption = element_text(),
           panel.background = element_blank(),
           panel.grid.major = element_blank(),
@@ -212,12 +216,12 @@ plot_ratio_forest = function(these_predictions = NULL,
   if(!is.null(out_path)){
     #set PDF outputs
     if(out_format == "pdf"){
-      pdf(paste0(out_path, plot_title, stat_plot, "_forest.pdf"),
+      pdf(paste0(out_path, file_name, "_", stat_plot, "_forest.pdf"),
           width = plot_width,
           height = plot_height)
       #set PNG outputs
     }else if(out_format == "png"){
-      png(paste0(out_path, plot_title, stat_plot, "_forest.png"),
+      png(paste0(out_path, file_name, "_", stat_plot, "_forest.png"),
           width = plot_width,
           height = plot_height,
           units = "in",
@@ -229,7 +233,7 @@ plot_ratio_forest = function(these_predictions = NULL,
     }
     print(my_plot)
     dev.off()
-    message(paste0("Plot exported to ", out_path, plot_title, stat_plot, "_forest.", out_format))
+    message(paste0("Plot exported to ", out_path, file_name, "_", stat_plot, "_forest.", out_format))
   }else{
     return(my_plot) 
   }

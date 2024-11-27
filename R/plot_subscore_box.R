@@ -140,6 +140,7 @@ plot_subscore_box = function(these_predictions,
     scale_fill_manual(values = lund_colors$lund_colors) +
     theme_bw() +
     coord_cartesian(clip = "off") +
+    ggtitle(label = plot_title) +
     ylab(this_subtype) +
     scale_y_continuous(expand = c(0, 0), limits = c(0,1), breaks = seq(0, 1, by = 0.5)) +
     theme(legend.position = "none", 
@@ -154,7 +155,7 @@ plot_subscore_box = function(these_predictions,
           panel.border = element_rect(colour = "black", fill = NA, linewidth = 0.4),
           plot.background = element_blank(), 
           axis.line.x = element_blank(), 
-          axis.title.y = element_text(angle = 90, colour = "black", size = 10, vjust = 2))
+          axis.title.y = element_blank())
   
   if(!is.null(out_path)){
     #set PDF outputs

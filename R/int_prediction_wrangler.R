@@ -177,5 +177,10 @@ int_prediction_wrangler = function(these_predictions = NULL,
         return(empty_object)
       }
     }
+    
+    #re-level categorical columns
+    my_object$progression_risk <- relevel(my_object$progression_risk, ref = "LR")
+    my_object$molecular_grade_who_2016 <- relevel(my_object$molecular_grade_who_2016, ref = "LG")
+
     return(my_object)
 }

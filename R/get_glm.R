@@ -91,7 +91,8 @@ get_glm = function(these_predictions = NULL,
     these_columns = c("proliferation_score", "progression_score", "stromal141_up", "immune141_up", 
                       "b_cells", "t_cells", "t_cells_cd8", "nk_cells", "cytotoxicity_score", 
                       "neutrophils", "monocytic_lineage", "macrophages", "m2_macrophage", 
-                      "myeloid_dendritic_cells", "endothelial_cells", "fibroblasts", "smooth_muscle")
+                      "myeloid_dendritic_cells", "endothelial_cells", "fibroblasts", 
+                      "smooth_muscle", "molecular_grade_who_2016_score", "molecular_grade_who_1999_score")
   }else{
     these_columns = predictor_columns
   }
@@ -162,6 +163,9 @@ get_glm = function(these_predictions = NULL,
       #bind the current results to the overall statistics data frame
       my_stats = rbind(my_stats, stats)
     }
+    
+    my_stats$variable = categorical_factor
+    
     return(my_stats)
   }
   

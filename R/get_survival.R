@@ -27,6 +27,8 @@
 #' @param predictor_columns Optional, should be a vector with column names, either from the provided 
 #' metadata or signature score object, to be tested for. If not provided, the function will subset 
 #' data to the signature scores returned with `lundtax_predict_sub`.
+#' @param exclude_columns Optional argument, specify columns you wish to exclude from the standard 
+#' predictor columns. Note, this parameter is only validated if predictor_columns is NULL (default).
 #' @param surv_time Required parameter, should be the name of the column in the metadata with survival 
 #' time. Should be of value numeric.
 #' @param surv_event Required parameter, should be the name of the column in the metadata with survival 
@@ -67,6 +69,7 @@ get_survival = function(these_predictions = NULL,
                         n_bins = 10,
                         this_subtype = NULL,
                         predictor_columns = NULL,
+                        exclude_columns = NULL,
                         surv_time = NULL,
                         surv_event = NULL,
                         row_to_col = FALSE,
@@ -121,16 +124,38 @@ get_survival = function(these_predictions = NULL,
   
   if(is.null(predictor_columns)){
     #get the columns to test
-    these_columns = c("proliferation_score", "progression_score", "progression_risk", 
+    these_columns = c("proliferation_score", "progression_score", 
                       "stromal141_up", "immune141_up", "b_cells", "t_cells", "t_cells_cd8", 
                       "nk_cells", "cytotoxicity_score", "neutrophils", "monocytic_lineage", 
                       "macrophages", "m2_macrophage", "myeloid_dendritic_cells", "endothelial_cells", 
                       "fibroblasts", "smooth_muscle", "molecular_grade_who_1999_score", "molecular_grade_who_2016_score")
+    
+    #define all possible subtypes
+    if(is.null(this_subtype)){
+      if(subtype_class == "5_class"){
+        all_subtypes = c("Uro", "GU", "BaSq", "Mes", "ScNE")
+      }else if(subtype_class == "7_class"){
+        all_subtypes = c("UroA", "UroB", "UroC", "GU", "BaSq", "Mes", "ScNE")
+      }
+      
+      these_columns = c(these_columns, all_subtypes)
+      
+      #exclude columns
+      if(!is.null(exclude_columns)){
+        if(any(!exclude_columns %in% colnames(this_object))){
+          stop("One or more columns specified in exclude_columns is not in the incoming data...")
+        }else{
+          message(paste0("Excluding the following predictor columns: ", exclude_columns))
+          these_columns = setdiff(these_columns, exclude_columns) 
+        }
+      }
+    }
+
+    
   }else{
     these_columns = predictor_columns
   }
 
-  
   #check if data frame is empty and return it
   if(nrow(this_object) == 0){
     empty_df = data.frame(score = character(),

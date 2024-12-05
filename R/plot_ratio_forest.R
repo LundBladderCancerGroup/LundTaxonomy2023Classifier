@@ -43,6 +43,8 @@
 #' @param predictor_columns Optional, should be a vector with column names, either from the provided 
 #' metadata or signature score object, to be tested for. If not provided, the function will subset 
 #' data to the signature scores returned with `lundtax_predict_sub`.
+#' @param exclude_columns Optional argument, specify columns you wish to exclude from the standard 
+#' predictor columns. Note, this parameter is only validated if predictor_columns is NULL (default).
 #' @param significant_p Numeric parameter for flagging significant p values. Default is 0.05.
 #' @param sample_id_col Optional parameter. Allows the user to manually specify the name of a column with sample ID.
 #' @param row_to_col Optional parameter, set to TRUE to convert row names in metadata to a new column 
@@ -111,6 +113,7 @@ plot_ratio_forest = function(these_predictions = NULL,
                              surv_event = NULL,
                              categorical_factor = NULL,
                              predictor_columns = NULL,
+                             exclude_columns = NULL,
                              significant_p = 0.05,
                              sample_id_col = NULL, 
                              row_to_col = FALSE,
@@ -146,7 +149,8 @@ plot_ratio_forest = function(these_predictions = NULL,
       this_data = get_survival(these_predictions = these_predictions,
                                these_samples_metadata = these_samples_metadata,
                                subtype_class = subtype_class,
-                               predictor_columns = predictor_columns, 
+                               predictor_columns = predictor_columns,
+                               exclude_columns = exclude_columns, 
                                surv_time = surv_time, 
                                surv_event = surv_event,
                                this_subtype = this_subtype,
@@ -163,6 +167,7 @@ plot_ratio_forest = function(these_predictions = NULL,
                           subtype_class = subtype_class,
                           categorical_factor = categorical_factor,
                           predictor_columns = predictor_columns,
+                          exclude_columns = exclude_columns, 
                           this_subtype = this_subtype,
                           scale = scale, 
                           bin_scores = bin_scores, 

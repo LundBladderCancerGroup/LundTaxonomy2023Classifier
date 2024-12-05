@@ -124,7 +124,7 @@ int_prediction_wrangler = function(these_predictions = NULL,
         } 
       }
       
-      #check smaple ID in metadata
+      #check sample ID in metadata
       if(!"sample_id" %in% names(these_samples_metadata)){
         if(is.null(sample_id_col)){
           stop("Metadata has no column namned sample_id, consider running the function with sample_col, specifying the name of the column with sample IDs...")
@@ -178,9 +178,49 @@ int_prediction_wrangler = function(these_predictions = NULL,
       }
     }
     
+    #define all possible subtypes
+    if(subtype_class == "5_class"){
+      all_subtypes = c("Uro", "GU", "BaSq", "Mes", "ScNE")
+    }else if(subtype_class == "7_class"){
+      all_subtypes = c("UroA", "UroB", "UroC", "GU", "BaSq", "Mes", "ScNE")
+    }
+    
+    #convert the 'subtype' column to a factor with all possible levels
+    my_object$subtype = factor(my_object$subtype, levels = all_subtypes)
+    
+    #create a binary matrix for subtype
+    binary_matrix = model.matrix(~ subtype - 1, data = my_object)
+    
+    #convert the binary matrix to a data frame
+    binary_df = as.data.frame(binary_matrix)
+    colnames(binary_df) = gsub("subtype", "", colnames(binary_df))
+    
+    #combine the binary columns with the original data frame
+    my_object = cbind(my_object, binary_df)
+    
+    #ensure subtype are factors
+    my_object[all_subtypes] = lapply(my_object[all_subtypes], factor)
+    
+    #convert specified columns to factors with both levels "0" and "1"
+    my_object[all_subtypes] = lapply(my_object[all_subtypes], function(x) {
+      factor(x, levels = c(0, 1))
+    })
+    
     #re-level categorical columns
-    my_object$progression_risk <- relevel(my_object$progression_risk, ref = "LR")
-    my_object$molecular_grade_who_2016 <- relevel(my_object$molecular_grade_who_2016, ref = "LG")
-
+    my_object$progression_risk = relevel(my_object$progression_risk, ref = "LR")
+    my_object$molecular_grade_who_2016 = relevel(my_object$molecular_grade_who_2016, ref = "LG")
+    my_object$GU = relevel(my_object$GU, ref = "0")
+    my_object$BaSq = relevel(my_object$BaSq, ref = "0")
+    my_object$Mes = relevel(my_object$Mes, ref = "0")
+    my_object$ScNE = relevel(my_object$ScNE, ref = "0")
+    
+    if(subtype_class == "5_class"){
+      my_object$Uro = relevel(my_object$Uro, ref = "0")
+    }else if(subtype_class == "7_class"){
+      my_object$UroA = relevel(my_object$UroA, ref = "0")
+      my_object$UroB = relevel(my_object$UroB, ref = "0")
+      my_object$UroC = relevel(my_object$UroC, ref = "0")
+    }
+    
     return(my_object)
 }

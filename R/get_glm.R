@@ -28,6 +28,8 @@
 #' @param predictor_columns Optional, should be a vector with column names, either from the provided 
 #' metadata or signature score object, to be tested for. If not provided, the function will subset 
 #' data to the signature scores returned with `lundtax_predict_sub`.
+#' @param exclude_columns Optional argument, specify columns you wish to exclude from the standard 
+#' predictor columns. Note, this parameter is only validated if predictor_columns is NULL (default).
 #' @param row_to_col Boolean parameter. Set to TRUE to transform row names of the metadata to a new 
 #' column called sample_id. Default is FALSE.
 #' @param sample_id_col Parameter dictating the column name with sample IDs, the function expects this
@@ -64,6 +66,7 @@ get_glm = function(these_predictions = NULL,
                    this_subtype = NULL,
                    categorical_factor = NULL,
                    predictor_columns = NULL,
+                   exclude_columns = NULL,
                    row_to_col = FALSE,
                    sample_id_col = NULL){
   
@@ -93,6 +96,17 @@ get_glm = function(these_predictions = NULL,
                       "neutrophils", "monocytic_lineage", "macrophages", "m2_macrophage", 
                       "myeloid_dendritic_cells", "endothelial_cells", "fibroblasts", 
                       "smooth_muscle", "molecular_grade_who_2016_score", "molecular_grade_who_1999_score")
+
+    #exclude columns
+    if(!is.null(exclude_columns)){
+      if(any(!exclude_columns %in% colnames(this_object))){
+        stop("One or more columns specified in exclude_columns is not in the incoming data...")
+      }else{
+        message(paste0("Excluding the following predictor columns: ", exclude_columns))
+        these_columns = setdiff(these_columns, exclude_columns) 
+      }
+    }
+    
   }else{
     these_columns = predictor_columns
   }
@@ -107,7 +121,6 @@ get_glm = function(these_predictions = NULL,
                           subtype = factor())
     return(empty_df)
   }
-  
   
   #internal function to run mann-whitney for multiple numeric columns
   fit_models = function(my_data,

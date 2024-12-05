@@ -13,8 +13,8 @@ plot_subscore_violin(
   plot_width = 4,
   plot_height = 4,
   plot_adjust = 2,
-  plot_scale = "area",
-  plot_trim = TRUE,
+  plot_scale = "width",
+  plot_trim = FALSE,
   return_data = FALSE
 )
 }

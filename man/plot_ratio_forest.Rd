@@ -19,13 +19,16 @@ plot_ratio_forest(
   surv_event = NULL,
   categorical_factor = NULL,
   predictor_columns = NULL,
+  exclude_columns = NULL,
   significant_p = 0.05,
   sample_id_col = NULL,
   row_to_col = FALSE,
   out_path = NULL,
   out_format = "png",
+  file_name = "my_plot",
   plot_title = "My Plot",
   plot_subtitle = "",
+  plot_caption = "",
   plot_width = 8,
   plot_height = 8,
   return_data = FALSE
@@ -70,6 +73,9 @@ with exactly 2 levels.}
 metadata or signature score object, to be tested for. If not provided, the function will subset
 data to the signature scores returned with \code{lundtax_predict_sub}.}
 
+\item{exclude_columns}{Optional argument, specify columns you wish to exclude from the standard
+predictor columns. Note, this parameter is only validated if predictor_columns is NULL (default).}
+
 \item{significant_p}{Numeric parameter for flagging significant p values. Default is 0.05.}
 
 \item{sample_id_col}{Optional parameter. Allows the user to manually specify the name of a column with sample ID.}
@@ -82,9 +88,11 @@ called sample_id. Default is FALSE.}
 \item{out_format}{Required parameter if \code{out_path} is specified. Can be "png" (default) or "pdf".
 The user can further specify the dimensions of the returned plot with \code{plot_width} and \code{plot_height}.}
 
+\item{file_name}{Optional, if plot is being saved to disk, specify the file name for the file.}
+
 \item{plot_title}{Title for plot.}
 
-\item{plot_subtitle}{Subtitle for plot.}
+\item{plot_subtitle}{Caption for plot.}
 
 \item{plot_width}{This parameter controls the width in inches.  Default is 8 (2400 pixels at 300 PPI).}
 

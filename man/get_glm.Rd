@@ -14,6 +14,7 @@ get_glm(
   this_subtype = NULL,
   categorical_factor = NULL,
   predictor_columns = NULL,
+  exclude_columns = NULL,
   row_to_col = FALSE,
   sample_id_col = NULL
 )
@@ -43,6 +44,9 @@ information for all the subtypes within the specified class.}
 \item{predictor_columns}{Optional, should be a vector with column names, either from the provided
 metadata or signature score object, to be tested for. If not provided, the function will subset
 data to the signature scores returned with \code{lundtax_predict_sub}.}
+
+\item{exclude_columns}{Optional argument, specify columns you wish to exclude from the standard
+predictor columns. Note, this parameter is only validated if predictor_columns is NULL (default).}
 
 \item{row_to_col}{Boolean parameter. Set to TRUE to transform row names of the metadata to a new
 column called sample_id. Default is FALSE.}

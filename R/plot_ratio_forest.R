@@ -58,6 +58,10 @@
 #' @param plot_subtitle Caption for plot.
 #' @param plot_width This parameter controls the width in inches.  Default is 8 (2400 pixels at 300 PPI).
 #' @param plot_height This parameter controls the height in inches. Default is 8 (2400 pixels at 300 PPI).
+#' @param plot_order Optional parameter for setting the order of scores in the returned plot. 
+#' Only applies if `arrange_plot` is set to TRUE.
+#' @param plot_arrange Boolean parameter, if set to TRUE the user can specify the order of the score 
+#' levels on the y axis. Default is FALSE.
 #' @param return_data Boolean parameter, set to TRUE and return the formatted data used for plotting. 
 #' Default is FALSE
 #'
@@ -125,6 +129,8 @@ plot_ratio_forest = function(these_predictions = NULL,
                              plot_caption = "",
                              plot_width = 8,
                              plot_height = 8,
+                             plot_order = NULL,
+                             plot_arrange = FALSE,
                              return_data = FALSE){
   #checks
   if(missing(stat_plot)){
@@ -196,6 +202,22 @@ plot_ratio_forest = function(these_predictions = NULL,
   names(this_data)[3] = "ratio"
   names(this_data)[4] = "conf_2.5"
   names(this_data)[5] = "conf_97.5"
+  
+  if(plot_arrange){
+    if(is.null(plot_order)){
+      #create the desired order as a vector
+      desired_order <- c("proliferation_score", "molecular_grade_who_1999_score", "molecular_grade_who_2016_score", 
+                         "progression_score", "immune141_up", "b_cells", "t_cells", 
+                         "t_cells_cd8", "nk_cells", "cytotoxicity_score", "neutrophils", "monocytic_lineage", 
+                         "macrophages", "m2_macrophage", "myeloid_dendritic_cells", "stromal141_up", 
+                         "endothelial_cells", "fibroblasts", "smooth_muscle") 
+    }else{
+      desired_order = plot_order
+    }
+    
+    # Convert the score column to a factor with the specified levels
+    this_data$score <- factor(this_data$score, levels = rev(desired_order))
+  }
   
   #build plot
   my_plot = ggplot(this_data, aes(x = ratio, y = score)) +

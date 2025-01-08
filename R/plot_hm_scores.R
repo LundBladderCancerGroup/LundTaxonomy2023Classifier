@@ -158,14 +158,14 @@ plot_hm_scores = function(these_predictions = NULL,
       circlize::colorRamp2(c(quantile(these_predictions$scores$proliferation_score, 0.05),
                              median(these_predictions$scores$proliferation_score),
                              quantile(these_predictions$scores$proliferation_score, 0.95)),
-                           c("#21908CFF","white", "#B63679FF"))
+                           c("blue","white", "red"))
 
     #progression
     col_fun_progression =
       circlize::colorRamp2(c(quantile(these_predictions$scores$progression_score, 0.05),
                              median(these_predictions$scores$progression_score),
                              quantile(these_predictions$scores$progression_score, 0.90)),
-                           c("#FAEBDDFF","#A11A5BFF", "#4C1D4BFF"))
+                           c("blue","white", "red"))
 
     #create colour object
     colour_obj = list(lund_subtype = lund_colors$lund_colors,
@@ -173,7 +173,7 @@ plot_hm_scores = function(these_predictions = NULL,
                       molecular_grade_who_1999 = c("G1_2" = "white", "G3" = "black"),
                       molecular_grade_who_2016 = c("HG" = "black", "LG" = "white"),
                       progression_score = col_fun_progression,
-                      progression_risk = c("HR" = "#A11A5BFF", "LR" = "#FAEBDDFF"))
+                      progression_risk = c("HR" = "black", "LR" = "white"))
 
     #plotting
     #build heatmap annotation (top)

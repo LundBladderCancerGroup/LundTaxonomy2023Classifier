@@ -31,6 +31,8 @@ plot_ratio_forest(
   plot_caption = "",
   plot_width = 8,
   plot_height = 8,
+  plot_order = NULL,
+  plot_arrange = FALSE,
   return_data = FALSE
 )
 }
@@ -97,6 +99,12 @@ The user can further specify the dimensions of the returned plot with \code{plot
 \item{plot_width}{This parameter controls the width in inches.  Default is 8 (2400 pixels at 300 PPI).}
 
 \item{plot_height}{This parameter controls the height in inches. Default is 8 (2400 pixels at 300 PPI).}
+
+\item{plot_order}{Optional parameter for setting the order of scores in the returned plot.
+Only applies if \code{arrange_plot} is set to TRUE.}
+
+\item{plot_arrange}{Boolean parameter, if set to TRUE the user can specify the order of the score
+levels on the y axis. Default is FALSE.}
 
 \item{return_data}{Boolean parameter, set to TRUE and return the formatted data used for plotting.
 Default is FALSE}

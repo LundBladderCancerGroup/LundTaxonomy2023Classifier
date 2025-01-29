@@ -208,7 +208,7 @@ int_prediction_wrangler = function(these_predictions = NULL,
     
     #re-level categorical columns
     my_object$progression_risk = relevel(my_object$progression_risk, ref = "LR")
-    my_object$molecular_grade_who_2016 = relevel(my_object$molecular_grade_who_2016, ref = "LG")
+    my_object$molecular_grade_who_2022 = relevel(my_object$molecular_grade_who_2022, ref = "LG")
     my_object$GU = relevel(my_object$GU, ref = "0")
     my_object$BaSq = relevel(my_object$BaSq, ref = "0")
     my_object$Mes = relevel(my_object$Mes, ref = "0")

@@ -116,8 +116,8 @@ lundtax_calc_sigscore = function(this_data = NULL,
   merge_scores = cbind(proliferation_score = results_proliferation$sig_score$Score,
                        molecular_grade_who_1999 = results_g3$predictions_classes,
                        molecular_grade_who_1999_score = results_g3$predictions[,"G3"],
-                       molecular_grade_who_2016 = results_hg$predictions_classes,
-                       molecular_grade_who_2016_score = results_hg$predictions[,"HG"],
+                       molecular_grade_who_2022 = results_hg$predictions_classes,
+                       molecular_grade_who_2022_score = results_hg$predictions[,"HG"],
                        progression_score = score_progression$sig_score$Score,
                        progression_risk = results_progression,
                        results_immune$sig_score, 
@@ -146,13 +146,13 @@ lundtax_calc_sigscore = function(this_data = NULL,
     rename_at(vars(oldnames), ~ newnames)
   
   #set column types
-  factor_cols = c("molecular_grade_who_1999", "molecular_grade_who_2016", "progression_risk")
+  factor_cols = c("molecular_grade_who_1999", "molecular_grade_who_2022", "progression_risk")
   merge_scores[factor_cols] = lapply(merge_scores[factor_cols], factor)
   
   #set custom order of columns
   merge_scores = merge_scores %>% 
     dplyr::select(proliferation_score, progression_score, progression_risk, 
-                  molecular_grade_who_2016_score, molecular_grade_who_2016, 
+                  molecular_grade_who_2022_score, molecular_grade_who_2022, 
                   molecular_grade_who_1999_score,molecular_grade_who_1999, stromal141_up, immune141_up, 
                   b_cells, b_cells_proportion, t_cells, t_cells_proportion,
                   t_cells_cd8, t_cells_cd8_proportion, nk_cells, nk_cells_proportion,

@@ -171,7 +171,7 @@ plot_hm_scores = function(these_predictions = NULL,
     colour_obj = list(lund_subtype = lund_colors$lund_colors,
                       proliferation_score = col_fun_proliferation,
                       molecular_grade_who_1999 = c("G1_2" = "white", "G3" = "black"),
-                      molecular_grade_who_2016 = c("HG" = "black", "LG" = "white"),
+                      molecular_grade_who_2022 = c("HG" = "black", "LG" = "white"),
                       progression_score = col_fun_progression,
                       progression_risk = c("HR" = "black", "LR" = "white"))
 
@@ -181,7 +181,7 @@ plot_hm_scores = function(these_predictions = NULL,
                             proliferation_score = these_predictions$scores$proliferation_score,
                             lund_subtype = split,
                             molecular_grade_who_1999 = these_predictions$scores$molecular_grade_who_1999,
-                            molecular_grade_who_2016 = these_predictions$scores$molecular_grade_who_2016,
+                            molecular_grade_who_2022 = these_predictions$scores$molecular_grade_who_2022,
                             progression_score = these_predictions$scores$progression_score,
                             progression_risk = these_predictions$scores$progression_risk,
                             annotation_name_side = "left",
@@ -253,7 +253,7 @@ plot_hm_scores = function(these_predictions = NULL,
     my_scores$cohort = plot_title
 
     #convert correct columns to factors
-    factor_cols <- c('molecular_grade_who_1999' ,'molecular_grade_who_2016',
+    factor_cols <- c('molecular_grade_who_1999' ,'molecular_grade_who_2022',
                      'progression_risk', 'cohort')
 
     my_scores[,factor_cols] <- lapply(my_scores[,factor_cols] , factor)

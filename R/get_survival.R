@@ -128,7 +128,7 @@ get_survival = function(these_predictions = NULL,
                       "stromal141_up", "immune141_up", "b_cells", "t_cells", "t_cells_cd8", 
                       "nk_cells", "cytotoxicity_score", "neutrophils", "monocytic_lineage", 
                       "macrophages", "m2_macrophage", "myeloid_dendritic_cells", "endothelial_cells", 
-                      "fibroblasts", "smooth_muscle", "molecular_grade_who_1999_score", "molecular_grade_who_2016_score")
+                      "fibroblasts", "smooth_muscle", "molecular_grade_who_1999_score", "molecular_grade_who_2022_score")
     
     #define all possible subtypes
     if(is.null(this_subtype)){

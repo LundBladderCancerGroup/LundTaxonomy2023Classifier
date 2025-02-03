@@ -76,12 +76,12 @@ plot_hm_scores = function(these_predictions = NULL,
                           plot_height = 6,
                           plot_font_size = 12,
                           verbose = TRUE){
-
+  
   #deal with nonsensical parameter combinations
   if(to_xlsx){
     return_scores = TRUE
   }
-
+  
   if(is.null(plot_title)){
     if(!return_scores){
       stop("Please specify a title for your plot with `plot_title`...")
@@ -89,69 +89,69 @@ plot_hm_scores = function(these_predictions = NULL,
       stop("Please provide a title for your data with `plot_title`...")
     }
   } 
-
+  
   #set the default legend properties
   if(is.null(plot_anno_legend)){
     plot_anno_legend = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)
   }else{
     plot_anno_legend = plot_anno_legend
-    }
-
+  }
+  
   #check the type of incoming data
   if(is.null(these_predictions) | !is.list(these_predictions)){
     stop("Input should be the result of applying predict_lundtax")
   }
-
+  
   if(!is.null(out_path)){
     #set PDF outputs
     if(out_format == "pdf"){
       pdf(paste0(out_path, plot_title, "_heatmap_scores.pdf"),
           width = plot_width,
           height = plot_height)
-    #set PNG outputs
+      #set PNG outputs
     }else if(out_format == "png"){
-        png(paste0(out_path, plot_title, "_heatmap_scores.png"),
-            width = plot_width,
-            height = plot_height,
-            units = "in",
-            res = 300,
-            pointsize = 10,
-            bg = "white")
+      png(paste0(out_path, plot_title, "_heatmap_scores.png"),
+          width = plot_width,
+          height = plot_height,
+          units = "in",
+          res = 300,
+          pointsize = 10,
+          bg = "white")
     }else{
       stop("Enter a valid output format (pdf or png)...")
     }
-
+    
     #set sample order
     sample_order = order(these_predictions$scores$proliferation_score)
-
+    
     #set split (top annotation track of heatmap)
     if(!is.null(hm_split)){
       split = hm_split
-      }else{
-        if(subtype_annotation %in% c("5_class", "7_class")){
-          if(subtype_annotation == "5_class"){
-            split = factor(these_predictions$predictions_5classes,
-                           levels = c("Uro", "GU", "BaSq", "Mes", "ScNE")) 
-          }else if(subtype_annotation == "7_class"){
-            split = factor(these_predictions$predictions_7classes,
-                           levels = c("UroA", "UroB", "UroC", "GU", "BaSq", "Mes", "ScNE")) 
-          }
-        }else{
-          stop("subtype_annotation must be one of the following; 5_class or 7_class...")
+    }else{
+      if(subtype_annotation %in% c("5_class", "7_class")){
+        if(subtype_annotation == "5_class"){
+          split = factor(these_predictions$predictions_5classes,
+                         levels = c("Uro", "GU", "BaSq", "Mes", "ScNE")) 
+        }else if(subtype_annotation == "7_class"){
+          split = factor(these_predictions$predictions_7classes,
+                         levels = c("UroA", "UroB", "UroC", "GU", "BaSq", "Mes", "ScNE")) 
         }
-     }
-
+      }else{
+        stop("subtype_annotation must be one of the following; 5_class or 7_class...")
+      }
+    }
+    
     #get immune names
     immune_names <- c("immune141_up", "b_cells", "t_cells",
                       "t_cells_cd8", "nk_cells",
                       "cytotoxicity_score", "neutrophils",
                       "monocytic_lineage", "macrophages",
                       "m2_macrophage", "myeloid_dendritic_cells")
-
+    
     #get stromal names
     stromal_names <- c("stromal141_up", "endothelial_cells",
                        "fibroblasts", "smooth_muscle")
-
+    
     #set colours
     #proliferation
     col_fun_proliferation =
@@ -159,14 +159,14 @@ plot_hm_scores = function(these_predictions = NULL,
                              median(these_predictions$scores$proliferation_score),
                              quantile(these_predictions$scores$proliferation_score, 0.95)),
                            c("blue","white", "red"))
-
+    
     #progression
     col_fun_progression =
       circlize::colorRamp2(c(quantile(these_predictions$scores$progression_score, 0.05),
                              median(these_predictions$scores$progression_score),
                              quantile(these_predictions$scores$progression_score, 0.90)),
                            c("blue","white", "red"))
-
+    
     #create colour object
     colour_obj = list(lund_subtype = lund_colors$lund_colors,
                       proliferation_score = col_fun_proliferation,
@@ -174,7 +174,7 @@ plot_hm_scores = function(these_predictions = NULL,
                       molecular_grade_who_2022 = c("HG" = "black", "LG" = "white"),
                       progression_score = col_fun_progression,
                       progression_risk = c("HR" = "black", "LR" = "white"))
-
+    
     #plotting
     #build heatmap annotation (top)
     hm <- HeatmapAnnotation(lund_subtype = split,
@@ -191,7 +191,7 @@ plot_hm_scores = function(these_predictions = NULL,
                             col = colour_obj,
                             column_title = NULL,
                             row_title = NULL)
-
+    
     #immune scores heatmap
     hm_immune_scores <- Heatmap(t(scale(these_predictions$scores[,immune_names, drop = FALSE])),
                                 top_annotation = hm,
@@ -208,7 +208,7 @@ plot_hm_scores = function(these_predictions = NULL,
                                 show_column_names = FALSE,
                                 column_title = NULL,
                                 row_title = NULL)
-
+    
     #stroma scores heatmap
     hm_stroma_scores <- Heatmap(t(scale(these_predictions$scores[,stromal_names, drop = FALSE])),
                                 column_order = sample_order,
@@ -224,40 +224,40 @@ plot_hm_scores = function(these_predictions = NULL,
                                 show_column_names = FALSE,
                                 column_title = NULL,
                                 row_title = NULL)
-
+    
     #combine heatmaps
     hm_combined = draw(hm_immune_scores %v% hm_stroma_scores,
                        column_title = plot_title,
                        column_title_gp = gpar("fontface", fontsize = (plot_font_size*2)));
-
+    
     hm_sample_order <- column_order(hm_combined@ht_list$`Stroma Scores`)
-
+    
     dev.off()
-
+    
     if(verbose){
       message(paste0("Heatmap exported to ", out_path, plot_title, "_heatmap_scores.", out_format))
-      }
-
+    }
+    
   }else{
     message("No output path provided, returning the score data frame in tidy format...")
     return_scores = TRUE
-    }
-
+  }
+  
   if(return_scores == TRUE){
-
+    
     #subset scores data frame from list
     my_scores = these_predictions$scores
     my_scores = as.data.frame(my_scores)
-
+    
     #add new column with cohort information
     my_scores$cohort = plot_title
-
+    
     #convert correct columns to factors
     factor_cols <- c('molecular_grade_who_1999' ,'molecular_grade_who_2022',
                      'progression_risk', 'cohort')
-
+    
     my_scores[,factor_cols] <- lapply(my_scores[,factor_cols] , factor)
-
+    
     if(to_xlsx){
       my_scores <- tibble::rownames_to_column(my_scores, "SampleID")
       write.xlsx(my_scores, paste0(out_path, plot_title, "_scores.xlsx"))
@@ -266,12 +266,12 @@ plot_hm_scores = function(these_predictions = NULL,
       }
       dev.off()
     }
-
+    
     #return data frame
     return(my_scores)
-
+    
     if(verbose){
       message("Prediction Scores for each sample and class sucessfully generated!")
-      }
     }
   }
+}

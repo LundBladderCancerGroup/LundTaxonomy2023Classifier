@@ -130,7 +130,7 @@ plot_ratio_forest = function(these_predictions = NULL,
                              plot_width = 8,
                              plot_height = 8,
                              plot_order = NULL,
-                             plot_arrange = FALSE,
+                             plot_arrange = TRUE,
                              return_data = FALSE){
   #checks
   if(missing(stat_plot)){
@@ -204,13 +204,38 @@ plot_ratio_forest = function(these_predictions = NULL,
   names(this_data)[5] = "conf_97.5"
   
   if(plot_arrange){
+    # Define the mapping of old names to new names
+    score_name_mapping <- c(
+      "proliferation_score" = "Proliferation Score",
+      "molecular_grade_who_1999_score" = "Mol. grade (WHO1999)",
+      "molecular_grade_who_2022_score" = "Mol. grade (WHO2022)",
+      "progression_score" = "Progression Score",
+      "immune141_up" = "Immune 141_UP",
+      "b_cells" = "B Cells",
+      "t_cells" = "T Cells",
+      "t_cells_cd8" = "CD8+ T Cells",
+      "nk_cells" = "NK Cells",
+      "cytotoxicity_score" = "Cytotoxicity Score",
+      "neutrophils" = "Neutrophils",
+      "monocytic_lineage" = "Monocytic Lineage",
+      "macrophages" = "Macrophages",
+      "m2_macrophage" = "M2 Macrophages",
+      "myeloid_dendritic_cells" = "Myeloid DCs",
+      "stromal141_up" = "Stromal 141_UP",
+      "endothelial_cells" = "Endothelial Cells",
+      "fibroblasts" = "Fibroblasts",
+      "smooth_muscle" = "Smooth Muscle"
+    )
+    
+    # Update the score column in this_data
+    this_data$score <- score_name_mapping[this_data$score]
+    
     if(is.null(plot_order)){
       #create the desired order as a vector
-      desired_order <- c("proliferation_score", "molecular_grade_who_1999_score", "molecular_grade_who_2022_score", 
-                         "progression_score", "immune141_up", "b_cells", "t_cells", 
-                         "t_cells_cd8", "nk_cells", "cytotoxicity_score", "neutrophils", "monocytic_lineage", 
-                         "macrophages", "m2_macrophage", "myeloid_dendritic_cells", "stromal141_up", 
-                         "endothelial_cells", "fibroblasts", "smooth_muscle") 
+      desired_order <- c("Mol. grade (WHO1999)", "Mol. grade (WHO2022)", "Proliferation Score", "Progression Score", 
+                         "Immune 141_UP", "NK Cells", "T Cells", "CD8+ T Cells", "Cytotoxicity Score", "B Cells", 
+                         "Myeloid DCs", "Monocytic Lineage", "Macrophages", "M2 Macrophages", "Neutrophils", 
+                         "Stromal 141_UP", "Fibroblasts", "Endothelial Cells", "Smooth Muscle")
     }else{
       desired_order = plot_order
     }

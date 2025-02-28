@@ -232,7 +232,7 @@ plot_ratio_forest = function(these_predictions = NULL,
     
     if(is.null(plot_order)){
       #create the desired order as a vector
-      desired_order <- c("Mol. grade (WHO1999)", "Mol. grade (WHO2022)", "Proliferation Score", "Progression Score", 
+      desired_order <- c("Proliferation Score", "Mol. grade (WHO1999)", "Mol. grade (WHO2022)", "Progression Score", 
                          "Immune 141_UP", "NK Cells", "T Cells", "CD8+ T Cells", "Cytotoxicity Score", "B Cells", 
                          "Myeloid DCs", "Monocytic Lineage", "Macrophages", "M2 Macrophages", "Neutrophils", 
                          "Stromal 141_UP", "Fibroblasts", "Endothelial Cells", "Smooth Muscle")

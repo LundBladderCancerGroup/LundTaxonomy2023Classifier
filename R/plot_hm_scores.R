@@ -11,6 +11,7 @@
 #'
 #' @param these_predictions A list with a data frame object called scores. Returned with 
 #' [LundTax2023Classifier::lundtax_predict_sub()].
+#' @param proportional_scores Set to TRUE to transform signature scores into proportions, default is FALSE.
 #' @param out_path Optional, set path to export plot. If not provided, tidy version of incoming
 #' scores in data frame format will be returned (`return_scores` will be auto-defaulted to TRUE).
 #' @param out_format Required parameter if `out_path` is specified. Can be "png" (default) or "pdf".
@@ -62,6 +63,7 @@
 #'}
 #'
 plot_hm_scores = function(these_predictions = NULL,
+                          proportional_scores = FALSE,
                           out_path = NULL,
                           out_format = "png",
                           return_scores = FALSE,
@@ -141,16 +143,54 @@ plot_hm_scores = function(these_predictions = NULL,
       }
     }
     
-    #get immune names
-    immune_names <- c("immune141_up", "b_cells", "t_cells",
-                      "t_cells_cd8", "nk_cells",
-                      "cytotoxicity_score", "neutrophils",
-                      "monocytic_lineage", "macrophages",
-                      "m2_macrophage", "myeloid_dendritic_cells")
+    if(proportional_scores){
+      message("transforming signature scores into proportions...")
+      
+      #running helper
+      prop_scores = int_get_prop_scores(these_predictions = these_predictions)
+      
+      #update the these_predictions$scores object
+      these_predictions$scores <- prop_scores
+      
+      #immune + stromal names
+      immune_stromal_names <- c("immune141_up", "stromal141_up", "immune_stroma_ratio")
+      
+      #get immune names
+      immune_names <- c("b_cells_proportion", "t_cells_proportion",
+                        "t_cells_cd8_proportion", "nk_cells_proportion",
+                        "cytotoxicity_score_proportion", "neutrophils_proportion",
+                        "monocytic_lineage_proportion", "macrophages_proportion",
+                        "m2_macrophage_proportion", "myeloid_dendritic_cells_proportion")
+      
+      #get stromal names
+      stromal_names <- c("endothelial_cells_proportion",
+                         "fibroblasts_proportion", "smooth_muscle_proportion")
+      
+      immune_labels = c("B Cells Prop.", "T Cells Prop.", "CD8+ T Cells Prop.", "NK Cells Prop.", 
+                        "Cytotoxicity Score Prop.", "Neutrophils Prop.", "Monocytic Lineage Prop.", 
+                        "Macrophages Prop.", "M2 Macrophages Prop.", "Myeloid DCs Prop.")
+      
+      stromal_labels = c("Endothelial Cells Prop.", "Fibroblasts Prop.", "Smooth Muscle Prop.")
+
+    }else{
+      #get immune names
+      immune_names <- c("immune141_up", "b_cells", "t_cells",
+                        "t_cells_cd8", "nk_cells",
+                        "cytotoxicity_score", "neutrophils",
+                        "monocytic_lineage", "macrophages",
+                        "m2_macrophage", "myeloid_dendritic_cells")
+      
+      #get stromal names
+      stromal_names <- c("stromal141_up", "endothelial_cells",
+                         "fibroblasts", "smooth_muscle")  
+      
+      immune_labels = c("Immune141_UP", "B Cells", "T Cells", "CD8+ T Cells", "NK Cells", 
+                        "Cytotoxicity Score", "Neutrophils", "Monocytic Lineage", 
+                        "Macrophages", "M2 Macrophages", "Myeloid DCs")
+
+      stromal_labels = c("Stromal 141_UP", "Endothelial Cells", "Fibroblasts", "Smooth Muscle")
+    }
     
-    #get stromal names
-    stromal_names <- c("stromal141_up", "endothelial_cells",
-                       "fibroblasts", "smooth_muscle")
     
     #set colours
     #proliferation
@@ -168,22 +208,21 @@ plot_hm_scores = function(these_predictions = NULL,
                            c("blue","white", "red"))
     
     #create colour object
-    colour_obj = list(lund_subtype = lund_colors$lund_colors,
-                      proliferation_score = col_fun_proliferation,
-                      molecular_grade_who_1999 = c("G1_2" = "white", "G3" = "black"),
-                      molecular_grade_who_2022 = c("HG" = "black", "LG" = "white"),
-                      progression_score = col_fun_progression,
-                      progression_risk = c("HR" = "black", "LR" = "white"))
+    colour_obj = list(`Predicted Subtype` = lund_colors$lund_colors,
+                      `Proliferation Score` = col_fun_proliferation,
+                      `Mol. grade (WHO1999)` = c("G1_2" = "white", "G3" = "black"),
+                      `Mol. grade (WHO2022)` = c("HG" = "black", "LG" = "white"),
+                      `Progression Score` = col_fun_progression,
+                      `Progression Risk` = c("HR" = "black", "LR" = "white"))
     
     #plotting
     #build heatmap annotation (top)
-    hm <- HeatmapAnnotation(lund_subtype = split,
-                            proliferation_score = these_predictions$scores$proliferation_score,
-                            lund_subtype = split,
-                            molecular_grade_who_1999 = these_predictions$scores$molecular_grade_who_1999,
-                            molecular_grade_who_2022 = these_predictions$scores$molecular_grade_who_2022,
-                            progression_score = these_predictions$scores$progression_score,
-                            progression_risk = these_predictions$scores$progression_risk,
+    hm <- HeatmapAnnotation(`Predicted Subtype` = split,
+                            `Proliferation Score` = these_predictions$scores$proliferation_score,
+                            `Mol. grade (WHO1999)` = these_predictions$scores$molecular_grade_who_1999,
+                            `Mol. grade (WHO2022)` = these_predictions$scores$molecular_grade_who_2022,
+                            `Progression Score` = these_predictions$scores$progression_score,
+                            `Progression Risk` = these_predictions$scores$progression_risk,
                             annotation_name_side = "left",
                             show_legend = plot_anno_legend,
                             annotation_name_gp = gpar(fontsize = plot_font_size),
@@ -192,22 +231,60 @@ plot_hm_scores = function(these_predictions = NULL,
                             column_title = NULL,
                             row_title = NULL)
     
-    #immune scores heatmap
-    hm_immune_scores <- Heatmap(t(scale(these_predictions$scores[,immune_names, drop = FALSE])),
-                                top_annotation = hm,
-                                column_order = sample_order,
-                                height = unit(5*ncol(these_predictions$scores[,immune_names,drop = FALSE]), "mm"),
-                                width = unit(0.5*nrow(these_predictions$scores[,immune_names,drop = FALSE]), "mm"),
-                                name = "Immune Scores",
-                                border = TRUE,
-                                column_split = split,
-                                cluster_rows = hm_cluster,
-                                show_heatmap_legend = plot_hm_legend,
-                                row_names_side = "left",
-                                row_names_gp = gpar(fontsize = plot_font_size),
-                                show_column_names = FALSE,
-                                column_title = NULL,
-                                row_title = NULL)
+    if(proportional_scores){
+      #imune + stromal
+      hm_immune_stromal <- Heatmap(t(scale(these_predictions$scores[,immune_stromal_names, drop = FALSE])),
+                                   top_annotation = hm,
+                                   column_order = sample_order,
+                                   height = unit(5*ncol(these_predictions$scores[,immune_stromal_names,drop = FALSE]), "mm"),
+                                   width = unit(0.5*nrow(these_predictions$scores[,immune_stromal_names,drop = FALSE]), "mm"),
+                                   name = "combined",
+                                   border = TRUE,
+                                   column_split = split,
+                                   cluster_rows = hm_cluster,
+                                   show_heatmap_legend = plot_hm_legend,
+                                   row_title = NULL,
+                                   row_names_side = "left",
+                                   row_names_gp = gpar(fontsize = plot_font_size),
+                                   show_column_names = FALSE,
+                                   column_title = NULL,
+                                   row_labels = c("Stromal 141_UP", "Immune 141_UP", "Immune Stroma Ratio"))
+      
+      #immune scores heatmap
+      hm_immune_scores <- Heatmap(t(scale(these_predictions$scores[,immune_names, drop = FALSE])),
+                                  column_order = sample_order,
+                                  height = unit(5*ncol(these_predictions$scores[,immune_names,drop = FALSE]), "mm"),
+                                  width = unit(0.5*nrow(these_predictions$scores[,immune_names,drop = FALSE]), "mm"),
+                                  name = "Immune Scores",
+                                  border = TRUE,
+                                  column_split = split,
+                                  cluster_rows = hm_cluster,
+                                  show_heatmap_legend = plot_hm_legend,
+                                  row_names_side = "left",
+                                  row_names_gp = gpar(fontsize = plot_font_size),
+                                  show_column_names = FALSE,
+                                  column_title = NULL,
+                                  row_title = NULL,
+                                  row_labels = immune_labels)
+    }else{
+      #immune scores heatmap
+      hm_immune_scores <- Heatmap(t(scale(these_predictions$scores[,immune_names, drop = FALSE])),
+                                  top_annotation = hm,
+                                  column_order = sample_order,
+                                  height = unit(5*ncol(these_predictions$scores[,immune_names,drop = FALSE]), "mm"),
+                                  width = unit(0.5*nrow(these_predictions$scores[,immune_names,drop = FALSE]), "mm"),
+                                  name = "Immune Scores",
+                                  border = TRUE,
+                                  column_split = split,
+                                  cluster_rows = hm_cluster,
+                                  show_heatmap_legend = plot_hm_legend,
+                                  row_names_side = "left",
+                                  row_names_gp = gpar(fontsize = plot_font_size),
+                                  show_column_names = FALSE,
+                                  column_title = NULL,
+                                  row_title = NULL,
+                                  row_labels = immune_labels)
+    }
     
     #stroma scores heatmap
     hm_stroma_scores <- Heatmap(t(scale(these_predictions$scores[,stromal_names, drop = FALSE])),
@@ -223,12 +300,20 @@ plot_hm_scores = function(these_predictions = NULL,
                                 row_names_gp = gpar(fontsize = plot_font_size),
                                 show_column_names = FALSE,
                                 column_title = NULL,
-                                row_title = NULL)
+                                row_title = NULL,
+                                row_labels = stromal_labels)
     
-    #combine heatmaps
-    hm_combined = draw(hm_immune_scores %v% hm_stroma_scores,
-                       column_title = plot_title,
-                       column_title_gp = gpar("fontface", fontsize = (plot_font_size*2)));
+    if(proportional_scores){
+      #combine heatmaps
+      hm_combined = draw(hm_immune_stromal %v% hm_immune_scores %v% hm_stroma_scores,
+                         column_title = plot_title,
+                         column_title_gp = gpar("fontface", fontsize = (plot_font_size*2))); 
+    }else{
+      #combine heatmaps
+      hm_combined = draw(hm_immune_scores %v% hm_stroma_scores,
+                         column_title = plot_title,
+                         column_title_gp = gpar("fontface", fontsize = (plot_font_size*2)));
+    }
     
     hm_sample_order <- column_order(hm_combined@ht_list$`Stroma Scores`)
     

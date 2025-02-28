@@ -6,6 +6,7 @@
 \usage{
 plot_hm_scores(
   these_predictions = NULL,
+  proportional_scores = FALSE,
   out_path = NULL,
   out_format = "png",
   return_scores = FALSE,
@@ -25,6 +26,8 @@ plot_hm_scores(
 \arguments{
 \item{these_predictions}{A list with a data frame object called scores. Returned with
 \code{\link[=lundtax_predict_sub]{lundtax_predict_sub()}}.}
+
+\item{proportional_scores}{Set to TRUE to transform signature scores into proportions, default is FALSE.}
 
 \item{out_path}{Optional, set path to export plot. If not provided, tidy version of incoming
 scores in data frame format will be returned (\code{return_scores} will be auto-defaulted to TRUE).}

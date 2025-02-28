@@ -32,7 +32,7 @@ plot_ratio_forest(
   plot_width = 8,
   plot_height = 8,
   plot_order = NULL,
-  plot_arrange = FALSE,
+  plot_arrange = TRUE,
   return_data = FALSE
 )
 }

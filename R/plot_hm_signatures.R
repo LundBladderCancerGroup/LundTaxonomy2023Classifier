@@ -176,13 +176,11 @@ plot_hm_signatures = function(these_predictions = NULL,
     return(this_bar)
   }
   
-  
-  
   ##### DRAW HEATMAPS #####
   #################################### SUBTYPE SCORES ##############################################
   
   #get subtype colors
-  col = list(Prediction = lund_colors$lund_colors)
+  col = list(`Predicted Subtype` = lund_colors$lund_colors)
   
   #predictions
   pred_lab = pred_labels5
@@ -218,13 +216,13 @@ plot_hm_signatures = function(these_predictions = NULL,
   }
   
   #Heatmap annotations, prediction scores
-  hm_a_predictions = HeatmapAnnotation(Prediction = pred_lab,
+  hm_a_predictions = HeatmapAnnotation(`Predicted Subtype` = pred_lab,
                                        annotation_name_side = "left", 
                                        annotation_name_rot = 0,
                                        col = col,
                                        Uro = bar1,
                                        GU = bar2, 
-                                       BaSq = bar3, 
+                                       `Ba/Sq` = bar3, 
                                        Mes = bar4,
                                        ScNE = bar5,
                                        UroA = bar6,
@@ -285,10 +283,10 @@ plot_hm_signatures = function(these_predictions = NULL,
     
     #heatmap annotation
     col = list(Predictions = lund_colors$lund_colors,
-               late_early_ratio = col_fun_cc)
+               `Late/Early Ratio` = col_fun_cc)
     
     #draw annotations track, late/early
-    hm_a_lateearly = HeatmapAnnotation(late_early_ratio = genes_to_plot$Late_Early,
+    hm_a_lateearly = HeatmapAnnotation(`Late/Early Ratio` = genes_to_plot$Late_Early,
                                        annotation_name_side = "left",
                                        gap = unit(1, "mm"),
                                        simple_anno_size = unit(4, "mm"),
@@ -341,7 +339,6 @@ plot_hm_signatures = function(these_predictions = NULL,
                               column_order = sample_order,
                               row_names_side = "left",
                               show_column_names = FALSE,
-                              
                               show_row_names = FALSE,
                               show_row_dend = FALSE,
                               border = TRUE,
@@ -352,8 +349,6 @@ plot_hm_signatures = function(these_predictions = NULL,
                               height = 8,
                               border_gp = gpar(lwd = 1),
                               show_heatmap_legend = FALSE)
-  
-  
   
   ################################## LUMINAL DIFFERENTIATION TFs ###################################
   genes_ud = genes_to_plot$UroDiff
@@ -371,7 +366,6 @@ plot_hm_signatures = function(these_predictions = NULL,
                            row_names_side = "left",
                            row_title = "Luminal Differentiation TFs",
                            show_column_names = FALSE,
-                           
                            show_row_names = TRUE,
                            show_row_dend = FALSE,
                            border = TRUE,
@@ -381,8 +375,6 @@ plot_hm_signatures = function(these_predictions = NULL,
                            border_gp = gpar(lwd = 1),
                            show_heatmap_legend = FALSE,
                            row_title_rot = 0)
-  
-  
   
   ################################# LUMINAL DIFFERENTIATION GENES ##################################
   genes_upk = genes_to_plot$UPKs
@@ -400,7 +392,6 @@ plot_hm_signatures = function(these_predictions = NULL,
                            column_order = sample_order,
                            row_names_side = "left",
                            show_column_names = FALSE,
-                           
                            show_row_names = TRUE,
                            show_row_dend = TRUE,
                            border = TRUE,
@@ -410,8 +401,6 @@ plot_hm_signatures = function(these_predictions = NULL,
                            border_gp = gpar(lwd = 1),
                            show_heatmap_legend = FALSE,
                            row_title_rot = 0)
-  
-  
   
   ########################################## GU VS. URO ############################################
   genes_circ = genes_to_plot$Circuit
@@ -432,10 +421,10 @@ plot_hm_signatures = function(these_predictions = NULL,
                                           quantile(circuit_score, 0.90)),
                                         c("blue","white", "red"))
     
-    col = list(circuit_score = col_fun_circ)
+    col = list(`Circuit Score` = col_fun_circ)
     
     #create annotation track for heatmap 4
-    hm_a_circuitscore = HeatmapAnnotation(circuit_score = genes_to_plot$Circuit_score,
+    hm_a_circuitscore = HeatmapAnnotation(`Circuit Score` = genes_to_plot$Circuit_score,
                                           simple_anno_size = unit(4, "mm"),
                                           simple_anno_size_adjust = TRUE,
                                           annotation_name_side = "left",
@@ -458,7 +447,6 @@ plot_hm_signatures = function(these_predictions = NULL,
                               column_order = sample_order,
                               row_names_side = "left",
                               show_column_names = FALSE, 
-                              
                               show_row_names = TRUE,
                               show_row_dend = FALSE,
                               border = TRUE,
@@ -488,7 +476,6 @@ plot_hm_signatures = function(these_predictions = NULL,
                               column_order = sample_order,
                               row_names_side = "left",
                               show_column_names = FALSE,
-                              
                               show_row_names = TRUE,
                               show_row_dend = FALSE,
                               border = TRUE,
@@ -503,8 +490,6 @@ plot_hm_signatures = function(these_predictions = NULL,
             \nCircuit score will not be calculated...")
     hm_circuitscore = NULL
   }
-  
-  
   
   ###################################### FGFR3 SIGNATURE ###########################################
   genes_fgfr3 = genes_to_plot$FGFR3
@@ -522,7 +507,6 @@ plot_hm_signatures = function(these_predictions = NULL,
                        column_order = sample_order,
                        row_names_side = "left",
                        show_column_names = FALSE,
-                       
                        show_row_names = FALSE,
                        show_row_dend = FALSE,
                        row_title = "FGFR3 Signature",
@@ -540,8 +524,6 @@ plot_hm_signatures = function(these_predictions = NULL,
              \nNo heatmap will be generated for this gene...")
     hm_fgfr3 = NULL
   }
-  
-  
   
   ########################################## TP63 ##################################################
   if("TP63" %in% rownames(this_data)){
@@ -561,7 +543,6 @@ plot_hm_signatures = function(these_predictions = NULL,
                       column_order = sample_order,
                       row_names_side = "left",
                       show_column_names = FALSE,
-                      
                       show_row_names = TRUE,
                       show_row_dend = FALSE,
                       border = TRUE,
@@ -575,8 +556,6 @@ plot_hm_signatures = function(these_predictions = NULL,
             \nNo heatmap will be generated for this gene...")
     hm_tp63 = NULL
   }
-  
-  
   
   ##################################### DEFINITION BaSq ############################################
   genes_basq = genes_to_plot$BaSq
@@ -596,10 +575,10 @@ plot_hm_signatures = function(these_predictions = NULL,
                                           quantile(basq_ratio, 0.90)),
                                         c("blue", "white", "red"))
     
-    col = list(BaSq_ratio = col_fun_basq)
+    col = list(`Ba/Sq Ratio` = col_fun_basq)
     
     #draw annotation track for heatmap 6 - BaSq ratio
-    hm_a_basq = HeatmapAnnotation(BaSq_ratio = genes_to_plot$BaSq_ratio,
+    hm_a_basq = HeatmapAnnotation(`Ba/Sq Ratio` = genes_to_plot$BaSq_ratio,
                                   simple_anno_size = unit(4, "mm"),
                                   simple_anno_size_adjust = TRUE,
                                   annotation_name_side = "left",
@@ -622,7 +601,6 @@ plot_hm_signatures = function(these_predictions = NULL,
                       column_order = sample_order,
                       row_names_side = "left",
                       show_column_names = FALSE,
-                      
                       show_row_names = TRUE,
                       show_row_dend = FALSE,
                       border = TRUE,
@@ -653,7 +631,6 @@ plot_hm_signatures = function(these_predictions = NULL,
                       column_order = sample_order,
                       row_names_side = "left",
                       show_column_names = FALSE,
-                      
                       show_row_names = TRUE,
                       show_row_dend = FALSE,
                       border = TRUE,
@@ -669,8 +646,6 @@ plot_hm_signatures = function(these_predictions = NULL,
     hm_basq = NULL
     col_fun_basq = NULL
   }
-  
-  
   
   ################################  KERATINIZATION SIGNATURE #######################################
   genes_krt = genes_to_plot$Keratinization
@@ -689,7 +664,6 @@ plot_hm_signatures = function(these_predictions = NULL,
                                 column_order = sample_order,
                                 row_names_side = "left",
                                 show_column_names = FALSE,
-                                
                                 show_row_names = FALSE,
                                 show_row_dend = FALSE,
                                 row_title_rot = 0,
@@ -706,8 +680,6 @@ plot_hm_signatures = function(these_predictions = NULL,
             \nNo heatmap for keratinization signature ratio will be generated...")
     hm_keratinization = NULL
   }
-  
-  
   
   ##################################### ERBB RECEPTORS #############################################
   genes_erbb = genes_to_plot$ERBB
@@ -728,10 +700,10 @@ plot_hm_signatures = function(these_predictions = NULL,
                                           quantile(erbb_score, 0.90)),
                                         c("blue", "white", "red"))
     
-    col = list(ERBB_score = col_fun_erbb)
+    col = list(`ERBB Score` = col_fun_erbb)
     
     #draw annotation track for ERBB score heatmap (heatmap 10)
-    hm_a_erbscore = HeatmapAnnotation(ERBB_score = genes_to_plot$ERBB_score,
+    hm_a_erbscore = HeatmapAnnotation(`ERBB Score` = genes_to_plot$ERBB_score,
                                       simple_anno_size = unit(4, "mm"),
                                       simple_anno_size_adjust = TRUE,
                                       annotation_name_side = "left",
@@ -756,7 +728,6 @@ plot_hm_signatures = function(these_predictions = NULL,
                           column_order = sample_order,
                           row_names_side = "left",
                           show_column_names = FALSE,
-                          
                           show_row_names = TRUE,
                           show_row_dend = FALSE,
                           border = TRUE,
@@ -790,7 +761,6 @@ plot_hm_signatures = function(these_predictions = NULL,
                           column_order = sample_order,
                           row_names_side = "left",
                           show_column_names = FALSE,
-                          
                           show_row_names = TRUE,
                           show_row_dend = FALSE,
                           border = TRUE,
@@ -806,8 +776,6 @@ plot_hm_signatures = function(these_predictions = NULL,
             \nNo heatmap associated with ERBB will be generated...")
     hm_erbscore = NULL
   }
-  
-  
   
   ################################# CELL ADHESION ##################################################
   genes_ad = genes_to_plot$Adhesion
@@ -825,7 +793,6 @@ plot_hm_signatures = function(these_predictions = NULL,
                         column_order = sample_order,
                         row_names_side = "left",
                         show_column_names = FALSE,
-                        
                         show_row_names = TRUE,
                         show_row_dend = FALSE,
                         border = TRUE,
@@ -835,8 +802,6 @@ plot_hm_signatures = function(these_predictions = NULL,
                         border_gp = gpar(lwd = 1),
                         show_heatmap_legend = FALSE,
                         row_title_rot = 0)
-  
-  
   
   ####################################### MYC TFs ##################################################
   genes_myc = genes_to_plot$MYC
@@ -855,7 +820,6 @@ plot_hm_signatures = function(these_predictions = NULL,
                    column_order = sample_order,
                    row_names_side = "left",
                    show_column_names = FALSE,
-                   
                    show_row_names = TRUE,
                    show_row_dend = FALSE,
                    border = TRUE,
@@ -864,9 +828,6 @@ plot_hm_signatures = function(these_predictions = NULL,
                    border_gp = gpar(lwd = 1),
                    show_heatmap_legend = FALSE,
                    row_title_rot = 0)
-  
-  
-  
   
   ################################ NEURONAL CELL MARKERS ###########################################
   genes_immune = intersect(rownames(this_data),genes_to_plot$Immune141_UP)
@@ -914,12 +875,12 @@ plot_hm_signatures = function(these_predictions = NULL,
     col_fun_stromal = NULL
   }
   
-  col = list(Immune141_UP = col_fun_immune,
-             Stromal141_UP = col_fun_stromal)
+  col = list(`Immune 141_UP` = col_fun_immune,
+             `Stromal 141_UP` = col_fun_stromal)
   
   #draw annotation track for heatmap 11 - SnNE and immune/stromal scores
-  hm_a_immune_stroma = HeatmapAnnotation(Immune141_UP = genes_to_plot$Immune141_UP_score,
-                                         Stromal141_UP = genes_to_plot$Stromal141_UP_score,
+  hm_a_immune_stroma = HeatmapAnnotation(`Immune 141_UP` = genes_to_plot$Immune141_UP_score,
+                                         `Stromal 141_UP` = genes_to_plot$Stromal141_UP_score,
                                          simple_anno_size = unit(4, "mm"),
                                          simple_anno_size_adjust = TRUE,
                                          gap = unit(2, "mm"),
@@ -947,7 +908,6 @@ plot_hm_signatures = function(these_predictions = NULL,
                         column_order = sample_order, 
                         row_names_side = "left",
                         show_column_names = FALSE,
-                        
                         show_row_names = TRUE,
                         show_row_dend = FALSE,
                         border = TRUE,
@@ -980,8 +940,6 @@ plot_hm_signatures = function(these_predictions = NULL,
   }else{
     message("No out_path provided, the function will return the heatmap within your R session...")
   }
-  
-  
   
   ################################ COMBINE ALL HEATMAP OBJECTS #####################################
   final_hm = draw(hm_pred_lateearly %v%

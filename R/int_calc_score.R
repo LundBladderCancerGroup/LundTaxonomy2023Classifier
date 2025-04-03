@@ -9,8 +9,6 @@
 #' @param this_data Required parameter. Data frame or matrix with expression values.
 #' @param variable Required parameter. Input should be one of the following; immune, 
 #' score141up, proliferation, or progression.
-#' @param log_transform Boolean parameter. If TRUE (default), the function log transforms 
-#' the incoming expression values.
 #' @param gene_id Specify the type of gene identifier used in `this_data`. 
 #' Accepted values are; hgnc_symbol (default) or ensembl_gene_id.
 #' @param adjust Boolean parameter. If TRUE, the function will proceed with 
@@ -32,7 +30,6 @@
 #'
 int_calc_score = function(this_data = NULL,
                           variable = NULL,
-                          log_transform = TRUE,
                           gene_id = "hgnc_symbol",
                           adjust = TRUE,
                           adj_factor = 5.1431,
@@ -51,11 +48,6 @@ int_calc_score = function(this_data = NULL,
   #check gene format
   if(!gene_id %in% c("hgnc_symbol", "ensembl_gene_id")){
     stop("gene_id must be one of the following: 'hgnc_symbol' or 'ensembl_gene_id'")
-  }
-  
-  #log transform
-  if(log_transform) {
-    this_data <- log2(this_data + 1)
   }
   
   #get scores for selected varaible

@@ -9,8 +9,6 @@
 #' @param gene_id Specify the type of gene identifier used in `this_data`. Accepted values are; 
 #' hgnc_symbol (default) or ensembl_gene_id.
 #' @param threshold_progression Threshold to flag a sample as high risk of progression, default is 0.58.
-#' @param log_transform Boolean parameter. If TRUE (default), the function log transforms the incoming expression
-#' values.
 #' @param adjust Boolean parameter. If TRUE, the function will proceed with adjusting the scores based
 #' on stable genes. If FALSE (default), no adjustment will be made and the original score values will be retained. 
 #' @param adj_factor Only applicable if adjust is set to TRUE. Allows users to apply a proportional 
@@ -49,7 +47,6 @@
 lundtax_calc_sigscore = function(this_data = NULL,
                                  gene_id = "hgnc_symbol",
                                  threshold_progression = 0.58,
-                                 log_transform = TRUE,
                                  adjust = FALSE,
                                  adj_factor = 5.1431,
                                  impute = FALSE, 
@@ -93,7 +90,6 @@ lundtax_calc_sigscore = function(this_data = NULL,
   #immune
   results_immune = int_calc_score(this_data = this_data, 
                                   variable = "immune", 
-                                  log_transform = log_transform, 
                                   gene_id = gene_id, 
                                   adjust = adjust, 
                                   adj_factor = adj_factor, 
@@ -102,7 +98,6 @@ lundtax_calc_sigscore = function(this_data = NULL,
   #141UP
   scores141up = int_calc_score(this_data = this_data, 
                                variable = "score141up", 
-                               log_transform = log_transform, 
                                gene_id = gene_id, 
                                adjust = adjust, 
                                adj_factor = adj_factor, 

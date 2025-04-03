@@ -13,7 +13,7 @@
 #' hgnc_symbol (default) or ensembl_gene_id.
 #' @param threshold_progression Threshold to flag a sample as high risk of progression, default is 0.58.
 #' @param log_transform Boolean parameter. If TRUE, the function log transforms the incoming expression
-#' values. Default is TRUE.
+#' values. Default is FALSE.
 #' @param adjust Boolean parameter. If TRUE, the function will proceed with adjusting the scores based
 #' on stable genes. If FALSE (default), no adjustment will be made and the original score values will be retained. 
 #' @param adj_factor Only applicable if adjust is set to TRUE. Allows users to apply a proportional 
@@ -55,7 +55,7 @@
 lundtax_predict_sub = function(this_data = NULL,
                                gene_id = "hgnc_symbol",
                                threshold_progression = 0.58,
-                               log_transform = TRUE,
+                               log_transform = FALSE,
                                adjust = FALSE,
                                adj_factor = 5.1431,
                                impute = FALSE, 
@@ -83,6 +83,7 @@ lundtax_predict_sub = function(this_data = NULL,
   
   #log transform
   if(log_transform){
+    message("CAUTION: log_transform is set to TRUE, log2 transformation will be applied!")
     this_data = log2(this_data + 1)
   }
   
@@ -151,7 +152,6 @@ lundtax_predict_sub = function(this_data = NULL,
   all_scores = lundtax_calc_sigscore(this_data = this_data,
                                      gene_id = gene_id,
                                      threshold_progression = threshold_progression,
-                                     log_transform = log_transform,
                                      adjust = adjust,
                                      adj_factor = adj_factor,
                                      impute = impute, 

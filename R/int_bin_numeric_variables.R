@@ -2,7 +2,7 @@
 #'
 #' @description This function bins all numeric variables in a data frame into a specified number of bins.
 #'
-#' @details The function identifies all numeric columns in the provided data frame and applies a 
+#' @details Internal function. Not meant for out-of-package use. The function identifies all numeric columns in the provided data frame and applies a 
 #' binning process to each numeric column. The binning process divides the range of each numeric 
 #' column into a specified number of bins and assigns each value to one of these bins.
 #'

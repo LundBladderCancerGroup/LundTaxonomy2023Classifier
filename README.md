@@ -1,4 +1,12 @@
 # LundTax2023Classifier
+
+> **⚠️ DEPRECATED: This repository is no longer maintained.**  
+> 
+> Please use the improved and actively maintained version of the Lund Taxonomy Classifier:  
+> **[LundTaxR](https://github.com/LundBladderCancerGroup/LundTaxR)**
+
+---
+
 A Random Forest rule-based single-sample predictor that classifies urothelial cancer samples to one 
 of the the 5 (or 7, including subclasses) Lund Taxonomy molecular subtypes, based on gene expression
 data. 
